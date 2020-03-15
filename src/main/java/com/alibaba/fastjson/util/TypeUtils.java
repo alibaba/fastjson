@@ -2597,37 +2597,37 @@ public class TypeUtils{
         Class<?> rawClass = getRawClass(type);
         Collection list;
         if(rawClass == AbstractCollection.class //
-                || rawClass == Collection.class){
+                || rawClass == Collection.class) {
             list = new ArrayList();
-        } else if(rawClass.isAssignableFrom(HashSet.class)){
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
             list = new HashSet();
-        } else if(rawClass.isAssignableFrom(LinkedHashSet.class)){
+        } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
             list = new LinkedHashSet();
-        } else if(rawClass.isAssignableFrom(TreeSet.class)){
+        } else if (rawClass.isAssignableFrom(TreeSet.class)) {
             list = new TreeSet();
-        } else if(rawClass.isAssignableFrom(ArrayList.class)){
+        } else if(rawClass.isAssignableFrom(ArrayList.class)) {
             list = new ArrayList();
-        } else if(rawClass.isAssignableFrom(EnumSet.class)){
+        } else if (rawClass.isAssignableFrom(EnumSet.class)) {
             Type itemType;
             if(type instanceof ParameterizedType){
                 itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
-            } else{
+            } else {
                 itemType = Object.class;
             }
             list = EnumSet.noneOf((Class<Enum>) itemType);
-        } else if(rawClass.isAssignableFrom(Queue.class)){
+        } else if (rawClass.isAssignableFrom(Queue.class) || rawClass.isAssignableFrom(Deque.class)){
             list = new LinkedList();
-        } else{
-            try{
+        } else {
+            try {
                 list = (Collection) rawClass.newInstance();
-            } catch(Exception e){
+            } catch(Exception e) {
                 throw new JSONException("create instance error, class " + rawClass.getName());
             }
         }
         return list;
     }
 
-    public static Class<?> getRawClass(Type type){
+    public static Class<?> getRawClass(Type type) {
         if(type instanceof Class<?>){
             return (Class<?>) type;
         } else if(type instanceof ParameterizedType) {

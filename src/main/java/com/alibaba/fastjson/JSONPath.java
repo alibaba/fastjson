@@ -3301,6 +3301,10 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
+        if (index == 0) {
+            return currentObject;
+        }
+
         throw new UnsupportedOperationException();
     }
 

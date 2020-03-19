@@ -154,7 +154,6 @@ public class ParserConfig {
                 "org.springframework.remoting.support.RemoteInvocation",
                 "org.springframework.remoting.support.RemoteInvocationResult",
 
-                "org.springframework.security.web.savedrequest.DefaultSavedRequest",
                 "org.springframework.security.web.savedrequest.SavedCookie",
                 "org.springframework.security.web.csrf.DefaultCsrfToken",
                 "org.springframework.security.web.authentication.WebAuthenticationDetails",
@@ -1259,9 +1258,8 @@ public class ParserConfig {
                 ^ className.charAt(2))
                 * PRIME;
 
-        boolean internalWhite = Arrays.binarySearch(INTERNAL_WHITELIST_HASHCODES,
-                TypeUtils.fnv1a_64(className)
-        ) >= 0;
+        long fullHash = TypeUtils.fnv1a_64(className);
+        boolean internalWhite = Arrays.binarySearch(INTERNAL_WHITELIST_HASHCODES,  fullHash) >= 0;
 
         if (internalDenyHashCodes != null) {
             long hash = h3;
@@ -1286,6 +1284,10 @@ public class ParserConfig {
                     }
                 }
                 if (Arrays.binarySearch(denyHashCodes, hash) >= 0 && TypeUtils.getClassFromMapping(typeName) == null) {
+                    if (Arrays.binarySearch(acceptHashCodes, fullHash) >= 0) {
+                        continue;
+                    }
+
                     throw new JSONException("autoType is not support. " + typeName);
                 }
             }

@@ -219,6 +219,8 @@ public class ParserConfig {
                 0xC8D49E5601E661A9L,
                 0xC963695082FD728EL,
                 0xD1EFCDF4B3316D34L,
+                0xD54B91CC77B239EDL,
+                0xD8CA3D595E982BACL,
                 0xDE23A0809A8B9BD6L,
                 0xDEFC208F237D4104L,
                 0xDF2DDFF310CDB375L,

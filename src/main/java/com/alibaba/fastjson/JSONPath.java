@@ -1890,8 +1890,8 @@ public class JSONPath implements JSONAware {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object max = null;
-            if (rootObject instanceof Collection) {
-                Iterator iterator = ((Collection) rootObject).iterator();
+            if (currentObject instanceof Collection) {
+                Iterator iterator = ((Collection) currentObject).iterator();
                 while (iterator.hasNext()) {
                     Object next = iterator.next();
                     if (next == null) {
@@ -1921,8 +1921,8 @@ public class JSONPath implements JSONAware {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object min = null;
-            if (rootObject instanceof Collection) {
-                Iterator iterator = ((Collection) rootObject).iterator();
+            if (currentObject instanceof Collection) {
+                Iterator iterator = ((Collection) currentObject).iterator();
                 while (iterator.hasNext()) {
                     Object next = iterator.next();
                     if (next == null) {

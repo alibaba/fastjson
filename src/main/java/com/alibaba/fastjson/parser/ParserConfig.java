@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -190,6 +191,7 @@ public class ParserConfig {
 
     public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
     private List<Module>                                    modules                = new ArrayList<Module>();
+    private volatile List<AutoTypeCheckHandler>             autoTypeCheckHandlers;
 
     {
         denyHashCodes = new long[]{
@@ -1200,6 +1202,15 @@ public class ParserConfig {
             return null;
         }
 
+        if (autoTypeCheckHandlers != null) {
+            for (AutoTypeCheckHandler h : autoTypeCheckHandlers) {
+                Class<?> type = h.handler(typeName, expectClass, features);
+                if (type != null) {
+                    return type;
+                }
+            }
+        }
+
         if (typeName.length() >= 192 || typeName.length() < 3) {
             throw new JSONException("autoType is not support. " + typeName);
         }
@@ -1416,5 +1427,23 @@ public class ParserConfig {
 
     public void register(Module module) {
         this.modules.add(module);
+    }
+
+    public void addAutoTypeCheckHandler(AutoTypeCheckHandler h) {
+        List<AutoTypeCheckHandler> autoTypeCheckHandlers = this.autoTypeCheckHandlers;
+        if (autoTypeCheckHandlers == null) {
+            this.autoTypeCheckHandlers
+                    = autoTypeCheckHandlers
+                    = new CopyOnWriteArrayList();
+        }
+
+        autoTypeCheckHandlers.add(h);
+    }
+
+    /**
+     * @since 1.2.68
+     */
+    public interface AutoTypeCheckHandler {
+        Class<?> handler(String typeName, Class<?> expectClass, int features);
     }
 }

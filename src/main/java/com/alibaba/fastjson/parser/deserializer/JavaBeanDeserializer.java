@@ -812,7 +812,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
                                 if (typeKey != null) {
                                     FieldDeserializer typeKeyFieldDeser = javaBeanDeserializer.getFieldDeserializer(typeKey);
-                                    typeKeyFieldDeser.setValue(typedObject, typeName);
+                                    if (typeKeyFieldDeser != null) {
+                                        typeKeyFieldDeser.setValue(typedObject, typeName);
+                                    }
                                 }
                             }
                             return (T) typedObject;

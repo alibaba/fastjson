@@ -1359,8 +1359,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Type paramType = fieldInfo.fieldType;
 
                 if (fieldInfo.declaringClass != null
-                        && ((!(fieldInfo.fieldType instanceof Class)) ||
-                            !fieldInfo.fieldClass.isInstance(value))) {
+                        && fieldInfo.getAnnotation() != null
+                        && fieldInfo.getAnnotation().deserializeUsing() != Void.class
+                        && fieldInfo.fieldClass.isInstance(value)) {
                     DefaultJSONParser parser = new DefaultJSONParser(JSON.toJSONString(value));
                     fieldDeser.parseField(parser, object, paramType, null);
                     continue;

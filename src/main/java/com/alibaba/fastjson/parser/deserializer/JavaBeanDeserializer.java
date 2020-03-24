@@ -457,8 +457,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             }
                         }
                     }
-                } else if (token == JSONToken.LITERAL_ISO8601_DATE) {
-                    Calendar calendar = lexer.getCalendar();
                 }
 
                 if (token == JSONToken.LBRACKET && lexer.getCurrent() == ']') {

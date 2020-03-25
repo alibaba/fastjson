@@ -20,4 +20,16 @@ public class RefTest23 extends TestCase {
         JSONObject root = JSON.parseObject(json);
         assertEquals(123, root.get("$ref"));
     }
+
+    public void test_ref_2() throws Exception {
+        String json = "{\n" +
+                "\t\"bbbb\\\"\":{\n" +
+                "\t\t\"x\":\"x\"\n" +
+                "\t},\n" +
+                "\t\"aaaa\\\"\":{\"$ref\":\"$.bbbb\\\\\\\"\"}\n" +
+                "}";
+        System.out.println(json);
+        JSONObject root = JSON.parseObject(json);
+        assertSame(root.get("bbbb\\"), root.get("aaaa\\"));
+    }
 }

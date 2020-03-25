@@ -159,6 +159,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     /**
      *
+     * @since 1.2.68
+     */
+    public static Object parse(String text, ParserConfig config, Feature... features) {
+        int featureValues = DEFAULT_PARSER_FEATURE;
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
+        }
+
+        return parse(text, config, featureValues);
+    }
+
+    /**
+     *
      * @since 1.2.38
      */
     public static Object parse(String text, ParserConfig config, int features) {

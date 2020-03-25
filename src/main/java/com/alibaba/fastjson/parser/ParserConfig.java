@@ -66,11 +66,13 @@ public class ParserConfig {
     public static final String    DENY_PROPERTY             = "fastjson.parser.deny";
     public static final String    AUTOTYPE_ACCEPT           = "fastjson.parser.autoTypeAccept";
     public static final String    AUTOTYPE_SUPPORT_PROPERTY = "fastjson.parser.autoTypeSupport";
+    public static final String    SAFE_MODE_PROPERTY        = "fastjson.parser.safeMode";
 
     public static  final String[] DENYS_INTERNAL;
     public static  final String[] DENYS;
     private static final String[] AUTO_TYPE_ACCEPT_LIST;
     public static  final boolean  AUTO_SUPPORT;
+    public static  final boolean  SAFE_MODE;
     private static final long[]   INTERNAL_WHITELIST_HASHCODES;
 
     static  {
@@ -85,6 +87,10 @@ public class ParserConfig {
         {
             String property = IOUtils.getStringProperty(AUTOTYPE_SUPPORT_PROPERTY);
             AUTO_SUPPORT = "true".equals(property);
+        }
+        {
+            String property = IOUtils.getStringProperty(SAFE_MODE_PROPERTY);
+            SAFE_MODE = "true".equals(property);
         }
         {
             String property = IOUtils.getStringProperty(AUTOTYPE_ACCEPT);
@@ -192,6 +198,7 @@ public class ParserConfig {
     public boolean                                          compatibleWithJavaBean = TypeUtils.compatibleWithJavaBean;
     private List<Module>                                    modules                = new ArrayList<Module>();
     private volatile List<AutoTypeCheckHandler>             autoTypeCheckHandlers;
+    private boolean                                         safeMode               = SAFE_MODE;
 
     {
         denyHashCodes = new long[]{
@@ -502,6 +509,20 @@ public class ParserConfig {
             String item = items[i];
             this.addAccept(item);
         }
+    }
+
+    /**
+     * @since 1.2.68
+     */
+    public boolean isSafeMode() {
+        return safeMode;
+    }
+
+    /**
+     * @since 1.2.68
+     */
+    public void setSafeMode(boolean safeMode) {
+        this.safeMode = safeMode;
     }
 
     public boolean isAutoTypeSupport() {
@@ -1210,6 +1231,14 @@ public class ParserConfig {
                     return type;
                 }
             }
+        }
+
+        final int safeModeMask = Feature.SafeMode.mask;
+        boolean safeMode = this.safeMode
+                || (features & safeModeMask) != 0
+                || (JSON.DEFAULT_PARSER_FEATURE & safeModeMask) != 0;
+        if (safeMode) {
+            throw new JSONException("safeMode not support autoType : " + typeName);
         }
 
         if (typeName.length() >= 192 || typeName.length() < 3) {

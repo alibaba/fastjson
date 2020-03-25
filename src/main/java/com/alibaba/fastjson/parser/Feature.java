@@ -140,7 +140,12 @@ public enum Feature {
     /**
      * @since 1.2.55
      */
-    ErrorOnEnumNotMatch
+    ErrorOnEnumNotMatch,
+
+    /**
+     * @since 1.2.68
+     */
+    SafeMode
     ;
 
     Feature(){

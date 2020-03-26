@@ -1890,8 +1890,8 @@ public class JSONPath implements JSONAware {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object max = null;
-            if (rootObject instanceof Collection) {
-                Iterator iterator = ((Collection) rootObject).iterator();
+            if (currentObject instanceof Collection) {
+                Iterator iterator = ((Collection) currentObject).iterator();
                 while (iterator.hasNext()) {
                     Object next = iterator.next();
                     if (next == null) {
@@ -1921,8 +1921,8 @@ public class JSONPath implements JSONAware {
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             Object min = null;
-            if (rootObject instanceof Collection) {
-                Iterator iterator = ((Collection) rootObject).iterator();
+            if (currentObject instanceof Collection) {
+                Iterator iterator = ((Collection) currentObject).iterator();
                 while (iterator.hasNext()) {
                     Object next = iterator.next();
                     if (next == null) {
@@ -3301,6 +3301,10 @@ public class JSONPath implements JSONAware {
             return null;
         }
 
+        if (index == 0) {
+            return currentObject;
+        }
+
         throw new UnsupportedOperationException();
     }
 
@@ -3363,6 +3367,10 @@ public class JSONPath implements JSONAware {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Collection<Object> getPropertyValues(final Object currentObject) {
+        if (currentObject == null) {
+            return null;
+        }
+
         final Class<?> currentClass = currentObject.getClass();
 
         JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);

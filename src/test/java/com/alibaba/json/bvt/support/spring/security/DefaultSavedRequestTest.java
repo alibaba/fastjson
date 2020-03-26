@@ -32,6 +32,7 @@ public class DefaultSavedRequestTest extends TestCase {
         Field field = GenericFastJsonRedisSerializer.class.getDeclaredField("defaultRedisConfig");
         field.setAccessible(true);
         config = (ParserConfig) field.get(null);
+        config.addAccept("org.springframework.security.web.savedrequest.DefaultSavedRequest");
     }
     public void test_for_issue() throws Exception {
         MockHttpServletRequest mockReq = new MockHttpServletRequest();

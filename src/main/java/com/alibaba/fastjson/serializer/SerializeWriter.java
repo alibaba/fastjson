@@ -2503,5 +2503,10 @@ public final class SerializeWriter extends Writer {
         count = 0;
     }
 
-
+    /**
+     * @deprecated
+     */
+    public void reset() {
+        count = 0;
+    }
 }

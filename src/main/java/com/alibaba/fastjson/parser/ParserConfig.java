@@ -308,7 +308,9 @@ public class ParserConfig {
                 0x74B50BB9260E31FFL,
                 0x75CC60F5871D0FD3L,
                 0x767A586A5107FEEFL,
-                0x7AA7EE3627A19CF3L
+                0x7AA7EE3627A19CF3L,
+                0x7ED9311D28BF1A65L,
+                0x7ED9481D28BF417AL
         };
 
         long[] hashCodes = new long[AUTO_TYPE_ACCEPT_LIST.length];

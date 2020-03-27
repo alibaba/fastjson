@@ -747,18 +747,13 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (s0 >= '0' && s0 <= '5') {
-            if (s1 < '0' || s1 > '9') {
-                return false;
-            }
+            return s1 >= '0' && s1 <= '9';
         } else if (s0 == '6') {
-            if (s1 != '0') {
-                return false;
-            }
+            return s1 == '0';
         } else {
             return false;
         }
 
-        return true;
     }
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
@@ -799,22 +794,15 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (d0 == '0') {
-            if (d1 < '1' || d1 > '9') {
-                return false;
-            }
+            return d1 >= '1' && d1 <= '9';
         } else if (d0 == '1' || d0 == '2') {
-            if (d1 < '0' || d1 > '9') {
-                return false;
-            }
+            return d1 >= '0' && d1 <= '9';
         } else if (d0 == '3') {
-            if (d1 != '0' && d1 != '1') {
-                return false;
-            }
+            return d1 == '0' || d1 == '1';
         } else {
             return false;
         }
 
-        return true;
     }
 
     @Override

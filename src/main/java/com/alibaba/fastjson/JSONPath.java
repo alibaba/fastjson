@@ -154,11 +154,7 @@ public class JSONPath implements JSONAware {
                     eval = true;
                 } else if (nextSegment instanceof FilterSegment) {
                     eval = true;
-                } else if (segment instanceof WildCardSegment) {
-                    eval = true;
-                } else {
-                    eval = false;
-                }
+                } else eval = segment instanceof WildCardSegment;
             } else {
                 eval = true;
             }

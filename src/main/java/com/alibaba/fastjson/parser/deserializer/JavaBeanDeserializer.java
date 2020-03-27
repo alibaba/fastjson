@@ -176,9 +176,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         int flagIndex = i / 32;
         int bitIndex = i % 32;
         if (flagIndex < setFlags.length) {
-            if ((setFlags[flagIndex] & (1 << bitIndex)) != 0) {
-                return true;
-            }
+            return (setFlags[flagIndex] & (1 << bitIndex)) != 0;
         }
 
         return false;

@@ -1252,18 +1252,13 @@ public class ParserConfig {
         if (expectClass == null) {
             expectClassFlag = false;
         } else {
-            if (expectClass == Object.class
-                    || expectClass == Serializable.class
-                    || expectClass == Cloneable.class
-                    || expectClass == Closeable.class
-                    || expectClass == EventListener.class
-                    || expectClass == Iterable.class
-                    || expectClass == Collection.class
-                    ) {
-                expectClassFlag = false;
-            } else {
-                expectClassFlag = true;
-            }
+            expectClassFlag = expectClass != Object.class
+                    && expectClass != Serializable.class
+                    && expectClass != Cloneable.class
+                    && expectClass != Closeable.class
+                    && expectClass != EventListener.class
+                    && expectClass != Iterable.class
+                    && expectClass != Collection.class;
         }
 
         String className = typeName.replace('$', '.');

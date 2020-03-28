@@ -156,7 +156,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             if (nanos > 0) {
                 buf = "0000-00-00 00:00:00.000000000".toCharArray();
                 int nanoSize = IOUtils.stringSize(nanos);
-                IOUtils.getChars(nanos, 30 - (9 - nanoSize), buf);
+                IOUtils.getChars(nanos, 29 - (9 - nanoSize), buf);
                 IOUtils.getChars(second, 19, buf);
                 IOUtils.getChars(minute, 16, buf);
                 IOUtils.getChars(hour, 13, buf);

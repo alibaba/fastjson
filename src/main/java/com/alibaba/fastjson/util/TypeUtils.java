@@ -1268,7 +1268,7 @@ public class TypeUtils{
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping){
+    public static <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
         Type rawTye = type.getRawType();
 
         if(rawTye == List.class || rawTye == ArrayList.class){
@@ -1351,7 +1351,9 @@ public class TypeUtils{
                 return null;
             }
         }
-        if(type.getActualTypeArguments().length == 1){
+
+        Type[] actualTypeArguments = type.getActualTypeArguments();
+        if (actualTypeArguments.length == 1) {
             Type argType = type.getActualTypeArguments()[0];
             if(argType instanceof WildcardType){
                 return (T) cast(obj, rawTye, mapping);
@@ -1360,6 +1362,13 @@ public class TypeUtils{
 
         if (rawTye == Map.Entry.class && obj instanceof Map && ((Map) obj).size() == 1) {
             Map.Entry entry = (Map.Entry) ((Map) obj).entrySet().iterator().next();
+            Object entryValue = entry.getValue();
+            if (actualTypeArguments.length == 2 && entryValue instanceof Map) {
+                Type valueType = actualTypeArguments[1];
+                entry.setValue(
+                        cast(entryValue, valueType, mapping)
+                );
+            }
             return (T) entry;
         }
 

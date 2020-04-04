@@ -40,9 +40,13 @@ public abstract class JSONValidator implements Cloneable {
     abstract void next();
 
     public boolean validate() {
-
         for (;;) {
-            any();
+            try {
+                any();
+            } catch (JSONException ex) {
+                return false;
+            }
+
             count++;
 
             if (supportMultiValue && !eof) {

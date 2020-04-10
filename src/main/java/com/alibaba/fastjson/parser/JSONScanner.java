@@ -950,6 +950,10 @@ public final class JSONScanner extends JSONLexerBase {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
+
+                    while (isWhitespace(ch)) {
+                        next();
+                    }
                     continue;
                 }
                 matchStat = NOT_MATCH_NAME;
@@ -963,9 +967,15 @@ public final class JSONScanner extends JSONLexerBase {
 
         char ch = charAt(index++);
         if (ch != '"') {
-            matchStat = NOT_MATCH;
+            while (isWhitespace(ch)) {
+                ch = charAt(index++);
+            }
 
-            return stringDefaultValue();
+            if (ch != '"') {
+                matchStat = NOT_MATCH;
+
+                return stringDefaultValue();
+            }
         }
 
         final String strVal;
@@ -1168,17 +1178,36 @@ public final class JSONScanner extends JSONLexerBase {
     public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
-        if (!charArrayCompare(text, bp, fieldName)) {
-            matchStat = NOT_MATCH_NAME;
-            return 0;
+        for (;;) {
+            if (!charArrayCompare(text, bp, fieldName)) {
+                if (isWhitespace(ch)) {
+                    next();
+
+                    while (isWhitespace(ch)) {
+                        next();
+                    }
+                    continue;
+                }
+                matchStat = NOT_MATCH_NAME;
+                return 0;
+            } else {
+                break;
+            }
         }
 
         int index = bp + fieldName.length;
 
         char ch = charAt(index++);
         if (ch != '"') {
-            matchStat = NOT_MATCH;
-            return 0;
+            while (isWhitespace(ch)) {
+                ch = charAt(index++);
+            }
+
+            if (ch != '"') {
+                matchStat = NOT_MATCH;
+
+                return 0;
+            }
         }
 
         long hash = 0xcbf29ce484222325L;

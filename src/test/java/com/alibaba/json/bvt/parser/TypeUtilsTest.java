@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.parser;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -241,6 +242,11 @@ public class TypeUtilsTest extends TestCase {
 
     public void test_cast_to_Timestamp_null2() throws Exception {
         Assert.assertEquals(null, TypeUtils.castToTimestamp(null));
+    }
+
+
+    public void test_cast_to_Timestamp_1970_01_01_00_00_00() throws Exception {
+        Assert.assertEquals(new Timestamp(0), TypeUtils.castToTimestamp("1970-01-01 08:00:00"));
     }
 
     public void test_cast_to_BigDecimal_same() throws Exception {

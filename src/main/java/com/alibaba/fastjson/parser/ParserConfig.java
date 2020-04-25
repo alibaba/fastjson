@@ -812,7 +812,7 @@ public class ParserConfig {
                 }
             }
 
-            deserializer = new EnumDeserializer(clazz);
+            deserializer = getEnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             deserializer = ObjectArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
@@ -835,6 +835,17 @@ public class ParserConfig {
         putDeserializer(type, deserializer);
 
         return deserializer;
+    }
+
+    /**
+     * 可以通过重写这个方法，定义自己的枚举反序列化实现
+     * @param clazz 转换的类型
+     * @return 返回一个枚举的反序列化实现
+     * @author zhu.xiaojie
+     * @time 2020-4-5
+     */
+    protected ObjectDeserializer getEnumDeserializer(Class<?> clazz){
+        return new EnumDeserializer(clazz);
     }
 
     /**

@@ -513,14 +513,14 @@ public class SerializeConfig {
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
                     put(clazz, writer = createJavaBeanSerializer(clazz));
                 } else {
-                    put(clazz, writer = EnumSerializer.instance);
+                    put(clazz, writer = getEnumSerializer());
                 }
             } else if ((superClass = clazz.getSuperclass()) != null && superClass.isEnum()) {
                 JSONType jsonType = TypeUtils.getAnnotation(superClass, JSONType.class);
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
                     put(clazz, writer = createJavaBeanSerializer(clazz));
                 } else {
-                    put(clazz, writer = EnumSerializer.instance);
+                    put(clazz, writer = getEnumSerializer());
                 }
             } else if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
@@ -799,6 +799,16 @@ public class SerializeConfig {
             }
         }
         return writer;
+    }
+
+    /**
+     * 可以通过重写这个方法，定义自己的枚举序列化实现
+     * @return 返回一个枚举的反序列化实现
+     * @author zhu.xiaojie
+     * @time 2020-4-5
+     */
+    protected ObjectSerializer getEnumSerializer(){
+        return EnumSerializer.instance;
     }
 	
     public final ObjectSerializer get(Type type) {

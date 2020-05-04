@@ -298,7 +298,7 @@ public class TypeUtilsTest extends TestCase {
 
     public void test_cast_to_Timestamp_error() throws Exception {
         JSONObject json = new JSONObject();
-        json.put("date", 0);
+        json.put("date", -1);
 
         JSONException error = null;
         try {

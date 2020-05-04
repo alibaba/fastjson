@@ -122,4 +122,5 @@ public interface JSONLexer {
     String info();
 
     int getFeatures();
+    void setFeatures(int features);
 }

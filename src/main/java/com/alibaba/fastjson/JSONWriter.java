@@ -145,7 +145,7 @@ public class JSONWriter implements Closeable, Flushable {
         }
     }
 
-    private void afterWriter() {
+    private void afterWrite() {
         if (context == null) {
             return;
         }

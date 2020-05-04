@@ -1373,6 +1373,10 @@ public class ParserConfig {
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
                     clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
 
+                    if (clazz == null) {
+                        return expectClass;
+                    }
+
                     if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
                         throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
                     }

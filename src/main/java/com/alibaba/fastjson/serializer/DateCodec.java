@@ -188,12 +188,22 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     IOUtils.getChars(year, 4, buf);
                 }
             }
-            
-            out.write(buf);
+
+
             if (nanos > 0) { // java.sql.Timestamp
+                int i = 0;
+                for (; i < 9; ++i) {
+                    int off = buf.length - i - 1;
+                    if (buf[off] != '0') {
+                        break;
+                    }
+                }
+                out.write(buf, 0, buf.length - i);
                 out.write(quote);
                 return;
             }
+
+            out.write(buf);
 
             float timeZoneF = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600.0f * 1000);
             int timeZone = (int)timeZoneF;

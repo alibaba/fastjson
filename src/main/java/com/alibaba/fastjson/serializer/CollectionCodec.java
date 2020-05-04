@@ -55,7 +55,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         serializer.setContext(context, object, fieldName, 0);
 
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
-            if (HashSet.class == collection.getClass()) {
+            if (HashSet.class.isAssignableFrom(collection.getClass())) {
                 out.append("Set");
             } else if (TreeSet.class == collection.getClass()) {
                 out.append("TreeSet");

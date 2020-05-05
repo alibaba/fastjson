@@ -439,25 +439,27 @@ public class SerializeConfig {
 	public ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
         ObjectSerializer writer = get(clazz);
 
-        if (writer == null) {
-            try {
-                final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                    if (!(o instanceof AutowiredObjectSerializer)) {
-                        continue;
-                    }
-
-                    AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                    for (Type forType : autowired.getAutowiredFor()) {
-                        put(forType, autowired);
-                    }
-                }
-            } catch (ClassCastException ex) {
-                // skip
-            }
-
-            writer = get(clazz);
+        if (writer != null) {
+            return writer;
         }
+
+        try {
+            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                if (!(o instanceof AutowiredObjectSerializer)) {
+                    continue;
+                }
+
+                AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
+                for (Type forType : autowired.getAutowiredFor()) {
+                    put(forType, autowired);
+                }
+            }
+        } catch (ClassCastException ex) {
+            // skip
+        }
+
+        writer = get(clazz);
 
         if (writer == null) {
             final ClassLoader classLoader = JSON.class.getClassLoader();

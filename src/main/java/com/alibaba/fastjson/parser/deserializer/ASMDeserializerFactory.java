@@ -744,6 +744,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     Label flagElse_ = new Label();
                     mw.visitVarInsn(ILOAD, context.var("initStringFieldAsEmpty"));
                     mw.visitJumpInsn(IFEQ, flagElse_);
+                    _setFlag(mw, context, i);
                     mw.visitVarInsn(ALOAD, context.var("lexer"));
                     mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "stringDefaultValue", "()Ljava/lang/String;");
                     mw.visitJumpInsn(GOTO, flagEnd_);

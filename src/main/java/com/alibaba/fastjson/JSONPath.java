@@ -891,7 +891,13 @@ public class JSONPath implements JSONAware {
                 predicateFlag = true;
             }
 
-            if (predicateFlag || IOUtils.firstIdentifier(ch) || ch == '\\' || ch == '@') {
+            //
+
+            if (predicateFlag
+                    || IOUtils.firstIdentifier(ch)
+                    || Character.isJavaIdentifierStart(ch)
+                    || ch == '\\'
+                    || ch == '@') {
                 boolean self = false;
                 if (ch == '@') {
                     next();

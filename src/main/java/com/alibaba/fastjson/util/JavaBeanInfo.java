@@ -756,7 +756,7 @@ public class JavaBeanInfo {
             List<String> getMethodNameList = null;
 
             if (kotlin) {
-                getMethodNameList = new ArrayList<>();
+                getMethodNameList = new ArrayList();
                 for (int i = 0; i < methods.length; i++) {
                     if (methods[i].getName().startsWith("get")) {
                         getMethodNameList.add(methods[i].getName());

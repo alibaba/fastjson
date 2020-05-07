@@ -1866,7 +1866,7 @@ public class TypeUtils{
             if(annotation == null && kotlin){
                 if(constructors == null){
                     constructors = clazz.getDeclaredConstructors();
-                    Constructor creatorConstructor = TypeUtils.getKoltinConstructor(constructors);
+                    Constructor creatorConstructor = TypeUtils.getKotlinConstructor(constructors);
                     if(creatorConstructor != null){
                         paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
                         paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
@@ -2915,11 +2915,11 @@ public class TypeUtils{
         return kotlin_metadata != null && clazz.isAnnotationPresent(kotlin_metadata);
     }
 
-    public static Constructor getKoltinConstructor(Constructor[] constructors){
-        return getKoltinConstructor(constructors, null);
+    public static Constructor getKotlinConstructor(Constructor[] constructors){
+        return getKotlinConstructor(constructors, null);
     }
 
-    public static Constructor getKoltinConstructor(Constructor[] constructors, String[] paramNames){
+    public static Constructor getKotlinConstructor(Constructor[] constructors, String[] paramNames){
         Constructor creatorConstructor = null;
         for(Constructor<?> constructor : constructors){
             Class<?>[] parameterTypes = constructor.getParameterTypes();

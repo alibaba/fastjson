@@ -432,7 +432,7 @@ public class JavaBeanInfo {
                 String[] paramNames = null;
                 if (kotlin && constructors.length > 0) {
                     paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
-                    creatorConstructor = TypeUtils.getKoltinConstructor(constructors, paramNames);
+                    creatorConstructor = TypeUtils.getKotlinConstructor(constructors, paramNames);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {
 
@@ -752,25 +752,62 @@ public class JavaBeanInfo {
 
             String propertyName;
             Field field = null;
+            // 用于存储KotlinBean中所有的get方法, 方便后续判断
+            List<String> getMethodNameList = null;
+
+            if (kotlin) {
+                getMethodNameList = new ArrayList<>();
+                for (int i = 0; i < methods.length; i++) {
+                    if (methods[i].getName().startsWith("get")) {
+                        getMethodNameList.add(methods[i].getName());
+                    }
+                }
+            }
+
             if (Character.isUpperCase(c3) //
                     || c3 > 512 // for unicode method name
                     ) {
-                if (TypeUtils.compatibleWithJavaBean) {
-                    propertyName = TypeUtils.decapitalize(methodName.substring(3));
+                // 这里本身的逻辑是通过setAbc这类方法名解析出成员变量名为abc或者Abc, 但是在kotlin中, isAbc, abc成员变量的set方法都是setAbc
+                // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, isAbc的get方法名为isAbc(), abc的get方法名为getAbc()
+                if (kotlin) {
+                    String getMethodName = "g" + methodName.substring(1);
+                    if (getMethodNameList.contains(getMethodName)) {
+                        propertyName = getMethodName.substring(3);
+                    } else {
+                        propertyName = "is" + getMethodName.substring(3);
+                    }
                 } else {
-                    propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
-                }
-            } else if (c3 == '_') {
-                propertyName = methodName.substring(4);
-                field = TypeUtils.getField(clazz, propertyName, declaredFields);
-                if (field == null) {
-                    String temp = propertyName;
-                    propertyName = methodName.substring(3);
-                    field = TypeUtils.getField(clazz, propertyName, declaredFields);
-                    if (field == null) {
-                        propertyName = temp; //减少修改代码带来的影响
+                    if (TypeUtils.compatibleWithJavaBean) {
+                        propertyName = TypeUtils.decapitalize(methodName.substring(3));
+                    } else {
+                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
                     }
                 }
+
+            } else if (c3 == '_') {
+                // 这里本身的逻辑是通过set_abc这类方法名解析出成员变量名为abc, 但是在kotlin中, is_abc和_abc成员变量的set方法都是set_abc
+                // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, is_abc的get方法名为is_abc(), _abc的get方法名为get_abc()
+                if (kotlin) {
+                    String getMethodName = "g" + methodName.substring(1);
+                    if (getMethodNameList.contains(getMethodName)) {
+                        propertyName = methodName.substring(3);
+                    } else {
+                        propertyName = "is" + methodName.substring(3);
+                    }
+                    field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                } else {
+                    propertyName = methodName.substring(4);
+                    field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                    if (field == null) {
+                        String temp = propertyName;
+                        propertyName = methodName.substring(3);
+                        field = TypeUtils.getField(clazz, propertyName, declaredFields);
+                        if (field == null) {
+                            propertyName = temp; //减少修改代码带来的影响
+                        }
+                    }
+                }
+
             } else if (c3 == 'f') {
                 propertyName = methodName.substring(3);
             } else if (methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))) {

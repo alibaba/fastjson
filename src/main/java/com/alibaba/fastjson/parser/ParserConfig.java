@@ -229,6 +229,7 @@ public class ParserConfig {
                 0xC963695082FD728EL,
                 0xD1EFCDF4B3316D34L,
                 0xD54B91CC77B239EDL,
+                0xD59EE91F0B09EA01L,
                 0xD8CA3D595E982BACL,
                 0xDE23A0809A8B9BD6L,
                 0xDEFC208F237D4104L,
@@ -812,7 +813,7 @@ public class ParserConfig {
                 }
             }
 
-            deserializer = new EnumDeserializer(clazz);
+            deserializer = getEnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             deserializer = ObjectArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
@@ -835,6 +836,17 @@ public class ParserConfig {
         putDeserializer(type, deserializer);
 
         return deserializer;
+    }
+
+    /**
+     * 可以通过重写这个方法，定义自己的枚举反序列化实现
+     * @param clazz 转换的类型
+     * @return 返回一个枚举的反序列化实现
+     * @author zhu.xiaojie
+     * @time 2020-4-5
+     */
+    protected ObjectDeserializer getEnumDeserializer(Class<?> clazz){
+        return new EnumDeserializer(clazz);
     }
 
     /**
@@ -1361,6 +1373,10 @@ public class ParserConfig {
                 // white list
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
                     clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
+
+                    if (clazz == null) {
+                        return expectClass;
+                    }
 
                     if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
                         throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());

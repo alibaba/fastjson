@@ -3,9 +3,7 @@ package com.alibaba.json.bvt;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
-import org.junit.Assert;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -13,8 +11,8 @@ import java.util.TimeZone;
 public class SqlTimestampTest
         extends TestCase {
     protected void setUp() throws Exception {
-        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
-        JSON.defaultLocale = new Locale("zh_CN");
+        JSON.defaultTimeZone = TimeZone.getDefault();
+        JSON.defaultLocale = Locale.getDefault();
     }
     
     public void test_date() throws Exception {
@@ -48,6 +46,29 @@ public class SqlTimestampTest
                 53,
                 01,
                 516000000
+        );
+
+        System.out.println('"' + ts.toString() + '"');
+
+        String json = JSON.toJSONString(ts, SerializerFeature.UseISO8601DateFormat);
+        System.out.println(json);
+        Timestamp ts2 = JSON.parseObject(json, Timestamp.class);
+        String json2 = JSON.toJSONString(ts2, SerializerFeature.UseISO8601DateFormat);
+        System.out.println(json2);
+        assertEquals('"' + ts.toString() + '"', '"' + ts2.toString() + '"');
+    }
+
+    // 1997-03-17 15:53:01.01
+    public void test_date_2() throws Exception {
+        // 2020-04-11 03:10:19.516
+        Timestamp ts = new Timestamp(
+                97,
+                3,
+                17,
+                15,
+                53,
+                01,
+                10000000
         );
 
         System.out.println('"' + ts.toString() + '"');

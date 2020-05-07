@@ -707,7 +707,8 @@ public class TypeUtils{
                 }
             }
         }
-        if(longValue <= 0){
+
+        if(longValue < 0){
             throw new JSONException("can not cast to Timestamp, value : " + value);
         }
         return new java.sql.Timestamp(longValue);

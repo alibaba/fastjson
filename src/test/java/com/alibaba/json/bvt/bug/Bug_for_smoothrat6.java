@@ -1,6 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -12,7 +12,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class Bug_for_smoothrat6 extends TestCase {
 
     public void test_set() throws Exception {
-        Set<Object> set = new HashSet<Object>();
+        Set<Object> set = new LinkedHashSet<Object>();
         set.add(3L);
         set.add(4L);
 

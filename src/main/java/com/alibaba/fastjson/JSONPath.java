@@ -645,10 +645,15 @@ public class JSONPath implements JSONAware {
 
         String p = values.put(javaObject, parent);
         if (p != null) {
-            boolean basicType =  javaObject instanceof String
+            Class<?> type = javaObject.getClass();
+            boolean basicType =  type == String.class
+                    || type == Boolean.class
+                    || type == Character.class
+                    || type == UUID.class
+                    || type.isEnum()
                     || javaObject instanceof Number
                     || javaObject instanceof Date
-                    || javaObject instanceof UUID;
+                    ;
 
             if (!basicType) {
                 return;
@@ -886,7 +891,13 @@ public class JSONPath implements JSONAware {
                 predicateFlag = true;
             }
 
-            if (predicateFlag || IOUtils.firstIdentifier(ch) || ch == '\\' || ch == '@') {
+            //
+
+            if (predicateFlag
+                    || IOUtils.firstIdentifier(ch)
+                    || Character.isJavaIdentifierStart(ch)
+                    || ch == '\\'
+                    || ch == '@') {
                 boolean self = false;
                 if (ch == '@') {
                     next();

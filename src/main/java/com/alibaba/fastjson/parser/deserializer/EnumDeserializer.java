@@ -121,7 +121,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                 int intValue = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);
 
-                if (intValue < 0 || intValue > ordinalEnums.length) {
+                if (intValue < 0 || intValue >= ordinalEnums.length) {
                     throw new JSONException("parse enum " + enumClass.getName() + " error, value : " + intValue);
                 }
 

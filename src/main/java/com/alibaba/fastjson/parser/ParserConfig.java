@@ -229,6 +229,7 @@ public class ParserConfig {
                 0xC963695082FD728EL,
                 0xD1EFCDF4B3316D34L,
                 0xD54B91CC77B239EDL,
+                0xD59EE91F0B09EA01L,
                 0xD8CA3D595E982BACL,
                 0xDE23A0809A8B9BD6L,
                 0xDEFC208F237D4104L,
@@ -1372,6 +1373,10 @@ public class ParserConfig {
                 // white list
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
                     clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
+
+                    if (clazz == null) {
+                        return expectClass;
+                    }
 
                     if (expectClass != null && expectClass.isAssignableFrom(clazz)) {
                         throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());

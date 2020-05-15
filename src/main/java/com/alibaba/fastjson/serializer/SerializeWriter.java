@@ -461,7 +461,7 @@ public final class SerializeWriter extends Writer {
         int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         out.write(bytes, 0, position);
 
-        if (bytes!=bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
             bytesBufLocal.set(bytes);
         }
 
@@ -486,7 +486,7 @@ public final class SerializeWriter extends Writer {
         byte[] copy = new byte[position];
         System.arraycopy(bytes, 0, copy, 0, position);
 
-        if (bytes!=bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
             bytesBufLocal.set(bytes);
         }
 

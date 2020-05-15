@@ -36,6 +36,8 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 public final class SerializeWriter extends Writer {
     private final static ThreadLocal<char[]> bufLocal         = new ThreadLocal<char[]>();
     private final static ThreadLocal<byte[]> bytesBufLocal    = new ThreadLocal<byte[]>();
+    public static final char[] VALUE_TRUE = ":true".toCharArray();
+    public static final char[] VALUE_FALSE = ":false".toCharArray();
     private static       int                 BUFFER_THRESHOLD = 1024 * 128;
 
     static {
@@ -1714,9 +1716,9 @@ public final class SerializeWriter extends Writer {
         buf[nameEnd + 1] = keySeperator;
 
         if (value) {
-            System.arraycopy(":true".toCharArray(), 0, buf, nameEnd + 2, 5);
+            System.arraycopy(VALUE_TRUE, 0, buf, nameEnd + 2, 5);
         } else {
-            System.arraycopy(":false".toCharArray(), 0, buf, nameEnd + 2, 6);
+            System.arraycopy(VALUE_FALSE, 0, buf, nameEnd + 2, 6);
         }
     }
 

@@ -3,6 +3,7 @@ package com.alibaba.fastjson.serializer;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -62,12 +63,17 @@ public class SerializeWriterTest {
 
     @Test
     public void testWriteLargeBasicStr() throws UnsupportedEncodingException {
+        String str = createLargeBasicStr();
+        this.doTestWrite(str);
+    }
+
+    private String createLargeBasicStr() {
         String tmp = new String(IOUtils.DIGITS);
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 400; i++) {
             builder.append(tmp);
         }
-        this.doTestWrite(builder.toString());
+        return builder.toString();
     }
 
     @Test
@@ -90,5 +96,24 @@ public class SerializeWriterTest {
         }
 
         writer.close();
+    }
+
+    @Test
+    public void testBytesBufLocal() throws Exception {
+        String str = createLargeBasicStr();
+        SerializeWriter writer = new SerializeWriter();
+        //写入大于12K的字符串
+        writer.writeString(str);
+        writer.writeString(str);
+        byte[] bytes = writer.toBytes("UTF-8");
+        writer.close();
+
+        //检查bytesLocal大小，如果缓存成功应该大于等于输出的bytes长度
+        Field bytesBufLocalField = SerializeWriter.class.getDeclaredField("bytesBufLocal");
+        bytesBufLocalField.setAccessible(true);
+        ThreadLocal<byte[]> bytesBufLocal = (ThreadLocal<byte[]>) bytesBufLocalField.get(null);
+        byte[] bytesLocal = bytesBufLocal.get();
+        Assert.assertNotNull("bytesLocal is null", bytesLocal);
+        Assert.assertTrue("bytesLocal is smaller than expected", bytesLocal.length >= bytes.length);
     }
 }

@@ -454,6 +454,7 @@ public final class SerializeWriter extends Writer {
             bytes = new byte[1024 * 8];
             bytesBufLocal.set(bytes);
         }
+        byte[] bytesLocal = bytes;
 
         if (bytes.length < bytesLength) {
             bytes = new byte[bytesLength];
@@ -461,6 +462,11 @@ public final class SerializeWriter extends Writer {
 
         int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         out.write(bytes, 0, position);
+
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+            bytesBufLocal.set(bytes);
+        }
+
         return position;
     }
     
@@ -472,6 +478,7 @@ public final class SerializeWriter extends Writer {
             bytes = new byte[1024 * 8];
             bytesBufLocal.set(bytes);
         }
+        byte[] bytesLocal = bytes;
 
         if (bytes.length < bytesLength) {
             bytes = new byte[bytesLength];
@@ -480,6 +487,11 @@ public final class SerializeWriter extends Writer {
         int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         byte[] copy = new byte[position];
         System.arraycopy(bytes, 0, copy, 0, position);
+
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+            bytesBufLocal.set(bytes);
+        }
+
         return copy;
     }
     

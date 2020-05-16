@@ -1099,9 +1099,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         JSONLexer lexer = parser.lexer; // xxx
 
         final int disableFieldSmartMatchMask = Feature.DisableFieldSmartMatch.mask;
+        final int initStringFieldAsEmpty = Feature.InitStringFieldAsEmpty.mask;
         FieldDeserializer fieldDeserializer;
         if (lexer.isEnabled(disableFieldSmartMatchMask) || (this.beanInfo.parserFeatures & disableFieldSmartMatchMask) != 0) {
             fieldDeserializer = getFieldDeserializer(key);
+        } else if (lexer.isEnabled(initStringFieldAsEmpty) || (this.beanInfo.parserFeatures & initStringFieldAsEmpty) != 0) {
+            fieldDeserializer = smartMatch(key);
         } else {
             fieldDeserializer = smartMatch(key, setFlags);
         }

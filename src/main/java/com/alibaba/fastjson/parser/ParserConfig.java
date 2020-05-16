@@ -1264,14 +1264,18 @@ public class ParserConfig {
         if (expectClass == null) {
             expectClassFlag = false;
         } else {
-            if (expectClass == Object.class
-                    || expectClass == Serializable.class
-                    || expectClass == Cloneable.class
-                    || expectClass == Closeable.class
-                    || expectClass == EventListener.class
-                    || expectClass == Iterable.class
-                    || expectClass == Collection.class
-                    ) {
+            long expectHash = TypeUtils.fnv1a_64(expectClass.getName());
+            if (expectHash == 0x90a25f5baa21529eL
+                    || expectHash == 0x2d10a5801b9d6136L
+                    || expectHash == 0xaf586a571e302c6bL
+                    || expectHash == 0xed007300a7b227c6L
+                    || expectHash == 0x295c4605fd1eaa95L
+                    || expectHash == 0x47ef269aadc650b4L
+                    || expectHash == 0x6439c4dff712ae8bL
+                    || expectHash == 0xe3dd9875a2dc5283L
+                    || expectHash == 0xe2a8ddba03e69e0dL
+                    || expectHash == 0xd734ceb4c3e9d1daL
+            ) {
                 expectClassFlag = false;
             } else {
                 expectClassFlag = true;

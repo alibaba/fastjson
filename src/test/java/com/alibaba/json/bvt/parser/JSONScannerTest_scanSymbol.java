@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.parser;
 
+import com.alibaba.fastjson.util.TypeUtils;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -78,6 +79,20 @@ public class JSONScannerTest_scanSymbol extends TestCase {
         JSONScanner lexer = new JSONScanner("\"value\":\"MINUTES\",");
         long hashCode = lexer.scanFieldSymbol("\"value\":".toCharArray());
         assertEquals(189130438399835214L, hashCode);
+        Assert.assertEquals(JSONScanner.VALUE, lexer.matchStat());
+    }
+
+    public void test_10() throws Exception {
+        JSONScanner lexer = new JSONScanner("      \"value\":\"MINUTES\",");
+        long hashCode = lexer.scanFieldSymbol("\"value\":".toCharArray());
+        assertEquals(189130438399835214L, hashCode);
+        Assert.assertEquals(JSONScanner.VALUE, lexer.matchStat());
+    }
+
+    public void test_11() throws Exception {
+        JSONScanner lexer = new JSONScanner("      \"value\":\"A\",");
+        long hashCode = lexer.scanFieldSymbol("\"value\":".toCharArray());
+        assertEquals(TypeUtils.fnv1a_64("A"), hashCode);
         Assert.assertEquals(JSONScanner.VALUE, lexer.matchStat());
     }
 

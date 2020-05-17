@@ -946,16 +946,14 @@ public final class JSONScanner extends JSONLexerBase {
         int startPos = this.bp;
         char startChar = this.ch;
 
-        int spaceCount = 0;
+
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
-                    spaceCount++;
 
                     while (isWhitespace(ch)) {
                         next();
-                        spaceCount++;
                     }
                     continue;
                 }
@@ -966,11 +964,13 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        int index = bp + fieldName.length + spaceCount;
+        int index = bp + fieldName.length;
 
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
             while (isWhitespace(ch)) {
+                spaceCount++;
                 ch = charAt(index++);
             }
 
@@ -1181,16 +1181,13 @@ public final class JSONScanner extends JSONLexerBase {
     public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
-        int spaceCount = 0;
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
-                    spaceCount++;
 
                     while (isWhitespace(ch)) {
                         next();
-                        spaceCount++;
                     }
                     continue;
                 }
@@ -1201,12 +1198,13 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        int index = bp + fieldName.length + spaceCount;
-
+        int index = bp + fieldName.length;
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
             while (isWhitespace(ch)) {
                 ch = charAt(index++);
+                spaceCount++;
             }
 
             if (ch != '"') {

@@ -67,6 +67,20 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     	Assert.assertEquals(JSONScanner.NOT_MATCH, lexer.matchStat());
     }
 
+    public void test_8() throws Exception {
+        JSONScanner lexer = new JSONScanner("\"value\": \"MINUTES\",");
+        long hashCode = lexer.scanFieldSymbol("\"value\":".toCharArray());
+        assertEquals(189130438399835214L, hashCode);
+        Assert.assertEquals(JSONScanner.VALUE, lexer.matchStat());
+    }
+
+    public void test_9() throws Exception {
+        JSONScanner lexer = new JSONScanner("\"value\":\"MINUTES\",");
+        long hashCode = lexer.scanFieldSymbol("\"value\":".toCharArray());
+        assertEquals(189130438399835214L, hashCode);
+        Assert.assertEquals(JSONScanner.VALUE, lexer.matchStat());
+    }
+
     static long fnv_hash(String text) {
         long hash = 0xcbf29ce484222325L;
         for (int i = 0; i < text.length(); ++i) {

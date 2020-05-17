@@ -946,13 +946,16 @@ public final class JSONScanner extends JSONLexerBase {
         int startPos = this.bp;
         char startChar = this.ch;
 
+        int spaceCount = 0;
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
+                    spaceCount++;
 
                     while (isWhitespace(ch)) {
                         next();
+                        spaceCount++;
                     }
                     continue;
                 }
@@ -963,7 +966,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        int index = bp + fieldName.length;
+        int index = bp + fieldName.length + spaceCount;
 
         char ch = charAt(index++);
         if (ch != '"') {
@@ -1003,8 +1006,8 @@ public final class JSONScanner extends JSONLexerBase {
                     endIndex = indexOf('"', endIndex + 1);
                 }
 
-                int chars_len = endIndex - (bp + fieldName.length + 1);
-                char[] chars = sub_chars(bp + fieldName.length + 1, chars_len);
+                int chars_len = endIndex - (bp + fieldName.length + 1 + spaceCount);
+                char[] chars = sub_chars(bp + fieldName.length + 1 + spaceCount, chars_len);
 
                 stringVal = readString(chars, chars_len);
             }
@@ -1178,13 +1181,16 @@ public final class JSONScanner extends JSONLexerBase {
     public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
+        int spaceCount = 0;
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
+                    spaceCount++;
 
                     while (isWhitespace(ch)) {
                         next();
+                        spaceCount++;
                     }
                     continue;
                 }
@@ -1195,7 +1201,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        int index = bp + fieldName.length;
+        int index = bp + fieldName.length + spaceCount;
 
         char ch = charAt(index++);
         if (ch != '"') {

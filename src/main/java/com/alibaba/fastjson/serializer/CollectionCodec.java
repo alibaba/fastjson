@@ -108,7 +108,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         if (parser.lexer.token() == JSONToken.NULL) {
             parser.lexer.nextToken(JSONToken.COMMA);
             return null;

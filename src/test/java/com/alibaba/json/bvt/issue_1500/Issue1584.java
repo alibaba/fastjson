@@ -25,7 +25,7 @@ public class Issue1584 extends TestCase {
         }
 
         config.putDeserializer(Map.Entry.class, new ObjectDeserializer() {
-            public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+            public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
                 JSONObject object = parser.parseObject();
                 Object k = object.get("k");
                 Object v = object.get("v");

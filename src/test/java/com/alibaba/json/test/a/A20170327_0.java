@@ -45,7 +45,7 @@ public class A20170327_0 extends TestCase {
     public static class MoneyDeserialize implements ObjectDeserializer {
 
         @SuppressWarnings("unchecked")
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             ParseContext cxt = parser.getContext();
             Object object = parser.parse(fieldName);
             if (object == null) {

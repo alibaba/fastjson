@@ -63,7 +63,7 @@ public class EnumParserTest extends TestCase {
             String text = "4";
             DefaultJSONParser parser = new DefaultJSONParser(text);
 
-            new EnumDeserializer(Object.class).deserialze(parser, Object.class, null);
+            new EnumDeserializer(Object.class).deserialize(parser, Object.class, null);
         } catch (Exception ex) {
             error = ex;
         }
@@ -76,7 +76,7 @@ public class EnumParserTest extends TestCase {
             String text = "true";
             DefaultJSONParser parser = new DefaultJSONParser(text);
 
-            new EnumDeserializer(Object.class).deserialze(parser, Object.class, null);
+            new EnumDeserializer(Object.class).deserialize(parser, Object.class, null);
         } catch (Exception ex) {
             error = ex;
         }

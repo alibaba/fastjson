@@ -20,7 +20,7 @@ public class DoubleDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Double.class));
 
         DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, NumberDeserializer.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, NumberDeserializer.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_INT, NumberDeserializer.instance.getFastMatchToken());
     }
 }

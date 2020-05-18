@@ -35,19 +35,19 @@ public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeser
         return new Department();
         
     }
-    public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public Object deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
         
         if (lexer.isEnabled(Feature.SortFeidFastMatch)) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         if (lexer.isEnabled(Feature.SupportArrayToBean)) {
-            // deserialzeArrayMapping
+            // deserializeArrayMapping
         }
         
         if (lexer.scanType("Department") == JSONLexerBase.NOT_MATCH) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         ParseContext mark_context = parser.getContext();
@@ -134,7 +134,7 @@ public class DepartmentCodec extends JavaBeanDeserializer implements ObjectDeser
                             if (lexer.token() == JSONToken.RBRACKET) {
                                 break;
                             }
-                            com.alibaba.json.test.codegen.Employee itemValue = members_gen_list_item_deser__.deserialze(parser, members_gen_list_item_type__, i);
+                            com.alibaba.json.test.codegen.Employee itemValue = members_gen_list_item_deser__.deserialize(parser, members_gen_list_item_type__, i);
                             members_gen.add(itemValue);
                             parser.checkListResolve(members_gen);
                             if (lexer.token() == JSONToken.COMMA) {

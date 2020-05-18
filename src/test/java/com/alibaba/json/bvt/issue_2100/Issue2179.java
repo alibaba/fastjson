@@ -249,9 +249,9 @@ public class Issue2179 extends TestCase {
 
 	public static class EnumAwareSerializer1 implements ObjectDeserializer {
 		@SuppressWarnings("unchecked")
-		public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-			String val = StringCodec.instance.deserialze(parser, type, fieldName);
-			System.out.println("-----------------EnumAwareSerializer1.deserialze-----------------------------");
+		public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+			String val = StringCodec.instance.deserialize(parser, type, fieldName);
+			System.out.println("-----------------EnumAwareSerializer1.deserialize-----------------------------");
 			System.out.println(val);
 			return (T) ProductType1.get(JSON.parseObject(val).getInteger("code"));
 		}
@@ -264,9 +264,9 @@ public class Issue2179 extends TestCase {
 
 	public static class EnumAwareSerializer2 implements ObjectDeserializer {
 		@SuppressWarnings("unchecked")
-		public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-			String val = StringCodec.instance.deserialze(parser, type, fieldName);
-			System.out.println("-----------------EnumAwareSerializer2.deserialze-----------------------------");
+		public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+			String val = StringCodec.instance.deserialize(parser, type, fieldName);
+			System.out.println("-----------------EnumAwareSerializer2.deserialize-----------------------------");
 			System.out.println(val);
 			return (T) ProductType2.get(JSON.parseObject(val).getInteger("code"));
 		}
@@ -285,9 +285,9 @@ public class Issue2179 extends TestCase {
 			return new ObjectDeserializer() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-					String val = StringCodec.instance.deserialze(parser, type, fieldName);
-					System.out.println("-----------MyModuel.deserialze------------------------");
+				public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+					String val = StringCodec.instance.deserialize(parser, type, fieldName);
+					System.out.println("-----------MyModuel.deserialize------------------------");
 					System.out.println(val);
 					try {
 						Constructor c = Class.forName(type.getTypeName()).getDeclaredConstructor(ProductType3.class,

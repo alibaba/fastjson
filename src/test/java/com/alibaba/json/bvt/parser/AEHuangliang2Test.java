@@ -351,7 +351,7 @@ public class AEHuangliang2Test extends TestCase {
     public void test_for_issue() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(Area.class, new ObjectDeserializer() {
 
-            public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+            public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
                 JSONObject jsonObject = (JSONObject) parser.parse();
                 String areaType;
 

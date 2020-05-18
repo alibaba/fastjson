@@ -26,7 +26,7 @@ public class CustomDeserializerTest extends TestCase {
     
     public static class ModelDeserializer implements ObjectDeserializer {
         @Override
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             JSONReader reader = new JSONReader(parser);
             
             reader.startObject();

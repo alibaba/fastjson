@@ -40,7 +40,7 @@ public class Issue1662 extends TestCase {
 
     public static class ModelValueDeserializer implements ObjectDeserializer {
 
-        public Model deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public Model deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             JSONObject obj = (JSONObject)parser.parse();
             Model model = new Model();
             model.value = obj.getInteger("value") * 100;

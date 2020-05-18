@@ -47,7 +47,7 @@ public class DeserializeUsingTest extends TestCase {
 
         @SuppressWarnings("unchecked")
 
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             List<String> parseObjectList = parser.parseArray(String.class);
             if(parseObjectList != null) {
                 List<Integer> resultVoList = new ArrayList<Integer>();

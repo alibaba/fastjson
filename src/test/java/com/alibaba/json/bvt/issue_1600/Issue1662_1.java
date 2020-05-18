@@ -37,7 +37,7 @@ public class Issue1662_1 extends TestCase {
 
     public static class ModelValueDeserializer implements ObjectDeserializer {
 
-        public Integer deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public Integer deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             Object val = parser.parse();
             return ((Integer) val).intValue() * 100;
         }

@@ -60,7 +60,7 @@ public class Issue1449 extends TestCase {
 
     public static class SexDeserializer implements ObjectDeserializer {
 
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             String code;
             Object object = parser.parse();
             if (object instanceof JSONObject) {

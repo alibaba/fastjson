@@ -23,7 +23,7 @@ public class Bug_for_issue_457 extends TestCase {
     public static class MyEnumDeser implements ObjectDeserializer {
 
         @Override
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             String text = (String) parser.parse();
             if (text.equals("AA")) {
                 return (T) MyEnum.A;

@@ -44,7 +44,7 @@ public class SerializeUsingTest extends TestCase {
 
     public static class ModelValueDeserializer implements ObjectDeserializer {
 
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             String text = (String) parser.parse();
             if (text != null) {
                 text = text.replaceAll("元", "");

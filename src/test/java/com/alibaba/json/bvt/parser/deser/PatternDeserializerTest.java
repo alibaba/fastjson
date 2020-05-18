@@ -20,7 +20,7 @@ public class PatternDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Pattern.class));
 
         DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, MiscCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, MiscCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_STRING, MiscCodec.instance.getFastMatchToken());
     }
 }

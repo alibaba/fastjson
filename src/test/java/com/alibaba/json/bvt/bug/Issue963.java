@@ -46,8 +46,8 @@ public class Issue963 extends TestCase {
     }
 
     public static class EnumTypeCodec implements ObjectSerializer, ObjectDeserializer {
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-            String uncasedSensitive = StringCodec.instance.deserialze(parser, type, fieldName);
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+            String uncasedSensitive = StringCodec.instance.deserialize(parser, type, fieldName);
             return (T) EnumType.valueOf(uncasedSensitive.toUpperCase());
         }
 

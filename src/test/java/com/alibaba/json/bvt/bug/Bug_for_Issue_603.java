@@ -33,7 +33,7 @@ public class Bug_for_Issue_603 extends TestCase {
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
             Integer intValue = parser.parseObject(int.class);
             if (intValue == 1) {
                 return (T) OrderActionEnum.FAIL;

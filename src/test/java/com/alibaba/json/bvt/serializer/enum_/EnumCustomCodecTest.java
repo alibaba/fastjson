@@ -50,7 +50,7 @@ public class EnumCustomCodecTest extends TestCase {
 
     public static class TypeDeser implements ObjectDeserializer {
 
-        public <T> T deserialze(DefaultJSONParser parser, java.lang.reflect.Type type, Object fieldName) {
+        public <T> T deserialize(DefaultJSONParser parser, java.lang.reflect.Type type, Object fieldName) {
             JSONObject object = parser.parseObject();
             long id = object.getLongValue("id");
             return (T) Type.valueOf(id);

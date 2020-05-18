@@ -93,8 +93,8 @@ public class Issue2617 extends TestCase {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Date deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-			Map<String, Object> map = MapDeserializer.instance.deserialze(parser, Map.class, fieldName);
+		public Date deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+			Map<String, Object> map = MapDeserializer.instance.deserialize(parser, Map.class, fieldName);
 			long milliseconds = (Long) map.get("time");
 			return new Date(milliseconds);
 		}

@@ -19,18 +19,18 @@ public class MediaContentDeserializer implements ObjectDeserializer {
     ImageDeserializer imageDesc  = new ImageDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.getLexer();
 
         parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
-        Media media = mediaDeser.deserialze(parser, Media.class, "media");
+        Media media = mediaDeser.deserialize(parser, Media.class, "media");
         parser.accept(JSONToken.COMMA, JSONToken.LBRACKET);
         
         parser.accept(JSONToken.LBRACKET, JSONToken.LBRACKET);
         List<Image> images = new ArrayList<Image>();
         int index = 0;
         for (;;) {
-            Image image = imageDesc.deserialze(parser, Image.class, index);
+            Image image = imageDesc.deserialize(parser, Image.class, index);
             images.add(image);
             index++;
             if (lexer.token() == JSONToken.COMMA) {

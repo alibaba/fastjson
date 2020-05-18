@@ -41,7 +41,7 @@ public class AETest extends TestCase {
 
     public void test_for_ae() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(Area.class, new ObjectDeserializer() {
-            public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+            public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
                 JSONObject jsonObject = (JSONObject) parser.parse();
                 String areaType;
 

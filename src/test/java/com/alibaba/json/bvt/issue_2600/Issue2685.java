@@ -45,8 +45,8 @@ public class Issue2685 extends TestCase {
     public static class MyDeserializer implements ObjectDeserializer {
 
         @Override
-        public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-            String msg = StringCodec.deserialze(parser);
+        public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+            String msg = StringCodec.deserialize(parser);
             return (T) CMPPCommonUtil.buildTextMessage(msg);
         }
 

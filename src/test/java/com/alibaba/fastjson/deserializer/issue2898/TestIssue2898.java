@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class TestIssue2898 {
     @Test
-    public void testDeserialzeComplexGenericType() throws Exception {
+    public void testDeserializeComplexGenericType() throws Exception {
         String s = "{\"props\": {\"test\": [{\"foo\": \"bar\"}]}}";
         ExtClassLoader classLoader = new ExtClassLoader();
         Class clazz = classLoader.loadClass("DataClassPropsGeneric");

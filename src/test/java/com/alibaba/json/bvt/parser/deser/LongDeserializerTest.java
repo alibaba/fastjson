@@ -20,7 +20,7 @@ public class LongDeserializerTest extends TestCase {
         Assert.assertEquals(null, JSON.parseObject("null", Long.class));
 
         DefaultJSONParser parser = new DefaultJSONParser("null", ParserConfig.getGlobalInstance(), JSON.DEFAULT_PARSER_FEATURE);
-        Assert.assertEquals(null, LongCodec.instance.deserialze(parser, null, null));
+        Assert.assertEquals(null, LongCodec.instance.deserialize(parser, null, null));
         Assert.assertEquals(JSONToken.LITERAL_INT, LongCodec.instance.getFastMatchToken());
     }
 }

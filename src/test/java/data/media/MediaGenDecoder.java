@@ -41,19 +41,19 @@ public class MediaGenDecoder extends JavaBeanDeserializer implements ObjectDeser
         return new Media();
         
     }
-    public Object deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public Object deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
         
         if (!lexer.isEnabled(Feature.SortFeidFastMatch)) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         if (lexer.isEnabled(Feature.SupportArrayToBean)) {
-            // deserialzeArrayMapping
+            // deserializeArrayMapping
         }
         
         if (lexer.scanType("Department") == JSONLexerBase.NOT_MATCH) {
-            return super.deserialze(parser, type, fieldName);
+            return super.deserialize(parser, type, fieldName);
         }
         
         ParseContext mark_context = parser.getContext();

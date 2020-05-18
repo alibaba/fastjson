@@ -14,7 +14,7 @@ import data.media.Image.Size;
 public class ImageDeserializer implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         Image image = new Image();
 
         final JSONLexer lexer = parser.getLexer();

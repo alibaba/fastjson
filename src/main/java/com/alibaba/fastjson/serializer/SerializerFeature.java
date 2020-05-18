@@ -168,10 +168,10 @@ public enum SerializerFeature {
         return (features & feature.mask) != 0;
     }
     
-    public static boolean isEnabled(int features, int fieaturesB, SerializerFeature feature) {
+    public static boolean isEnabled(int features, int featuresB, SerializerFeature feature) {
         int mask = feature.mask;
         
-        return (features & mask) != 0 || (fieaturesB & mask) != 0;
+        return (features & mask) != 0 || (featuresB & mask) != 0;
     }
 
     public static int config(int features, SerializerFeature feature, boolean state) {

@@ -1,4 +1,4 @@
-package com.alibaba.json.bvt.issue_3000;
+package com.alibaba.json.bvt.issue_3100;
 
 import com.alibaba.fastjson.JSON;
 import junit.framework.TestCase;

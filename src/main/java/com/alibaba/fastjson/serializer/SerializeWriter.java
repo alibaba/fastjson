@@ -36,6 +36,8 @@ import static com.alibaba.fastjson.util.IOUtils.replaceChars;
 public final class SerializeWriter extends Writer {
     private final static ThreadLocal<char[]> bufLocal         = new ThreadLocal<char[]>();
     private final static ThreadLocal<byte[]> bytesBufLocal    = new ThreadLocal<byte[]>();
+    private static final char[] VALUE_TRUE = ":true".toCharArray();
+    private static final char[] VALUE_FALSE = ":false".toCharArray();
     private static       int                 BUFFER_THRESHOLD = 1024 * 128;
 
     static {
@@ -452,6 +454,7 @@ public final class SerializeWriter extends Writer {
             bytes = new byte[1024 * 8];
             bytesBufLocal.set(bytes);
         }
+        byte[] bytesLocal = bytes;
 
         if (bytes.length < bytesLength) {
             bytes = new byte[bytesLength];
@@ -459,6 +462,11 @@ public final class SerializeWriter extends Writer {
 
         int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         out.write(bytes, 0, position);
+
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+            bytesBufLocal.set(bytes);
+        }
+
         return position;
     }
     
@@ -470,6 +478,7 @@ public final class SerializeWriter extends Writer {
             bytes = new byte[1024 * 8];
             bytesBufLocal.set(bytes);
         }
+        byte[] bytesLocal = bytes;
 
         if (bytes.length < bytesLength) {
             bytes = new byte[bytesLength];
@@ -478,6 +487,11 @@ public final class SerializeWriter extends Writer {
         int position = IOUtils.encodeUTF8(buf, 0, count, bytes);
         byte[] copy = new byte[position];
         System.arraycopy(bytes, 0, copy, 0, position);
+
+        if (bytes != bytesLocal && bytes.length <= BUFFER_THRESHOLD) {
+            bytesBufLocal.set(bytes);
+        }
+
         return copy;
     }
     
@@ -1714,9 +1728,9 @@ public final class SerializeWriter extends Writer {
         buf[nameEnd + 1] = keySeperator;
 
         if (value) {
-            System.arraycopy(":true".toCharArray(), 0, buf, nameEnd + 2, 5);
+            System.arraycopy(VALUE_TRUE, 0, buf, nameEnd + 2, 5);
         } else {
-            System.arraycopy(":false".toCharArray(), 0, buf, nameEnd + 2, 6);
+            System.arraycopy(VALUE_FALSE, 0, buf, nameEnd + 2, 6);
         }
     }
 

@@ -141,14 +141,14 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         }
     }
 
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return deserialze(parser, clazz, fieldName, null, 0);
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        return deserialize(parser, clazz, fieldName, null, 0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int features) {
-        Object value = DateCodec.instance.deserialze(parser, type, fieldName, format, features);
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName, String format, int features) {
+        Object value = DateCodec.instance.deserialize(parser, type, fieldName, format, features);
 
         if (value instanceof Calendar) {
             return (T) value;

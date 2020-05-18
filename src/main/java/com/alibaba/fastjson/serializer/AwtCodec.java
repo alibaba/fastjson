@@ -93,7 +93,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
 
         if (lexer.token() == JSONToken.NULL) {

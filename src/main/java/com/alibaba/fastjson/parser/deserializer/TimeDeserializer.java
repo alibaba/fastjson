@@ -15,7 +15,7 @@ public class TimeDeserializer implements ObjectDeserializer {
     public final static TimeDeserializer instance = new TimeDeserializer();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         JSONLexer lexer = parser.lexer;
         
         if (lexer.token() == JSONToken.COMMA) {

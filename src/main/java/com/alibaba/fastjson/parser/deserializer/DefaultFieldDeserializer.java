@@ -72,17 +72,17 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         Object value;
         if (fieldValueDeserilizer instanceof JavaBeanDeserializer && fieldInfo.parserFeatures != 0) {
             JavaBeanDeserializer javaBeanDeser = (JavaBeanDeserializer) fieldValueDeserilizer;
-            value = javaBeanDeser.deserialze(parser, fieldType, fieldInfo.name, fieldInfo.parserFeatures);
+            value = javaBeanDeser.deserialize(parser, fieldType, fieldInfo.name, fieldInfo.parserFeatures);
         } else {
             if (this.fieldInfo.format != null && fieldValueDeserilizer instanceof ContextObjectDeserializer) {
                 value = ((ContextObjectDeserializer) fieldValueDeserilizer) //
-                                        .deserialze(parser,
+                                        .deserialize(parser,
                                                     fieldType,
                                                     fieldInfo.name,
                                                     fieldInfo.format,
                                                     fieldInfo.parserFeatures);
             } else {
-                value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+                value = fieldValueDeserilizer.deserialize(parser, fieldType, fieldInfo.name);
             }
         }
 

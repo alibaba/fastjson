@@ -60,7 +60,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     private final static DateTimeFormatter formatter_iso8601  = DateTimeFormatter.ofPattern(formatter_iso8601_pattern);
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
         JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL){
             lexer.nextToken();

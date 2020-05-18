@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 public class JSONPDeserializer implements ObjectDeserializer {
     public static final JSONPDeserializer instance = new JSONPDeserializer();
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexerBase lexer = (JSONLexerBase) parser.getLexer();
 
         SymbolTable symbolTable = parser.getSymbolTable();

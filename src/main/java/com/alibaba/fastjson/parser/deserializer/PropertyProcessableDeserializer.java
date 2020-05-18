@@ -16,7 +16,7 @@ public class PropertyProcessableDeserializer implements ObjectDeserializer {
         this.type = type;
     }
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         PropertyProcessable processable;
         try {
             processable = this.type.newInstance();

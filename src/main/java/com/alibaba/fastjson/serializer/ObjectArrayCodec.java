@@ -125,7 +125,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
         int token = lexer.token();
         if (token == JSONToken.NULL) {

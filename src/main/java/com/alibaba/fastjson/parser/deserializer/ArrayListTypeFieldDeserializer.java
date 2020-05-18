@@ -178,7 +178,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                     break;
                 }
 
-                Object val = itemTypeDeser.deserialze(parser, itemType, i);
+                Object val = itemTypeDeser.deserialize(parser, itemType, i);
                 array.add(val);
 
                 parser.checkListResolve(array);
@@ -194,7 +194,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             if (itemTypeDeser == null) {
                 itemTypeDeser = deserializer = parser.getConfig().getDeserializer(itemType);
             }
-            Object val = itemTypeDeser.deserialze(parser, itemType, 0);
+            Object val = itemTypeDeser.deserialize(parser, itemType, 0);
             array.add(val);
             parser.checkListResolve(array);
         }

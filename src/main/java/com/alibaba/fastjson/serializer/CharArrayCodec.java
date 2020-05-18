@@ -14,12 +14,12 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class CharArrayCodec implements ObjectDeserializer {
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        return (T) deserialize(parser);
     }
     
     @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
+    public static <T> T deserialize(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();

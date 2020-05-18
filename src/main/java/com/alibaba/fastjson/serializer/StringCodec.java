@@ -47,7 +47,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         if (clazz == StringBuffer.class) {
             final JSONLexer lexer = parser.lexer;
             if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -84,11 +84,11 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new StringBuilder(value.toString());
         }
 
-        return (T) deserialze(parser);
+        return (T) deserialize(parser);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
+    public static <T> T deserialize(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.getLexer();
         if (lexer.token() == JSONToken.LITERAL_STRING) {
             String val = lexer.stringVal();

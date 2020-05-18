@@ -31,7 +31,7 @@ public class MonetaCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @Override
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONObject object = parser.parseObject();
         Object currency = object.get("currency");
 

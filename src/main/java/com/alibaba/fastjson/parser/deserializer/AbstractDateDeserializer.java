@@ -12,13 +12,13 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return deserialze(parser, clazz, fieldName, null, 0);
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
+        return deserialize(parser, clazz, fieldName, null, 0);
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName, String format, int features) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName, String format, int features) {
         JSONLexer lexer = parser.lexer;
 
         Object val;

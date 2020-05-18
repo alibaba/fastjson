@@ -392,7 +392,7 @@ public class DefaultJSONParser implements Closeable {
                     } else if (deserializer instanceof MapDeserializer) {
                         this.setResolveStatus(NONE);
                     }
-                    Object obj = deserializer.deserialze(this, clazz, fieldName);
+                    Object obj = deserializer.deserialize(this, clazz, fieldName);
                     return obj;
                 }
 
@@ -557,7 +557,7 @@ public class DefaultJSONParser implements Closeable {
                         Type fieldType = fieldTypeResolver.resolve(object, resolveFieldName);
                         if (fieldType != null) {
                             ObjectDeserializer fieldDeser = config.getDeserializer(fieldType);
-                            obj = fieldDeser.deserialze(this, fieldType, key);
+                            obj = fieldDeser.deserialize(this, fieldType, key);
                             objParsed = true;
                         }
                     }
@@ -683,9 +683,9 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.token()!= JSONToken.LBRACE && lexer.token()!=JSONToken.LBRACKET) {
                 throw new JSONException("syntax error,except start with { or [,but actually start with "+ lexer.tokenName());
             }
-                return (T) ((JavaBeanDeserializer) deserializer).deserialze(this, type, fieldName, 0);
+                return (T) ((JavaBeanDeserializer) deserializer).deserialize(this, type, fieldName, 0);
             } else {
-                return (T) deserializer.deserialze(this, type, fieldName);
+                return (T) deserializer.deserialize(this, type, fieldName);
             }
         } catch (JSONException e) {
             throw e;
@@ -749,7 +749,7 @@ public class DefaultJSONParser implements Closeable {
                 }
 
                 if (int.class == type) {
-                    Object val = IntegerCodec.instance.deserialze(this, null, null);
+                    Object val = IntegerCodec.instance.deserialize(this, null, null);
                     array.add(val);
                 } else if (String.class == type) {
                     String value;
@@ -772,7 +772,7 @@ public class DefaultJSONParser implements Closeable {
                         lexer.nextToken();
                         val = null;
                     } else {
-                        val = deserializer.deserialze(this, type, i);
+                        val = deserializer.deserialize(this, type, i);
                     }
                     array.add(val);
                     checkListResolve(array);
@@ -862,7 +862,7 @@ public class DefaultJSONParser implements Closeable {
 
                         if (lexer.token() != JSONToken.RBRACKET) {
                             for (;;) {
-                                Object item = deserializer.deserialze(this, type, null);
+                                Object item = deserializer.deserialize(this, type, null);
                                 varList.add(item);
 
                                 if (lexer.token() == JSONToken.COMMA) {
@@ -878,7 +878,7 @@ public class DefaultJSONParser implements Closeable {
                         value = TypeUtils.cast(varList, type, config);
                     } else {
                         ObjectDeserializer deserializer = config.getDeserializer(type);
-                        value = deserializer.deserialze(this, type, i);
+                        value = deserializer.deserialize(this, type, i);
                     }
                 }
             }
@@ -961,18 +961,18 @@ public class DefaultJSONParser implements Closeable {
                 Object fieldValue;
                 if (fieldClass == int.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = IntegerCodec.instance.deserialze(this, fieldType, null);
+                    fieldValue = IntegerCodec.instance.deserialize(this, fieldType, null);
                 } else if (fieldClass == String.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
-                    fieldValue = StringCodec.deserialze(this);
+                    fieldValue = StringCodec.deserialize(this);
                 } else if (fieldClass == long.class) {
                     lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-                    fieldValue = LongCodec.instance.deserialze(this, fieldType, null);
+                    fieldValue = LongCodec.instance.deserialize(this, fieldType, null);
                 } else {
                     ObjectDeserializer fieldValueDeserializer = config.getDeserializer(fieldClass, fieldType);
 
                     lexer.nextTokenWithColon(fieldValueDeserializer.getFastMatchToken());
-                    fieldValue = fieldValueDeserializer.deserialze(this, fieldType, null);
+                    fieldValue = fieldValueDeserializer.deserialize(this, fieldType, null);
                 }
 
                 fieldDeser.setValue(object, fieldValue);
@@ -1743,7 +1743,7 @@ public class DefaultJSONParser implements Closeable {
                         popContext();
                     }
 
-                    return (Map) deserializer.deserialze(this, clazz, fieldName);
+                    return (Map) deserializer.deserialize(this, clazz, fieldName);
                 }
 
                 Object value;

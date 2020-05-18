@@ -47,7 +47,7 @@ public class ReferenceCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         ParameterizedType paramType = (ParameterizedType) type;
         Type itemType = paramType.getActualTypeArguments()[0];
 

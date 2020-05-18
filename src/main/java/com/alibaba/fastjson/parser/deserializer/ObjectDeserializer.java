@@ -25,7 +25,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
  * 
  * public static class OrderActionEnumDeser implements ObjectDeserializer {
  *     
- *     public &lt;T&gt; T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+ *     public &lt;T&gt; T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
  *         Integer intValue = parser.parseObject(int.class);
  *         if (intValue == 1) {
  *             return (T) OrderActionEnum.FAIL;
@@ -60,7 +60,7 @@ public interface ObjectDeserializer {
      * @param fieldName parent object field name
      * @return a deserialized object of the specified type which is a subclass of {@code T}
      */
-    <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName);
+    <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName);
     
     int getFastMatchToken();
 }

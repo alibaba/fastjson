@@ -19,7 +19,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
     public static OptionalCodec instance = new OptionalCodec();
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         
         if (type == OptionalInt.class) {
             Object obj = parser.parseObject(Integer.class);

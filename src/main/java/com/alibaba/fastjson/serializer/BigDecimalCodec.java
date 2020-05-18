@@ -72,16 +72,16 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type clazz, Object fieldName) {
         try {
-            return (T) deserialze(parser);
+            return (T) deserialize(parser);
         } catch (Exception ex) {
             throw new JSONException("parseDecimal error, field : " + fieldName, ex);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T deserialze(DefaultJSONParser parser) {
+    public static <T> T deserialize(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_INT) {
             BigDecimal decimalValue = lexer.decimalValue();

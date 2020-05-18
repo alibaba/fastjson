@@ -12,7 +12,7 @@ public class ByteBufferCodec implements ObjectSerializer, ObjectDeserializer {
     public final static ByteBufferCodec instance = new ByteBufferCodec();
 
     @Override
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         ByteBufferBean bean = parser.parseObject(ByteBufferBean.class);
         return (T) bean.byteBuffer();
     }

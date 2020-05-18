@@ -261,7 +261,7 @@ public class SerializeConfig {
                 }
                 // skip
 			} catch (Throwable e) {
-				throw new JSONException("create asm serializer error, verson " + JSON.VERSION + ", class " + clazz, e);
+				throw new JSONException("create asm serializer error, version " + JSON.VERSION + ", class " + clazz, e);
 			}
 		}
 

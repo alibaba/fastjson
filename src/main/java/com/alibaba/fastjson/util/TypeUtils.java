@@ -1381,7 +1381,7 @@ public class TypeUtils{
             if (deserializer != null) {
                 String str = JSON.toJSONString(obj);
                 DefaultJSONParser parser = new DefaultJSONParser(str, mapping);
-                return (T) deserializer.deserialze(parser, type, null);
+                return (T) deserializer.deserialize(parser, type, null);
             }
         }
 

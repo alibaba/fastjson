@@ -280,16 +280,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         return object;
     }
     
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return deserialze(parser, type, fieldName, 0);
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+        return deserialize(parser, type, fieldName, 0);
     }
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, int features) {
-        return deserialze(parser, type, fieldName, null, features, null);
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName, int features) {
+        return deserialize(parser, type, fieldName, null, features, null);
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T deserialzeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
+    public <T> T deserializeArrayMapping(DefaultJSONParser parser, Type type, Object fieldName, Object object) {
         final JSONLexer lexer = parser.lexer; // xxx
         if (lexer.token() != JSONToken.LBRACKET) {
             throw new JSONException("error");
@@ -307,7 +307,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (deserializer instanceof JavaBeanDeserializer) {
-                return ((JavaBeanDeserializer) deserializer).deserialzeArrayMapping(parser, type, fieldName, object);
+                return ((JavaBeanDeserializer) deserializer).deserializeArrayMapping(parser, type, fieldName, object);
             }
         }
 
@@ -386,12 +386,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected <T> T deserialze(DefaultJSONParser parser, // 
-                               Type type, // 
-                               Object fieldName, // 
-                               Object object, //
-                               int features, //
-                               int[] setFlags) {
+    protected <T> T deserialize(DefaultJSONParser parser, //
+                                Type type, //
+                                Object fieldName, //
+                                Object object, //
+                                int features, //
+                                int[] setFlags) {
         if (type == JSON.class || type == JSONObject.class) {
             return (T) parser.parse();
         }
@@ -429,7 +429,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                                || (features & mask) != 0
                                                ;
                 if (isSupportArrayToBean) {
-                    return deserialzeArrayMapping(parser, type, fieldName, object);
+                    return deserializeArrayMapping(parser, type, fieldName, object);
                 }
             }
 
@@ -805,7 +805,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 deserializer = parser.getConfig().getDeserializer(userType);
                             }
 
-                            Object typedObject = deserializer.deserialze(parser, userType, fieldName);
+                            Object typedObject = deserializer.deserialize(parser, userType, fieldName);
                             if (deserializer instanceof JavaBeanDeserializer) {
                                 JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
                                 if (typeKey != null) {
@@ -1573,7 +1573,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             , Object instance
             , int features
             , int[] setFlags) {
-        Object value = deserialze(parser, type, fieldName, instance, features, setFlags);
+        Object value = deserialize(parser, type, fieldName, instance, features, setFlags);
 
         return value;
     }
@@ -1636,7 +1636,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         int index = 0;
         for (;;) {
-            Object item = deser.deserialze(parser, type, index);
+            Object item = deser.deserialize(parser, type, index);
             collection.add(item);
             index++;
             if (lexer.token() == JSONToken.COMMA) {

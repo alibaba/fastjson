@@ -18,7 +18,7 @@ public class MapDeserializer implements ObjectDeserializer {
     
     
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         if (type == JSONObject.class && parser.getFieldTypeResolver() == null) {
             return (T) parser.parseObject();
         }
@@ -40,7 +40,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
         try {
             parser.setContext(context, map, fieldName);
-            T t = (T) deserialze(parser, type, fieldName, map);
+            T t = (T) deserialize(parser, type, fieldName, map);
             if (unmodifiableMap) {
                 t = (T) Collections.unmodifiableMap((Map) t);
             }
@@ -51,7 +51,7 @@ public class MapDeserializer implements ObjectDeserializer {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map map) {
+    protected Object deserialize(DefaultJSONParser parser, Type type, Object fieldName, Map map) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
@@ -181,7 +181,7 @@ public class MapDeserializer implements ObjectDeserializer {
                         parser.popContext();
                     }
 
-                    return (Map) deserializer.deserialze(parser, clazz, fieldName);
+                    return (Map) deserializer.deserialize(parser, clazz, fieldName);
                 }
 
                 Object value;
@@ -300,9 +300,9 @@ public class MapDeserializer implements ObjectDeserializer {
                     lexer.nextToken();
                     DefaultJSONParser keyParser = new DefaultJSONParser(keyStrValue, parser.getConfig(), parser.getLexer().getFeatures());
                     keyParser.setDateFormat(parser.getDateFomartPattern());
-                    key = keyDeserializer.deserialze(keyParser, keyType, null);
+                    key = keyDeserializer.deserialize(keyParser, keyType, null);
                 } else {
-                    key = keyDeserializer.deserialze(parser, keyType, null);
+                    key = keyDeserializer.deserialize(parser, keyType, null);
                 }
 
                 if (lexer.token() != JSONToken.COLON) {
@@ -311,7 +311,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
                 lexer.nextToken(valueDeserializer.getFastMatchToken());
 
-                Object value = valueDeserializer.deserialze(parser, valueType, key);
+                Object value = valueDeserializer.deserialize(parser, valueType, key);
                 parser.checkMapResolve(map, key);
 
                 map.put(key, value);

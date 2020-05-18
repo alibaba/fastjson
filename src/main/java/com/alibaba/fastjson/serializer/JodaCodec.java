@@ -47,11 +47,11 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
     private final static DateTimeFormatter formatter_iso8601  = DateTimeFormat.forPattern(formatter_iso8601_pattern);
 
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-        return deserialze(parser, type, fieldName, null, 0);
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
+        return deserialize(parser, type, fieldName, null, 0);
     }
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
         JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL){
             lexer.nextToken();

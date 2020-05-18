@@ -27,7 +27,7 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialize(DefaultJSONParser parser, Type type, Object fieldName) {
         Type rawType = type;
         if (type instanceof ParameterizedType) {
             rawType = ((ParameterizedType) type).getRawType();

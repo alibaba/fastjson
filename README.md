@@ -35,7 +35,7 @@ https://github.com/eishay/jvm-serializers/wiki
 - [maven][1]
 - [the latest JAR][2]
 
-[1]: http://repo1.maven.org/maven2/com/alibaba/fastjson/
+[1]: https://repo1.maven.org/maven2/com/alibaba/fastjson/
 [2]: https://search.maven.org/remote_content?g=com.alibaba&a=fastjson&v=LATEST
 
 ## Maven
@@ -44,7 +44,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.61</version>
+    <version>1.2.68</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ https://github.com/eishay/jvm-serializers/wiki
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.61'
+compile 'com.alibaba:fastjson:1.2.68'
 ```
 
 ``` groovy

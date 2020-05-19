@@ -1,12 +1,43 @@
 package com.alibaba.json.bvt.issue_2000;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
+import org.junit.Test;
 
 public class Issue2065 extends TestCase {
+
     public void test_for_issue() throws Exception {
-        // JSON.parseObject("{\"code\":1}", Model.class);
+        Exception error = null;
+        try {
+            JSON.parseObject("{\"code\":1}", Model.class);
+        } catch (JSONException e) {
+            error = e;
+        }
+        assertNotNull(error);
+        error.printStackTrace();
+    }
+
+    public void test_for_issue_01() {
+        Exception error = null;
+        try {
+            JSON.parseObject("1", EnumClass.class);
+        } catch (JSONException e) {
+            error = e;
+        }
+        assertNotNull(error);
+        error.printStackTrace();
+    }
+
+    @Test
+    public void test_for_issue_02() {
+        JSON.parseObject("0", EnumClass.class);
+    }
+
+    @Test
+    public void test_for_issue_03() {
+        JSON.parseObject("{\"code\":0}", Model.class);
     }
 
     public static class Model {

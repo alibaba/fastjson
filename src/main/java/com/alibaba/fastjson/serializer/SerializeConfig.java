@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  */
 public class SerializeConfig {
 
-    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
+    public static SerializeConfig                   globalInstance  = new SerializeConfig();
 
     private static boolean                                awtError        = false;
     private static boolean                                jdk8Error       = false;
@@ -282,6 +282,19 @@ public class SerializeConfig {
 	public static SerializeConfig getGlobalInstance() {
 		return globalInstance;
 	}
+
+    /**
+     * 设置全局默认的序列化配置
+     * 提供一个可覆盖默认的序列化配置的方法
+     * @author zhu.xiaojie
+     * @time 2020-5-20
+     */
+    public static void setGlobalInstance(SerializeConfig serializeConfig){
+        if(serializeConfig == null){
+            throw new NullPointerException("serializeConfig is null");
+        }
+        globalInstance = serializeConfig;
+    }
 
 	public SerializeConfig() {
 		this(IdentityHashMap.DEFAULT_SIZE);

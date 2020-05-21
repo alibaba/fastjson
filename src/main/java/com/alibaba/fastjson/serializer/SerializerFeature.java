@@ -206,5 +206,6 @@ public enum SerializerFeature {
             | WriteNullListAsEmpty.getMask()
             | WriteNullNumberAsZero.getMask()
             | WriteNullStringAsEmpty.getMask()
+            | QuoteFieldNames.getMask()
             ;
 }

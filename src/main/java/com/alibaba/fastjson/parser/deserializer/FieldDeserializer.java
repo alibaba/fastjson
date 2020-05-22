@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -102,7 +103,17 @@ public abstract class FieldDeserializer {
                                 return;
                             }
 
-                            collection.clear();
+                            if (!collection.isEmpty()) {
+                                collection.clear();
+                            }
+
+                            if (collection.getClass().getName().equals("kotlin.collections.EmptyList")) {
+                                if (fieldInfo.field != null
+                                        && !Modifier.isFinal(fieldInfo.field.getModifiers())) {
+                                    fieldInfo.field.set(object, (Collection) value);
+                                }
+                                return;
+                            }
                             collection.addAll((Collection) value);
                         }
                     }

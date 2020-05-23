@@ -104,9 +104,10 @@ public abstract class FieldDeserializer {
                     } else {
                         Collection collection = (Collection) method.invoke(object);
                         if (collection != null && value != null) {
+                            String collectionClassName = collection.getClass().getName();
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
-                                    || collection.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                    || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;
                             }
@@ -115,7 +116,8 @@ public abstract class FieldDeserializer {
                                 collection.clear();
                             }
 
-                            if (collection.getClass().getName().equals("kotlin.collections.EmptyList")) {
+                            if (collectionClassName.equals("kotlin.collections.EmptyList")
+                                || collectionClassName.equals("kotlin.collections.EmptySet")) {
                                 if (fieldInfo.field != null
                                         && !Modifier.isFinal(fieldInfo.field.getModifiers())) {
                                     fieldInfo.field.set(object, (Collection) value);

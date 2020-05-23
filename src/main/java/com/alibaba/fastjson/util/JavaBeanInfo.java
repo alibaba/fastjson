@@ -904,7 +904,8 @@ public class JavaBeanInfo {
                                 continue;
                             }
 
-                            if (Collection.class.isAssignableFrom(method.getReturnType())) {
+                            if (Collection.class.isAssignableFrom(method.getReturnType())
+                                || Map.class.isAssignableFrom(method.getReturnType())) {
                                 collectionField = field;
                             }
                         }

@@ -90,6 +90,14 @@ public abstract class FieldDeserializer {
                                 // skip
                                 return;
                             }
+
+                            if (map.getClass().getName().equals("kotlin.collections.EmptyMap")) {
+                                if (fieldInfo.field != null
+                                        && !Modifier.isFinal(fieldInfo.field.getModifiers())) {
+                                    fieldInfo.field.set(object, value);
+                                }
+                                return;
+                            }
                             
                             map.putAll((Map) value);
                         }

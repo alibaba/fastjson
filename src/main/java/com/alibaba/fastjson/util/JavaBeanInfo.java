@@ -885,6 +885,7 @@ public class JavaBeanInfo {
                         || AtomicLong.class == method.getReturnType() //
                         ) {
                     String propertyName;
+                    Field collectionField = null;
 
                     JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
                     if (annotation != null && annotation.deserialize()) {
@@ -902,6 +903,11 @@ public class JavaBeanInfo {
                             if (fieldAnnotation != null && !fieldAnnotation.deserialize()) {
                                 continue;
                             }
+
+                            if (Collection.class.isAssignableFrom(method.getReturnType())
+                                || Map.class.isAssignableFrom(method.getReturnType())) {
+                                collectionField = field;
+                            }
                         }
                     }
 
@@ -914,7 +920,7 @@ public class JavaBeanInfo {
                         continue;
                     }
 
-                    add(fieldList, new FieldInfo(propertyName, method, null, clazz, type, 0, 0, 0, annotation, null, null, genericInfo));
+                    add(fieldList, new FieldInfo(propertyName, method, collectionField, clazz, type, 0, 0, 0, annotation, null, null, genericInfo));
                 }
             }
         }

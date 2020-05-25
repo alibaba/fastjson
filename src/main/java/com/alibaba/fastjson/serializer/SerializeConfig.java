@@ -751,6 +751,11 @@ public class SerializeConfig {
                     return writer;
                 }
 
+                if ("com.google.protobuf.Descriptors$FieldDescriptor".equals(className)) {
+                    put(clazz, writer = ToStringSerializer.instance);
+                    return writer;
+                }
+
                 Class[] interfaces = clazz.getInterfaces();
                 if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
                     put(clazz, AnnotationSerializer.instance);

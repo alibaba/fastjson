@@ -1370,7 +1370,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     continue;
                 }
 
-                if (field != null) {
+                if (field != null && fieldInfo.method == null) {
                     Class fieldType = field.getType();
                     if (fieldType == boolean.class) {
                         if (value == Boolean.FALSE) {

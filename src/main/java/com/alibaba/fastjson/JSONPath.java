@@ -3844,6 +3844,10 @@ public class JSONPath implements JSONAware {
                 return false;
             }
 
+            if (value != null && value.getClass() != fieldDeserializer.fieldInfo.fieldClass) {
+                value = TypeUtils.cast(value, fieldDeserializer.fieldInfo.fieldType, parserConfig);
+            }
+
             fieldDeserializer.setValue(parent, value);
             return true;
         }

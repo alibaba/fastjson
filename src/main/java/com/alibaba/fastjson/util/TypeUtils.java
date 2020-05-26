@@ -1962,11 +1962,11 @@ public class TypeUtils{
                     }
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
-                    propertyName = methodName.substring(4);
+                    propertyName = methodName.substring(3);
                     field = fieldCacheMap.get(propertyName);
                     if (field == null) {
                         String temp = propertyName;
-                        propertyName = methodName.substring(3);
+                        propertyName = methodName.substring(4);
                         field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                         if (field == null) {
                             propertyName = temp; //减少修改代码带来的影响

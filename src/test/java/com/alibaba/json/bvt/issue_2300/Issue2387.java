@@ -9,7 +9,7 @@ public class Issue2387 extends TestCase
     public void test_for_issue() throws Exception {
         String jsonStr = "{id:\"ss\",ddd:\"sdfsd\",name:\"hh\"}";
         TestEntity news = JSON.parseObject(jsonStr, TestEntity.class, Feature.InitStringFieldAsEmpty);
-        assertEquals("{\"ddd\":\"\",\"id\":\"\",\"name\":\"\"}", JSON.toJSONString(news));
+        assertEquals("{\"ddd\":\"sdfsd\",\"id\":\"ss\",\"name\":\"hh\"}", JSON.toJSONString(news));
     }
 
     public static class TestEntity {

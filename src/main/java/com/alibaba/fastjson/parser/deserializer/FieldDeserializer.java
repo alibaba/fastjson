@@ -2,6 +2,7 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,20 +90,40 @@ public abstract class FieldDeserializer {
                                 // skip
                                 return;
                             }
+
+                            if (map.getClass().getName().equals("kotlin.collections.EmptyMap")) {
+                                if (fieldInfo.field != null
+                                        && !Modifier.isFinal(fieldInfo.field.getModifiers())) {
+                                    fieldInfo.field.set(object, value);
+                                }
+                                return;
+                            }
                             
                             map.putAll((Map) value);
                         }
                     } else {
                         Collection collection = (Collection) method.invoke(object);
                         if (collection != null && value != null) {
+                            String collectionClassName = collection.getClass().getName();
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
-                                    || collection.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                                    || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;
                             }
 
-                            collection.clear();
+                            if (!collection.isEmpty()) {
+                                collection.clear();
+                            }
+
+                            if (collectionClassName.equals("kotlin.collections.EmptyList")
+                                || collectionClassName.equals("kotlin.collections.EmptySet")) {
+                                if (fieldInfo.field != null
+                                        && !Modifier.isFinal(fieldInfo.field.getModifiers())) {
+                                    fieldInfo.field.set(object, (Collection) value);
+                                }
+                                return;
+                            }
                             collection.addAll((Collection) value);
                         }
                     }

@@ -38,6 +38,35 @@ public class SafeModeTest extends TestCase {
         }
     }
 
+    public void test_for_default_safeMode() throws Exception {
+        ParserConfig config = new ParserConfig();
+
+        String str = "{\"@type\":\"com.alibaba.json.bvt.parser.SafeModeTest$Entity\"}";
+
+        {
+            Exception error = null;
+            try {
+                JSON.parse(str, config);
+            }
+            catch (JSONException ex) {
+                error = ex;
+            }
+            assertNotNull(error);
+        }
+
+        {
+            Exception error = null;
+            try {
+                config.setSafeMode(true);
+                JSON.parse(str, config);
+            }
+            catch (JSONException ex) {
+                error = ex;
+            }
+            assertNotNull(error);
+        }
+    }
+
     @JSONType
     public static class Entity {
 

@@ -29,7 +29,7 @@ public class TestRefWithQuote {
 
     @Test
     public void testIssue3084() {
-        Map<String, TestRefWithQuote.X> origin = new HashMap<>();
+        Map<String, TestRefWithQuote.X> origin = new HashMap<String, X>();
         TestRefWithQuote.X x = new TestRefWithQuote.X("x");
         origin.put("aaaa\"", x);
         origin.put("bbbb\"", x);

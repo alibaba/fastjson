@@ -18,21 +18,13 @@
 		<gpg.skip>true</gpg.skip>
 		<javadoc.skip>true</javadoc.skip>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jdk.version>1.7</jdk.version>
+		<jdk.version>1.6</jdk.version>
 	</properties>
 
 	<scm>
 		<url>https://github.com/alibaba/fastjson</url>
 		<connection>scm:git:https://git@github.com/alibaba/fastjson.git</connection>
 	</scm>
-
-	<repositories>
-		<repository>
-			<id>local-file</id>
-			<url>file://${basedir}/lib/</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
 
 	<organization>
 		<name>Alibaba Group</name>
@@ -324,6 +316,19 @@
             <groupId>io.airlift</groupId>
             <artifactId>slice</artifactId>
             <version>0.36</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.11.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.11.0</version>
             <scope>provided</scope>
         </dependency>
 

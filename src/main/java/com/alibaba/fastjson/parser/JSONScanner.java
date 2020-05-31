@@ -862,7 +862,8 @@ public final class JSONScanner extends JSONLexerBase {
                     value = value_10 + (ch - '0');
                 } else if (ch == '.') {
                     matchStat = NOT_MATCH;
-                    return 0;
+                    throw new JSONException("error, casting decimal to int");
+//                    return 0;
                 } else {
                     break;
                 }
@@ -1461,7 +1462,8 @@ public final class JSONScanner extends JSONLexerBase {
                     value = value * 10 + (ch - '0');
                 } else if (ch == '.') {
                     matchStat = NOT_MATCH;
-                    return 0;
+                    throw new JSONException("error, casting decimal to long");
+//                    return 0;
                 } else {
                     if (quote) {
                         if (ch != '"') {

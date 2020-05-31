@@ -495,6 +495,8 @@ public class DefaultJSONParser implements Closeable {
                         value = lexer.integerValue();
                     } else {
                         value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));
+                        BigDecimal bigDecimal = new BigDecimal(value.toString());
+                        value = bigDecimal.doubleValue();
                     }
 
                     map.put(key, value);

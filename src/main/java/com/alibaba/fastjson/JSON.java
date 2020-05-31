@@ -1306,5 +1306,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return null;
     }
 
+<<<<<<< Updated upstream
     public final static String VERSION = "1.2.70";
+=======
+    public final static String VERSION = "1.2.71";
+>>>>>>> Stashed changes
 }

@@ -946,6 +946,7 @@ public final class JSONScanner extends JSONLexerBase {
         int startPos = this.bp;
         char startChar = this.ch;
 
+
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
@@ -965,9 +966,11 @@ public final class JSONScanner extends JSONLexerBase {
 
         int index = bp + fieldName.length;
 
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
             while (isWhitespace(ch)) {
+                spaceCount++;
                 ch = charAt(index++);
             }
 
@@ -1003,8 +1006,8 @@ public final class JSONScanner extends JSONLexerBase {
                     endIndex = indexOf('"', endIndex + 1);
                 }
 
-                int chars_len = endIndex - (bp + fieldName.length + 1);
-                char[] chars = sub_chars(bp + fieldName.length + 1, chars_len);
+                int chars_len = endIndex - (bp + fieldName.length + 1 + spaceCount);
+                char[] chars = sub_chars(bp + fieldName.length + 1 + spaceCount, chars_len);
 
                 stringVal = readString(chars, chars_len);
             }
@@ -1196,11 +1199,12 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         int index = bp + fieldName.length;
-
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
             while (isWhitespace(ch)) {
                 ch = charAt(index++);
+                spaceCount++;
             }
 
             if (ch != '"') {

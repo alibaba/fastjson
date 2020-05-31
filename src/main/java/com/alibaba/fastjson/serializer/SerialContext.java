@@ -59,6 +59,10 @@ public class SerialContext {
                         } else if ((ch >= '0' && ch <='9') || (ch >= 'A' && ch <='Z') || (ch >= 'a' && ch <='z') || ch > 128) {
                             buf.append(ch);
                             continue;
+                        } else if(ch == '\"'){
+                            buf.append('\\');
+                            buf.append('\\');
+                            buf.append('\\');
                         } else {
                             buf.append('\\');
                             buf.append('\\');

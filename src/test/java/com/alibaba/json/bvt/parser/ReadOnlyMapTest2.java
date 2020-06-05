@@ -14,7 +14,7 @@ public class ReadOnlyMapTest2 extends TestCase {
         String text = "{\"values\":{\"a\":{}}}";
         Entity entity = JSON.parseObject(text, Entity.class);
         Assert.assertNotNull(entity);
-        Assert.assertNull(entity.values);
+        Assert.assertNotNull(entity.values);
     }
 
     public static class Entity {

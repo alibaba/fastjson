@@ -6,8 +6,14 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONScanner;
 
 public class JSONPatch {
-    public static Object apply(String original, String patch) {
-        Object object = JSON.parse(original, Feature.OrderedField);
+    public static String apply(String original, String patch) {
+        Object object
+                = apply(
+                        JSON.parse(original, Feature.OrderedField), patch);
+        return JSON.toJSONString(object);
+    }
+
+    public static Object apply(Object object, String patch) {
         Operation[] operations;
         if (isObject(patch)) {
             operations = new Operation[] {

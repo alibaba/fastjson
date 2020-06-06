@@ -17,7 +17,7 @@ public class JSONPatchTest_0 extends TestCase {
                 "  { \"op\": \"remove\", \"path\": \"/foo\" }\n" +
                 "]";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"baz\":\"boo\",\"hello\":[\"world\"]}", result);
     }
 
@@ -26,7 +26,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"add\", \"path\": \"/a/b/c\", \"value\": [ \"foo\", \"bar\" ] }";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"a\":{\"b\":{\"c\":[\"foo\",\"bar\"]}}}", result);
     }
 
@@ -35,7 +35,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"remove\", \"path\": \"/a/b/c\" }\n";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{}", result);
     }
 
@@ -44,7 +44,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"remove\", \"path\": \"/a/b/c\" }\n";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"a\":{\"b\":{}}}", result);
     }
 
@@ -53,7 +53,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"replace\", \"path\": \"/a/b/c\", \"value\": 42 }";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"a\":{\"b\":{\"c\":42}}}", result);
     }
 
@@ -62,7 +62,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"move\", \"from\": \"/a/b/c\", \"path\": \"/a/b/d\" }";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"a\":{\"b\":{\"d\":[\"foo\",\"bar\"]}}}", result);
     }
 
@@ -71,7 +71,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"copy\", \"from\": \"/a/b/c\", \"path\": \"/a/b/e\" }";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("{\"a\":{\"b\":{\"c\":[\"foo\",\"bar\"],\"e\":[\"foo\",\"bar\"]}}}", result);
     }
 
@@ -81,7 +81,7 @@ public class JSONPatchTest_0 extends TestCase {
 
         String patch = "{ \"op\": \"test\", \"path\": \"/a/b/c\", \"value\": \"foo\" }";
 
-        String result = JSON.toJSONString(JSONPatch.apply(original, patch));
+        String result = JSONPatch.apply(original, patch);
         assertEquals("false", result);
     }
 }

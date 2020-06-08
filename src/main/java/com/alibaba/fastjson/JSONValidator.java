@@ -34,6 +34,10 @@ public abstract class JSONValidator implements Cloneable {
     }
 
     public Type getType() {
+        if (type == null) {
+            validate();
+        }
+
         return type;
     }
 

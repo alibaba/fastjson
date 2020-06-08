@@ -2882,9 +2882,9 @@ public class TypeUtils{
         long hashCode = 0xcbf29ce484222325L;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
-            if(ch == '_' || ch == '-'){
-                continue;
-            }
+//             if(ch == '_' || ch == '-'){
+//                 continue;
+//             }
             if(ch >= 'A' && ch <= 'Z'){
                 ch = (char) (ch + 32);
             }

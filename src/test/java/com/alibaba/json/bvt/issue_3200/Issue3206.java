@@ -14,7 +14,6 @@ public class Issue3206 extends TestCase {
         assertEquals(JSON.toJSONString(vo), "{\"date\":\"2020-05-30\"}");
 
         String str = JSON.toJSONString(vo, new NameFilter() {
-            @Override
             public String process(Object object, String name, Object value) {
                 return name;
             }

@@ -772,7 +772,7 @@ public class JavaBeanInfo {
                 if (kotlin) {
                     String getMethodName = "g" + methodName.substring(1);
                     if (getMethodNameList.contains(getMethodName)) {
-                        propertyName = getMethodName.substring(3);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(getMethodName);
                     } else {
                         propertyName = "is" + getMethodName.substring(3);
                     }
@@ -780,7 +780,7 @@ public class JavaBeanInfo {
                     if (TypeUtils.compatibleWithJavaBean) {
                         propertyName = TypeUtils.decapitalize(methodName.substring(3));
                     } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
                     }
                 }
 
@@ -895,7 +895,7 @@ public class JavaBeanInfo {
                     if (annotation != null && annotation.name().length() > 0) {
                         propertyName = annotation.name();
                     } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
 
                         Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
                         if (field != null) {

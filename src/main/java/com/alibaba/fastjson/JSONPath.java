@@ -1566,6 +1566,10 @@ public class JSONPath implements JSONAware {
             }
             
             String text = path.substring(start, end);
+
+            if (text.indexOf("\\@") != -1) {
+                text = text.replaceAll("\\\\@", "@");
+            }
             
             if (text.indexOf("\\.") != -1) {
                 String propName;

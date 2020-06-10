@@ -1567,8 +1567,22 @@ public class JSONPath implements JSONAware {
             
             String text = path.substring(start, end);
 
-            if (text.indexOf("\\@") != -1) {
-                text = text.replaceAll("\\\\@", "@");
+            if (text.indexOf('\\') != 0) {
+                StringBuilder buf = new StringBuilder(text.length());
+                for (int i = 0; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+                    if (ch == '\\' && i < text.length() - 1) {
+                        char c2 = text.charAt(i + 1);
+                        if (c2 == '@' || ch == '\\' || ch == '\"') {
+                            buf.append(c2);
+                            i++;
+                            continue;
+                        }
+                    }
+
+                    buf.append(ch);
+                }
+                text = buf.toString();
             }
             
             if (text.indexOf("\\.") != -1) {

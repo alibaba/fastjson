@@ -21,7 +21,7 @@ public class RefTest24
 
         Map<String, Object> data = new LinkedHashMap();
         Map<String, Object> m1 = new LinkedHashMap();
-        m1.put("23299685@47", codeDO);
+        m1.put("23\"299\\6 $85@47", codeDO);
         Map<String, Object> m2 = new LinkedHashMap();
         m2.put("23299685@47", codeDO);
         data.put("com.alibaba.extAppConfigs", m1);

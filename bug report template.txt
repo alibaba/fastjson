@@ -1,0 +1,38 @@
+﻿
+Describe the bug: A concise description of what the bug is
+
+Component:
+If applicable, in which sub-part of the software does it exist
+
+The environment: 
+Desktop (please complete the following information):
+OS: [e.g. Windows 10]
+Browser [e.g. chrome, IE]
+Version [e.g. 22]
+Additional content
+
+Smartphone (please complete the following information):
+Device: [e.g. iPhone7]
+OS: [e.g. iOS13.1]
+Browser [e.g. chrome, safari]
+Version [e.g. 22]
+Additional content
+
+Description: The details of your problem report
+
+To reproduce:
+Describe whether you can reproduce the bug at will, occasionally, or not at all.
+
+If yes, steps to reproduce the bug
+
+Screenshots
+If applicable, add screenshots to help to explain your problem.
+
+Expected results: the description of what you expected to happen.
+
+Actual results: the description of what to happen.
+
+Additional context: 
+
+
+

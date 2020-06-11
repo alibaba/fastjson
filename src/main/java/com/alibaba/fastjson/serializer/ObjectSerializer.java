@@ -67,7 +67,7 @@ public interface ObjectSerializer {
      * @param features parent object field serializer features
      * @throws IOException
      */
-    public void write(JSONSerializer serializer, //
+    void write(JSONSerializer serializer, //
                Object object, //
                Object fieldName, //
                Type fieldType, //

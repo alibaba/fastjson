@@ -15,18 +15,50 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSONException;
+
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class EnumSerializer implements ObjectSerializer {
 
+    private final Member member;
+
+    public EnumSerializer() {
+        this.member = null;
+    }
+
+    public EnumSerializer(Member member) {
+        this.member = member;
+    }
+
     public final static EnumSerializer instance = new EnumSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        SerializeWriter out = serializer.out;
-        out.writeEnum((Enum<?>) object);
+        if (member == null) {
+            SerializeWriter out = serializer.out;
+            out.writeEnum((Enum<?>) object);
+            return;
+        }
+
+        Object fieldValue = null;
+        try {
+            if (member instanceof Field) {
+                fieldValue = ((Field) member).get(object);
+            } else {
+                fieldValue = ((Method) member).invoke(object);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new JSONException("getEnumValue error", e);
+        } catch (IllegalAccessException e) {
+            throw new JSONException("getEnumValue error", e);
+        } catch (InvocationTargetException e) {
+            throw new JSONException("getEnumValue error", e);
+        }
+
+        serializer.write(fieldValue);
     }
 }

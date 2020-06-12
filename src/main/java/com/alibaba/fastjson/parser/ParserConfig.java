@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ClassReader;
@@ -812,8 +813,11 @@ public class ParserConfig {
                 }
             }
 
+            Class mixInType = (Class) JSON.getMixInAnnotations(clazz);
+
             Class<?> deserClass = null;
-            JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(mixInType != null ? mixInType : clazz, JSONType.class);
+
             if (jsonType != null) {
                 deserClass = jsonType.deserializer();
                 try {
@@ -823,6 +827,26 @@ public class ParserConfig {
                 } catch (Throwable error) {
                     // skip
                 }
+            }
+
+            Method jsonCreatorMethod = null;
+            if (mixInType != null) {
+                Method mixedCreator = getEnumCreator(mixInType, clazz);
+                if (mixedCreator != null) {
+                    try {
+                        jsonCreatorMethod = clazz.getMethod(mixedCreator.getName(), mixedCreator.getParameterTypes());
+                    } catch (Exception e) {
+                        // skip
+                    }
+                }
+            } else {
+                jsonCreatorMethod = getEnumCreator(clazz, clazz);
+            }
+
+            if (jsonCreatorMethod != null) {
+                deserializer = new EnumCreatorDeserializer(jsonCreatorMethod);
+                putDeserializer(clazz, deserializer);
+                return deserializer;
             }
 
             deserializer = getEnumDeserializer(clazz);
@@ -848,6 +872,25 @@ public class ParserConfig {
         putDeserializer(type, deserializer);
 
         return deserializer;
+    }
+
+    private static Method getEnumCreator(Class clazz, Class enumClass) {
+        Method[] methods = clazz.getMethods();
+        Method jsonCreatorMethod = null;
+        for (Method method : methods) {
+            if (Modifier.isStatic(method.getModifiers())
+                    && method.getReturnType() == enumClass
+                    && method.getParameterTypes().length == 1
+            ) {
+                JSONCreator jsonCreator = method.getAnnotation(JSONCreator.class);
+                if (jsonCreator != null) {
+                    jsonCreatorMethod = method;
+                    break;
+                }
+            }
+        }
+
+        return jsonCreatorMethod;
     }
 
     /**

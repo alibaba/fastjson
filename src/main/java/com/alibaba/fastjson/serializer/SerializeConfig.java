@@ -196,6 +196,12 @@ public class SerializeConfig {
                     break;
                 }
 
+                if (fieldInfo.fieldClass.isEnum()
+                        && get(fieldInfo.fieldClass) != EnumSerializer.instance) {
+                    asm = false;
+                    break;
+                }
+
     			JSONField annotation = fieldInfo.getAnnotation();
     			
     			if (annotation == null) {
@@ -511,11 +517,39 @@ public class SerializeConfig {
             } else if (JSONStreamAware.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
             } else if (clazz.isEnum()) {
-                JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
+                Class mixedInType = (Class) JSON.getMixInAnnotations(clazz);
+
+                JSONType jsonType;
+                if (mixedInType != null) {
+                    jsonType = TypeUtils.getAnnotation(mixedInType, JSONType.class);
+                } else {
+                    jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
+                }
+
                 if (jsonType != null && jsonType.serializeEnumAsJavaBean()) {
                     put(clazz, writer = createJavaBeanSerializer(clazz));
                 } else {
-                    put(clazz, writer = getEnumSerializer());
+                    Member member = null;
+                    if (mixedInType != null) {
+                        Member mixedInMember = getEnumValueField(mixedInType);
+                        if (mixedInMember != null) {
+                            try {
+                                if (mixedInMember instanceof Method) {
+                                    Method mixedInMethod = (Method) mixedInMember;
+                                    member = clazz.getMethod(mixedInMethod.getName(), mixedInMethod.getParameterTypes());
+                                }
+                            } catch (Exception e) {
+                                // skip
+                            }
+                        }
+                    } else {
+                        member = getEnumValueField(clazz);
+                    }
+                    if (member != null) {
+                        put(clazz, writer = new EnumSerializer(member));
+                    } else {
+                        put(clazz, writer = getEnumSerializer());
+                    }
                 }
             } else if ((superClass = clazz.getSuperclass()) != null && superClass.isEnum()) {
                 JSONType jsonType = TypeUtils.getAnnotation(superClass, JSONType.class);
@@ -806,6 +840,40 @@ public class SerializeConfig {
             }
         }
         return writer;
+    }
+
+    private static Member getEnumValueField(Class clazz) {
+        Member member = null;
+
+        Method[] methods = clazz.getMethods();
+
+        for (Method method : methods) {
+            if (method.getReturnType() == Void.class) {
+                continue;
+            }
+            JSONField jsonField = method.getAnnotation(JSONField.class);
+            if (jsonField != null) {
+                if (member != null) {
+                    return null;
+                }
+
+                member = method;
+            }
+        }
+
+        for (Field field : clazz.getFields()) {
+            JSONField jsonField = field.getAnnotation(JSONField.class);
+
+            if (jsonField != null) {
+                if (member != null) {
+                    return null;
+                }
+
+                member = field;
+            }
+        }
+
+        return member;
     }
 
     /**

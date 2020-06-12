@@ -160,7 +160,13 @@ public class MapDeserializer implements ObjectDeserializer {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     final ParserConfig config = parser.getConfig();
 
-                    Class<?> clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+                    Class<?> clazz;
+
+                    if (typeName.equals("java.util.HashMap")) {
+                        clazz = java.util.HashMap.class;
+                    } else {
+                        clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+                    }
 
                     if (Map.class.isAssignableFrom(clazz) ) {
                         lexer.nextToken(JSONToken.COMMA);

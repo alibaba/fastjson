@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.deserializer.issue3259;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import org.junit.Assert;
@@ -57,10 +58,15 @@ public class TestIssue3259 {
 
 
         String r = JSON.toJSONString(message);
-        Response c = JSON.parseObject(r, Response.class);
-
+        // 如果没有修改DefaultJSONParser.java
         // 反序列化出来C对象，丢了test2Vo的B属性
-        Assert.assertEquals(r, JSON.toJSONString(c));
+        Response c = JSON.parseObject(r, Response.class);
+        CommonResult<JSONObject> cc1 = (CommonResult<JSONObject>) c.getResponse();
+
+        Test0Vo test0Vo1 = JSON.toJavaObject(cc1.getResultData(),Test0Vo.class) ;
+
+
+        Assert.assertEquals(JSON.toJSONString(test2Vo.getB()), JSON.toJSONString(test0Vo1.getVoMap().get(1L).getTest2Vo().getB()));
 
     }
 

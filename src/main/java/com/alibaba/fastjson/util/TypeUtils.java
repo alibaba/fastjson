@@ -786,7 +786,7 @@ public class TypeUtils{
             if(ch == '+' || ch == '-'){
                 if(i != 0){
                     return false;
-                } 
+                }
             } else if(ch < '0' || ch > '9'){
                 return false;
             }
@@ -844,7 +844,7 @@ public class TypeUtils{
                 return castToLong(value2);
             }
         }
-        
+
         throw new JSONException("can not cast to long, value : " + value);
     }
 
@@ -927,7 +927,7 @@ public class TypeUtils{
             if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
-            
+
             Matcher matcher = NUMBER_WITH_TRAILING_ZEROS_PATTERN.matcher(strVal);
             if(matcher.find()) {
                 strVal = matcher.replaceAll("");
@@ -1958,7 +1958,7 @@ public class TypeUtils{
                     if(compatibleWithJavaBean){
                         propertyName = decapitalize(methodName.substring(3));
                     } else{
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
                     }
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
@@ -1992,7 +1992,7 @@ public class TypeUtils{
                     // 假如bean的field很多的情况一下，轮询时将大大降低效率
                     field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                 }
-                
+
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
@@ -2080,11 +2080,11 @@ public class TypeUtils{
                 if(ignore){
                     continue;
                 }
-                
+
                 if(field == null) {
                     field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                 }
-                
+
                 if(field == null){
                     field = ParserConfig.getFieldFromCache(methodName, fieldCacheMap);
                 }
@@ -2435,6 +2435,16 @@ public class TypeUtils{
         char[] chars = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
+    }
+
+    /**
+     * resolve property name from get/set method name
+     *
+     * @param methodName get/set method name
+     * @return property name
+     */
+    public static String getPropertyNameByMethodName(String methodName) {
+        return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
     }
 
     static void setAccessible(AccessibleObject obj){

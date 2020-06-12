@@ -367,7 +367,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, ParseProcess processor,
                                           int featureValues, Feature... features) {
-        if (input == null || input.isEmpty()) {
+        if (input == null || input.length() == 0) {
             return null;
         }
 

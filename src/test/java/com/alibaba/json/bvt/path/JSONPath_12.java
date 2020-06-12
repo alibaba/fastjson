@@ -35,12 +35,15 @@ public class JSONPath_12
                 "  \"title\": \"Brand Name\",\n" +
                 "  \"type\": \"String\"\n" +
                 "}");
-        JSONPath.set(schemaResult, jsonPath + "['" + attributeName + "']" , attributeValue);
+        assertTrue(
+                JSONPath.set(schemaResult, jsonPath + "['" + attributeName + "']" , attributeValue)
+        );
+
         assertTrue(JSONPath.contains(schemaResult, jsonPath + "['" + attributeName + "']"));
         JSONObject newAttribute = (JSONObject)JSONPath.eval(schemaResult, jsonPath);
         System.out.println(schemaResult);
         System.out.println(JSONPath.read(schemaResult.toJSONString(), jsonPath + "['" + attributeName + "']"));
-        assertTrue(newAttribute.containsKey(attributeName));
+        assertTrue(newAttribute.containsKey("Brand. Name"));
     }
 
 }

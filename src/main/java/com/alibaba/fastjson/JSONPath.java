@@ -843,6 +843,11 @@ public class JSONPath implements JSONAware {
 
                 if (ch == '$') {
                     next();
+                    skipWhitespace();
+                    if (ch == '?') {
+                        return new FilterSegment(
+                                (Filter) parseArrayAccessFilter(false));
+                    }
                     continue;
                 }
 
@@ -957,7 +962,7 @@ public class JSONPath implements JSONAware {
                 predicateFlag = true;
             }
 
-            //
+            skipWhitespace();
 
             if (predicateFlag
                     || IOUtils.firstIdentifier(ch)
@@ -1975,7 +1980,8 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
-            throw new UnsupportedOperationException();
+            Object object = parser.parse();
+            context.object = path.evalSize(object);
         }
     }
 
@@ -3277,7 +3283,8 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
-            throw new UnsupportedOperationException();
+            Object object = parser.parse();
+            context.object = eval(path, object, object);
         }
 
         public boolean remove(JSONPath path, Object rootObject, Object currentObject) {

@@ -125,6 +125,11 @@ public class JSONPath implements JSONAware {
             return parser.parse();
         }
 
+        if (segments[segments.length - 1] instanceof TypeSegment) {
+            return eval(
+                    parser.parse());
+        }
+
         Context context = null;
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
@@ -897,6 +902,8 @@ public class JSONPath implements JSONAware {
                                 return MinSegment.instance;
                             } else if ("keySet".equals(propertyName)) {
                                 return KeySetSegment.instance;
+                            } else if ("type".equals(propertyName)) {
+                                return TypeSegment.instance;
                             }
 
                             throw new JSONPathException("not support jsonpath : " + path);
@@ -1982,6 +1989,41 @@ public class JSONPath implements JSONAware {
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
             Object object = parser.parse();
             context.object = path.evalSize(object);
+        }
+    }
+
+    static class TypeSegment implements Segment {
+
+        public final static TypeSegment instance = new TypeSegment();
+
+        public String eval(JSONPath path, Object rootObject, Object currentObject) {
+            if (currentObject == null) {
+                return "null";
+            }
+
+            if (currentObject instanceof Collection) {
+                return "array";
+            }
+
+            if (currentObject instanceof Number) {
+                return "number";
+            }
+
+            if (currentObject instanceof Boolean) {
+                return "boolean";
+            }
+
+            if (currentObject instanceof String
+                    || currentObject instanceof UUID
+                    || currentObject instanceof Enum) {
+                return "string";
+            }
+
+            return "object";
+        }
+
+        public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            throw new UnsupportedOperationException();
         }
     }
 

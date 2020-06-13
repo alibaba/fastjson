@@ -33,6 +33,14 @@ public abstract class JSONValidator implements Cloneable {
         return new ReaderValidator(r);
     }
 
+    public boolean isSupportMultiValue() {
+        return supportMultiValue;
+    }
+
+    public void setSupportMultiValue(boolean supportMultiValue) {
+        this.supportMultiValue = supportMultiValue;
+    }
+
     public Type getType() {
         if (type == null) {
             validate();
@@ -58,7 +66,7 @@ public abstract class JSONValidator implements Cloneable {
                 }
                 continue;
             } else {
-                break;
+                return false;
             }
         }
 

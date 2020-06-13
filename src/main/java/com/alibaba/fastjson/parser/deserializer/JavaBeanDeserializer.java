@@ -39,6 +39,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private transient long[] hashArray;
     private transient short[] hashArrayMapping;
+
+    private final ParserConfig.AutoTypeCheckHandler autoTypeCheckHandler;
     
     public JavaBeanDeserializer(ParserConfig config, Class<?> clazz) {
         this(config, clazz, clazz);
@@ -53,6 +55,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     public JavaBeanDeserializer(ParserConfig config, JavaBeanInfo beanInfo){
         this.clazz = beanInfo.clazz;
         this.beanInfo = beanInfo;
+
+        ParserConfig.AutoTypeCheckHandler autoTypeCheckHandler = null;
+        if (beanInfo.jsonType != null && beanInfo.jsonType.autoTypeCheckHandler() != ParserConfig.AutoTypeCheckHandler.class) {
+            try {
+                autoTypeCheckHandler = beanInfo.jsonType.autoTypeCheckHandler().newInstance();
+            } catch (Exception e) {
+                //
+            }
+        }
+        this.autoTypeCheckHandler = autoTypeCheckHandler;
 
         Map<String, FieldDeserializer> alterNameFieldDeserializers = null;
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
@@ -801,7 +813,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                             if (deserializer == null) {
                                 Class<?> expectClass = TypeUtils.getClass(type);
-                                userType = config.checkAutoType(typeName, expectClass, lexer.getFeatures());
+
+                                if (autoTypeCheckHandler != null) {
+                                    userType = autoTypeCheckHandler.handler(typeName, expectClass, lexer.getFeatures());
+                                }
+
+                                if (userType == null) {
+                                    userType = config.checkAutoType(typeName, expectClass, lexer.getFeatures());
+                                }
                                 deserializer = parser.getConfig().getDeserializer(userType);
                             }
 

@@ -35,7 +35,6 @@ import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -854,6 +853,42 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * Use the date format in FastJsonConfig to serialize JSON
+     *
+     * @param  dateFormat the date format in FastJsonConfigs
+     * @since 1.2.55
+     */
+    public static byte[] toJSONBytesWithFastJsonConfig(Charset charset, //
+                                     Object object, //
+                                     SerializeConfig config, //
+                                     SerializeFilter[] filters, //
+                                     String dateFormat, //
+                                     int defaultFeatures, //
+                                     SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+            return out.toBytes(charset);
+        } finally {
+            out.close();
+        }
+    }
+
     public static String toJSONString(Object object, boolean prettyFormat) {
         if (!prettyFormat) {
             return toJSONString(object);
@@ -966,6 +1001,39 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             
             serializer.write(object);
             
+            int len = writer.writeToEx(os, charset);
+            return len;
+        } finally {
+            writer.close();
+        }
+    }
+
+    public static final int writeJSONStringWithFastJsonConfig(OutputStream os, //
+                                            Charset charset, //
+                                            Object object, //
+                                            SerializeConfig config, //
+                                            SerializeFilter[] filters, //
+                                            String dateFormat, //
+                                            int defaultFeatures, //
+                                            SerializerFeature... features) throws IOException {
+        SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(writer, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+
             int len = writer.writeToEx(os, charset);
             return len;
         } finally {

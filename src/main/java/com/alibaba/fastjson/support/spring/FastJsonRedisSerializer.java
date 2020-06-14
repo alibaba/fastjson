@@ -34,7 +34,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
             return new byte[0];
         }
         try {
-            return JSON.toJSONBytes(
+            return JSON.toJSONBytesWithFastJsonConfig(
                     fastJsonConfig.getCharset(),
                     t,
                     fastJsonConfig.getSerializeConfig(),

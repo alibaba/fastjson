@@ -84,7 +84,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
             if (payload instanceof String && JSON.isValid((String) payload)) {
                 obj = ((String) payload).getBytes(fastJsonConfig.getCharset());
             } else {
-                obj = JSON.toJSONBytes(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
+                obj = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
                         fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
             }
         } else {

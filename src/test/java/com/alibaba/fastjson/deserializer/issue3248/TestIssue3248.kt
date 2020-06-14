@@ -15,15 +15,19 @@ class TestIssue3248 {
     @JSONField(name = "namex")
     var name = ""
 
+    var isTest: Boolean = false
+
     @Test
     fun test() {
 
         val test = TestIssue3248().also {
             it.name = "my name"
+            it.isTest = true
         }
         val raw = JSON.toJSONString(test)
         val parsed = JSON.parseObject(raw, TestIssue3248::class.java)
         Assert.assertEquals(test.name, parsed.name)
+        Assert.assertEquals(test.isTest, parsed.isTest)
 
     }
 }

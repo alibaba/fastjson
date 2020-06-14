@@ -771,11 +771,7 @@ public class JavaBeanInfo {
                 // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, isAbc的get方法名为isAbc(), abc的get方法名为getAbc()
                 if (kotlin) {
                     String getMethodName = "g" + methodName.substring(1);
-                    if (getMethodNameList.contains(getMethodName)) {
-                        propertyName = TypeUtils.getPropertyNameByMethodName(getMethodName);
-                    } else {
-                        propertyName = "is" + getMethodName.substring(3);
-                    }
+                    propertyName = TypeUtils.getPropertyNameByMethodName(getMethodName);
                 } else {
                     if (TypeUtils.compatibleWithJavaBean) {
                         propertyName = TypeUtils.decapitalize(methodName.substring(3));

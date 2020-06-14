@@ -21,6 +21,7 @@ import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
@@ -188,14 +189,18 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
+        if (sp > 65535) {
+            throw new JSONException("decimal overflow");
+        }
+
         int offset = np, count = sp;
         if (count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
-            return new BigDecimal(sbuf, 0, count);
+            return new BigDecimal(sbuf, 0, count, MathContext.UNLIMITED);
         } else {
             char[] chars = new char[count];
             text.getChars(offset, offset + count, chars, 0);
-            return new BigDecimal(chars);
+            return new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         }
     }
 

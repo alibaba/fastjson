@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -70,6 +71,11 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         if (lexer.token() == JSONToken.LITERAL_INT) {
             String val = lexer.numberString();
             lexer.nextToken(JSONToken.COMMA);
+
+            if (val.length() > 65535) {
+                throw new JSONException("decimal overflow");
+            }
+
             return (T) new BigInteger(val);
         }
 

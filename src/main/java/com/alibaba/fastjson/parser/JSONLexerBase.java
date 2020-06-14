@@ -18,6 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
@@ -458,11 +459,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             // Accumulating negatively avoids surprises near MAX_VALUE
             digit = charAt(i++) - '0';
             if (result < multmin) {
-                return new BigInteger(numberString());
+                return new BigInteger(numberString(), 10);
             }
             result *= 10;
             if (result < limit + digit) {
-                return new BigInteger(numberString());
+                return new BigInteger(numberString(), 10);
             }
             result -= digit;
         }
@@ -3041,8 +3042,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
+            if (count > 65535) {
+                throw new JSONException("decimal overflow");
+            }
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars);
+            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
@@ -3715,8 +3719,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
+            if (count > 65535) {
+                throw new JSONException("scan decimal overflow");
+            }
+
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars);
+            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
                    charAt(bp + offset + 1) == 'l' &&
@@ -3856,8 +3864,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
 //            char[] chars = this.sub_chars(negative ? start + 1 : start, count);
 //            value = new BigInteger(chars, )
+                if (count > 65535) {
+                    throw new JSONException("scanInteger overflow");
+                }
+
                 String strVal = this.subString(start, count);
-                value = new BigInteger(strVal);
+                value = new BigInteger(strVal, 10);
             }
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
@@ -5148,6 +5160,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
                 next();
             }
+        }
+
+        if (sp > 65535) {
+            throw new JSONException("scanNumber overflow");
         }
 
         if (ch == 'L') {

@@ -324,6 +324,10 @@ public class TypeUtils{
         if(value instanceof Map && ((Map) value).size() == 0){
             return null;
         }
+
+        if (strVal.length() > 65535) {
+            throw new JSONException("decimal overflow");
+        }
         return new BigDecimal(strVal);
     }
 
@@ -350,6 +354,11 @@ public class TypeUtils{
                 || "NULL".equals(strVal)){
             return null;
         }
+
+        if (strVal.length() > 65535) {
+            throw new JSONException("decimal overflow");
+        }
+
         return new BigInteger(strVal);
     }
 

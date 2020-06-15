@@ -309,7 +309,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             }
 
 
-            int len = JSON.writeJSONString(outnew, //
+            int len = JSON.writeJSONStringWithFastJsonConfig(outnew, //
                     fastJsonConfig.getCharset(), //
                     value, //
                     fastJsonConfig.getSerializeConfig(), //

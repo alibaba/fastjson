@@ -907,8 +907,39 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (alterNameFieldDeserializers != null) {
             return alterNameFieldDeserializers.get(key);
         }
+
+        if (this.smartMatchHashArray == null) {
+            long[] hashArray = new long[sortedFieldDeserializers.length];
+            for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
+            }
+            Arrays.sort(hashArray);
+            this.smartMatchHashArray = hashArray;
+        }
+
+        long smartKeyHash = TypeUtils.fnv_64_lower(key);
+        int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+        if (pos >= 0) {
+            if (smartMatchHashArrayMapping == null) {
+                int[] mapping = new int[smartMatchHashArray.length];
+                Arrays.fill(mapping, -1);
+                for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                    int p = Arrays.binarySearch(smartMatchHashArray
+                            , TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name));
+                    if (p >= 0) {
+                        mapping[p] = i;
+                    }
+                }
+                smartMatchHashArrayMapping = mapping;
+            }
+
+            int deserIndex = smartMatchHashArrayMapping[pos];
+            if (deserIndex != -1) {
+                return sortedFieldDeserializers[deserIndex];
+            }
+        }
         
-        return null;  // key not found.
+        return smartMatch(key);  // key not found.
     }
 
 
@@ -920,48 +951,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         FieldDeserializer fieldDeserializer = getFieldDeserializer(key);
 
         if (fieldDeserializer == null) {
-            long smartKeyHash = TypeUtils.fnv_64_lower(key);
-            if (this.smartMatchHashArray == null) {
-                long[] hashArray = new long[sortedFieldDeserializers.length];
-                for (int i = 0; i < sortedFieldDeserializers.length; i++) {
-                    hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
-                }
-                Arrays.sort(hashArray);
-                this.smartMatchHashArray = hashArray;
-            }
-
-            // smartMatchHashArrayMapping
-
-            int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
-            boolean is = false;
-            if (pos < 0 && (is = key.startsWith("is"))) {
-                smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
-                pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
-            }
-
-            if (pos >= 0) {
-                if (smartMatchHashArrayMapping == null) {
-                    int[] mapping = new int[smartMatchHashArray.length];
-                    Arrays.fill(mapping, -1);
-                    for (int i = 0; i < sortedFieldDeserializers.length; i++) {
-                        int p = Arrays.binarySearch(smartMatchHashArray
-                                , TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name));
-                        if (p >= 0) {
-                            mapping[p] = i;
-                        }
-                    }
-                    smartMatchHashArrayMapping = mapping;
-                }
-
-                int deserIndex = smartMatchHashArrayMapping[pos];
-                if (deserIndex != -1) {
-                    fieldDeserializer = sortedFieldDeserializers[deserIndex];
-                    Class fieldClass = fieldDeserializer.fieldInfo.fieldClass;
-                    if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
-                        fieldDeserializer = null;
-                    }
-                }
-            }
+            fieldDeserializer = smartMatch(key);
         }
 
         final int mask = Feature.SupportNonPublicField.mask;
@@ -1012,6 +1002,54 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         fieldDeserializer.parseField(parser, object, objectType, fieldValues);
 
         return true;
+    }
+
+    private FieldDeserializer smartMatch(String key) {
+        long smartKeyHash = TypeUtils.fnv_64_lower(key);
+        if (this.smartMatchHashArray == null) {
+            long[] hashArray = new long[sortedFieldDeserializers.length];
+            for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                hashArray[i] = TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name);
+            }
+            Arrays.sort(hashArray);
+            this.smartMatchHashArray = hashArray;
+        }
+
+        // smartMatchHashArrayMapping
+
+        int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+        boolean is = false;
+        if (pos < 0 && (is = key.startsWith("is"))) {
+            smartKeyHash = TypeUtils.fnv_64_lower(key.substring(2));
+            pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
+        }
+
+        if (pos >= 0) {
+            if (smartMatchHashArrayMapping == null) {
+                int[] mapping = new int[smartMatchHashArray.length];
+                Arrays.fill(mapping, -1);
+                for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                    int p = Arrays.binarySearch(smartMatchHashArray
+                            , TypeUtils.fnv_64_lower(sortedFieldDeserializers[i].fieldInfo.name));
+                    if (p >= 0) {
+                        mapping[p] = i;
+                    }
+                }
+                smartMatchHashArrayMapping = mapping;
+            }
+
+            int deserIndex = smartMatchHashArrayMapping[pos];
+            if (deserIndex != -1) {
+                FieldDeserializer fieldDeserializer = sortedFieldDeserializers[deserIndex];
+                Class fieldClass = fieldDeserializer.fieldInfo.fieldClass;
+                if (is && (fieldClass != boolean.class && fieldClass != Boolean.class)) {
+                    fieldDeserializer = null;
+                }
+
+                return fieldDeserializer;
+            }
+        }
+        return null;
     }
 
     void parseExtra(DefaultJSONParser parser, Object object, String key) {

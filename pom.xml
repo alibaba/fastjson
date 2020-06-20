@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.1.71.android_preview_06</version>
+	<version>1.1.72.android_preview_02</version>
 
 	<packaging>jar</packaging>
 	<name>fastjson</name>
@@ -241,6 +241,13 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.15</version>
 			<scope>test</scope>
 		</dependency>
 

@@ -263,6 +263,10 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 return null;
             }
 
+            if (strVal.length() == 23 && strVal.endsWith(" 000")) {
+                strVal = strVal.substring(0, 19);
+            }
+
             {
                 JSONScanner dateLexer = new JSONScanner(strVal);
                 try {

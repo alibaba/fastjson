@@ -32,6 +32,8 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -1837,18 +1839,24 @@ public class TypeUtils{
             if(Modifier.isStatic(method.getModifiers())){
                 continue;
             }
-            if(method.getReturnType().equals(Void.TYPE)){
+
+            Class<?> returnType = method.getReturnType();
+            if(returnType.equals(Void.TYPE)){
                 continue;
             }
+
             if(method.getParameterTypes().length != 0){
                 continue;
             }
-            if(method.getReturnType() == ClassLoader.class){
+
+            if(returnType == ClassLoader.class
+                    || returnType == InputStream.class
+                    || returnType == Reader.class){
                 continue;
             }
 
             if(methodName.equals("getMetaClass")
-                    && method.getReturnType().getName().equals("groovy.lang.MetaClass")){
+                    && returnType.getName().equals("groovy.lang.MetaClass")){
                 continue;
             }
             if(methodName.equals("getSuppressed")
@@ -2046,8 +2054,8 @@ public class TypeUtils{
                 if(methodName.length() < 3){
                     continue;
                 }
-                if(method.getReturnType() != Boolean.TYPE
-                        && method.getReturnType() != Boolean.class){
+                if(returnType != Boolean.TYPE
+                        && returnType != Boolean.class){
                     continue;
                 }
                 char c2 = methodName.charAt(2);

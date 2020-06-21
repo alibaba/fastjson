@@ -868,6 +868,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 fieldDeserializer.setValue(object, fieldValue);
                             }
                         } else {
+                            if (fieldClass == String.class
+                                    && ((features & Feature.TrimStringFieldValue.mask) != 0
+                                        || (beanInfo.parserFeatures & Feature.TrimStringFieldValue.mask) != 0
+                                        || (fieldInfo.parserFeatures & Feature.TrimStringFieldValue.mask) != 0)) {
+                                fieldValue = ((String) fieldValue).trim();
+                            }
+
                             fieldDeserializer.setValue(object, fieldValue);
                         }
 

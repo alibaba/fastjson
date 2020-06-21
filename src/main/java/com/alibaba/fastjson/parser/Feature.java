@@ -145,7 +145,12 @@ public enum Feature {
     /**
      * @since 1.2.68
      */
-    SafeMode
+    SafeMode,
+
+    /**
+     * @since 1.2.72
+     */
+    TrimStringFieldValue
     ;
 
     Feature(){

@@ -571,7 +571,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                 if (name.length() > 2 && name.charAt(0) == 'L' && name.charAt(name.length() - 1) == ';') {
                     name = name.substring(1, name.length() - 1);
                 }
-                ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
+
+                if (TypeUtils.getClassFromMapping(name) == null) {
+                    ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
+                }
             }
             return super.resolveClass(desc);
         }
@@ -580,7 +583,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                 throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
                 //检查是否处于黑名单
-                ParserConfig.global.checkAutoType(interfacename, null);
+                if (TypeUtils.getClassFromMapping(interfacename) == null) {
+                    ParserConfig.global.checkAutoType(interfacename, null);
+                }
             }
             return super.resolveProxyClass(interfaces);
         }

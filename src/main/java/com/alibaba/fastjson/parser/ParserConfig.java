@@ -953,7 +953,8 @@ public class ParserConfig {
                     }
                 }
 
-                asmEnable = jsonType.asm();
+                asmEnable = jsonType.asm()
+                        && jsonType.parseFeatures().length == 0;
             }
 
             if (asmEnable) {

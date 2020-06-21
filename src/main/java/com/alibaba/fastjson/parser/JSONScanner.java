@@ -1017,6 +1017,10 @@ public final class JSONScanner extends JSONLexerBase {
                 stringVal = readString(chars, chars_len);
             }
 
+            if ((this.features & Feature.TrimStringFieldValue.mask) != 0) {
+                stringVal = stringVal.trim();
+            }
+
             ch = charAt(endIndex + 1);
 
             for (;;) {

@@ -94,9 +94,16 @@ public abstract class FieldDeserializer {
                             return;
                         }
                         if (map != null) {
-                            if (map == Collections.emptyMap()
-                                    || map.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                            if (map == Collections.emptyMap()) {
+                                return;
+                            }
+
+                            String mapClassName = map.getClass().getName();
+                            if (mapClassName.equals("java.util.ImmutableCollections$Map1")
+                                    || mapClassName.equals("java.util.ImmutableCollections$MapN")
+                                    || mapClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
+
                                 return;
                             }
 
@@ -119,8 +126,11 @@ public abstract class FieldDeserializer {
                         }
                         if (collection != null && value != null) {
                             String collectionClassName = collection.getClass().getName();
+
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
+                                    || collectionClassName == "java.util.ImmutableCollections$ListN"
+                                    || collectionClassName == "java.util.ImmutableCollections$List12"
                                     || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;

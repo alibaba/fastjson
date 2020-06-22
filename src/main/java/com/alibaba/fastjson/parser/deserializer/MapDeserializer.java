@@ -1,17 +1,17 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class MapDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
@@ -204,7 +204,20 @@ public class MapDeserializer implements ObjectDeserializer {
                     value = parser.parseObject(valueType, key);
                 }
 
-                map.put(key, value);
+                boolean ref = false;
+                if ("$ref".equals(key)) {
+                    Object obj = parser.resolveReference(value.toString());
+                    if (obj != null) {
+                        if (obj instanceof Map) {
+                            ref = true;
+                            map = (Map) obj;
+                        }
+                    }
+                }
+                if (!ref) {
+                    map.put(key, value);
+                }
+
                 parser.checkMapResolve(map, key);
 
                 parser.setContext(context, value, key);

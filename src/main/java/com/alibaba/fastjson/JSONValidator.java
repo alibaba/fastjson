@@ -66,7 +66,7 @@ public abstract class JSONValidator implements Cloneable {
                 }
                 continue;
             } else {
-                return false;
+                break;
             }
         }
 

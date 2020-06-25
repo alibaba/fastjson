@@ -5,10 +5,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import junit.framework.TestCase;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
@@ -88,6 +91,7 @@ public class DefaultExtJSONParser_parseArray extends TestCase {
     }
 
     public void test_7() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         DefaultJSONParser parser = new DefaultJSONParser("[\"2011-01-09T13:49:53.254\", \"xxx\", true, false, null, {}]");
         parser.config(Feature.AllowISO8601DateFormat, true);
         ArrayList list = new ArrayList();
@@ -101,6 +105,7 @@ public class DefaultExtJSONParser_parseArray extends TestCase {
     }
 
     public void test_8() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
         DefaultJSONParser parser = new DefaultJSONParser("\"2011-01-09T13:49:53.254\"");
         parser.config(Feature.AllowISO8601DateFormat, true);
         Object value = parser.parse();

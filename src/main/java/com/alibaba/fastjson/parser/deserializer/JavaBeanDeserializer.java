@@ -1545,12 +1545,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             boolean hasNull = false;
             if (beanInfo.kotlin) {
                 for (int i = 0; i < params.length; i++) {
-                    if (params[i] == null && beanInfo.fields != null && i < beanInfo.fields.length) {
-                        FieldInfo fieldInfo = beanInfo.fields[i];
-                        if (fieldInfo.fieldClass == String.class) {
-                            hasNull = true;
+                    Object param = params[i];
+                    if (param == null) {
+                        if (beanInfo.fields != null && i < beanInfo.fields.length) {
+                            FieldInfo fieldInfo = beanInfo.fields[i];
+                            if (fieldInfo.fieldClass == String.class) {
+                                hasNull = true;
+                            }
                         }
-                        break;
+                    } else if (param.getClass() != beanInfo.fields[i].fieldClass){
+                        params[i] = TypeUtils.cast(param, beanInfo.fields[i].fieldClass, config);
                     }
                 }
             }

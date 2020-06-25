@@ -18,6 +18,14 @@ public class Issue3283 extends TestCase {
         assertEquals("101", object.get("v1"));
     }
 
+    public void test_for_issue_1() throws Exception {
+        VO v = new VO();
+        v.v0 = 19007199254740991L;
+
+        String str = JSON.toJSONString(v, SerializerFeature.BrowserCompatible);
+        assertEquals("{\"v0\":\"19007199254740991\"}", str);
+    }
+
     public static class VO {
         public Long v0;
         public Integer v1;

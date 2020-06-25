@@ -58,8 +58,11 @@ public abstract class JSONValidator implements Cloneable {
             }
 
             count++;
+            if (eof) {
+                return true;
+            }
 
-            if (supportMultiValue && !eof) {
+            if (supportMultiValue) {
                 skipWhiteSpace();
                 if (eof) {
                     break;

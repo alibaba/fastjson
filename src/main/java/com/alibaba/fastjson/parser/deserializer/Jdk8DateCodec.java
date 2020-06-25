@@ -593,7 +593,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
         out.writeString(text);
     }
 
-    public static LocalDateTime castToLocalDateTime(Object value, String format) {
+    public static Object castToLocalDateTime(Object value, String format) {
         if (value == null) {
             return null;
         }

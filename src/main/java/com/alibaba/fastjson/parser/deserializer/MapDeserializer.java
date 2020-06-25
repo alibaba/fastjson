@@ -13,12 +13,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 
-public class MapDeserializer implements ObjectDeserializer {
+public class MapDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
-    
-    
+
     @SuppressWarnings("unchecked")
-    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int features)
+    {
         if (type == JSONObject.class && parser.getFieldTypeResolver() == null) {
             return (T) parser.parseObject();
         }
@@ -40,7 +40,7 @@ public class MapDeserializer implements ObjectDeserializer {
 
         try {
             parser.setContext(context, map, fieldName);
-            T t = (T) deserialze(parser, type, fieldName, map);
+            T t = (T) deserialze(parser, type, fieldName, map, features);
             if (unmodifiableMap) {
                 t = (T) Collections.unmodifiableMap((Map) t);
             }
@@ -50,8 +50,12 @@ public class MapDeserializer implements ObjectDeserializer {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map map) {
+        return deserialze(parser, type, fieldName, map, 0);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected Object deserialze(DefaultJSONParser parser, Type type, Object fieldName, Map map, int features) {
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
@@ -62,7 +66,7 @@ public class MapDeserializer implements ObjectDeserializer {
                 valueType = parameterizedType.getActualTypeArguments()[1];
             }
             if (String.class == keyType) {
-                return parseMap(parser, (Map<String, Object>) map, valueType, fieldName);
+                return parseMap(parser, (Map<String, Object>) map, valueType, fieldName, features);
             } else {
                 return parseMap(parser, map, keyType, valueType, fieldName);
             }
@@ -70,9 +74,13 @@ public class MapDeserializer implements ObjectDeserializer {
             return parser.parseObject(map, fieldName);
         }
     }
+
+    public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
+        return parseMap(parser, map, valueType, fieldName, 0);
+    }
     
     @SuppressWarnings("rawtypes")
-    public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
+    public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName, int features) {
         JSONLexer lexer = parser.lexer;
 
         int token = lexer.token();
@@ -156,7 +164,10 @@ public class MapDeserializer implements ObjectDeserializer {
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
+                if (key == JSON.DEFAULT_TYPE_KEY
+                        && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)
+                        && !Feature.isEnabled(features, Feature.DisableSpecialKeyDetect)
+                ) {
                     String typeName = lexer.scanSymbol(parser.getSymbolTable(), '"');
                     final ParserConfig config = parser.getConfig();
 

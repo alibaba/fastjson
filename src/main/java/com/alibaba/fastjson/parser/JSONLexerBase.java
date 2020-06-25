@@ -5340,4 +5340,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public int getFeatures() {
         return this.features;
     }
+
+    public void setFeatures(int features) {
+        this.features = features;
+    }
 }

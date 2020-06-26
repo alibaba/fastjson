@@ -444,7 +444,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     /**
      * @since  1.2.23
      */
-    public <T> List<T> toJavaList(Class<T> clazz) {
+    public <T> List<T> getJavaList(Class<T> clazz) {
         List<T> list = new ArrayList<T>(this.size());
 
         ParserConfig config = ParserConfig.getGlobalInstance();

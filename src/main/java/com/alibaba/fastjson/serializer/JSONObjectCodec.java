@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 public class JSONObjectCodec implements ObjectSerializer {
 	public final static JSONObjectCodec instance = new JSONObjectCodec();
 
-	@Override
 	public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
 			throws IOException {
 		SerializeWriter out = serializer.out;

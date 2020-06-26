@@ -2300,7 +2300,7 @@ public class TypeUtils{
         return null;
     }
 
-    private static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName){
+    public static boolean isJSONTypeIgnore(Class<?> clazz, String propertyName){
         JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
         if(jsonType != null){
             // 1、新增 includes 支持，如果 JSONType 同时设置了includes 和 ignores 属性，则以includes为准。

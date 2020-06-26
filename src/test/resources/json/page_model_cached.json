@@ -10,15 +10,14 @@
                     "cid":"1m950",
                     "regions":[
                         {
-                            "cid":"MAIN",
-                            "widgets":[
+                            "widgtes":[
                                 {
                                     "sid":222222,
-                                    "cid":"top_nav",
+                                    "cid":"top_nav"
                                 },
                                 {
                                     "sid":222223,
-                                    "cid":"theme_pic",
+                                    "cid":"theme_pic"
                                 }
                             ]
                         }
@@ -34,8 +33,7 @@
                     "cid":"1s3m950",
                     "regions":[
                         {
-                            "cid":"SIDE",
-                            "widgets":[
+                            "widgtes":[
                                 {
                                     "sid":222224,
                                     "cid":"supplier_info"
@@ -47,8 +45,7 @@
                             ]
                         },
                         {
-                            "cid":"MAIN",
-                            "widgets":[
+                            "widgtes":[
                                 {
                                     "sid":222226,
                                     "cid":"all_offer_index"

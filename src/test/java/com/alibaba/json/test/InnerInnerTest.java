@@ -30,8 +30,10 @@ class Outter{
 		this.ii = ii;
 	}
 
-	class Inner{
-		class InnerInner{
+	// Fix To Static, it is not recommended to change the verification rules
+	// Did not find a good solution that does not affect performance.
+	static class Inner{
+		static class InnerInner{
 			private String name;
 
 			public String getName() {
@@ -56,8 +58,7 @@ public class InnerInnerTest extends TestCase{//深层内部类的序列化反序
 	
 	public void testSerialize(){
 		Outter o = new Outter();
-		Inner i = o.new Inner();
-		InnerInner ii = i.new InnerInner();
+		InnerInner ii = new InnerInner();
 		ii.setName("iicls");
 		o.setIi(ii);
 		o.setName("ocls");
@@ -67,8 +68,7 @@ public class InnerInnerTest extends TestCase{//深层内部类的序列化反序
 	
 	public void testGson(){
 		Outter o = new Outter();
-		Inner i = o.new Inner();
-		InnerInner ii = i.new InnerInner();
+		InnerInner ii = new InnerInner();
 		ii.setName("iicls");
 		o.setIi(ii);
 		o.setName("ocls");

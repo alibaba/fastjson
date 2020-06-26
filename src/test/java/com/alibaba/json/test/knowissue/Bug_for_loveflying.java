@@ -21,12 +21,10 @@ public class Bug_for_loveflying extends TestCase {
 
         UserLog userLog = new UserLog();
         userLog.setId(1l);
-        userLog.setUser(user);
         user.getUserLogs().add(userLog);
 
         userLog = new UserLog();
         userLog.setId(2l);
-        userLog.setUser(user);
         user.getUserLogs().add(userLog);
 
         SerializeConfig mapping = new SerializeConfig();

@@ -6,6 +6,7 @@ import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 
 import static org.junit.Assert.*;
 
@@ -99,5 +100,15 @@ public class JSONValidatorTest {
         String json = JSON.toJSONString(EishayDecodeBytes.instance.getContent());
         JSONValidator validator = JSONValidator.from(json);
         assertTrue(validator.validate());
+    }
+
+    @Test
+    public void test_validate_reader() throws Exception {
+        JSONValidator validator = JSONValidator.from(
+                new StringReader(
+                        new String(
+                                JSON.toJSONBytes(EishayDecodeBytes.instance.getContent()))));
+        assertTrue(validator.validate());
+        validator.close();
     }
 }

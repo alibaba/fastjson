@@ -1,12 +1,7 @@
-package com.alibaba.json.bvt.wheelchair.validate;
+package com.alibaba.json.bvt.validate;
 
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONValidator;
 import org.junit.Test;
-
-
-import java.io.File;
-import java.io.FileInputStream;
 
 import static org.junit.Assert.*;
 

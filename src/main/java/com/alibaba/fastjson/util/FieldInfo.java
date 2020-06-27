@@ -485,7 +485,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
     public int compareTo(FieldInfo o) {
         // Deal extend bridge
-        if (o.method != null && this.method != null && o.method.isBridge() && !this.method.isBridge()) {
+        if (o.method != null && this.method != null
+                && o.method.isBridge() && !this.method.isBridge()
+                && o.method.getName().equals(this.method.getName())) {
             return 1;
         }
 

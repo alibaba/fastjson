@@ -1,7 +1,11 @@
 package com.alibaba.json.bvt.validate;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONValidator;
+import com.alibaba.json.test.benchmark.decode.EishayDecodeBytes;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.*;
 
@@ -71,5 +75,29 @@ public class JSONValidatorTest {
     public void validate_test_tfn() throws Throwable {
         boolean isValidate = JSONValidator.from("trua").validate();
         assertFalse(isValidate);
+    }
+
+    @Test
+    public void test_validate_utf8() throws Exception {
+        byte[] json = JSON.toJSONBytes(EishayDecodeBytes.instance.getContent());
+
+        JSONValidator validator = JSONValidator.fromUtf8(json);
+        assertTrue(validator.validate());
+    }
+
+    @Test
+    public void test_validate_utf8_stream() throws Exception {
+        byte[] json = JSON.toJSONBytes(EishayDecodeBytes.instance.getContent());
+
+        JSONValidator validator = JSONValidator.fromUtf8(new ByteArrayInputStream(json));
+        assertTrue(validator.validate());
+        validator.close();
+    }
+
+    @Test
+    public void test_validate() throws Exception {
+        String json = JSON.toJSONString(EishayDecodeBytes.instance.getContent());
+        JSONValidator validator = JSONValidator.from(json);
+        assertTrue(validator.validate());
     }
 }

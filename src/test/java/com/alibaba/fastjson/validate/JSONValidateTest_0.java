@@ -8,12 +8,6 @@ import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 
 public class JSONValidateTest_0 extends TestCase {
-    public void test_validate() throws Exception {
-        String json = JSON.toJSONString(EishayDecodeBytes.instance.getContent());
-        JSONValidator validator = JSONValidator.from(json);
-        assertTrue(validator.validate());
-    }
-
     public void test_validate_benchmark() throws Exception {
         String json = JSON.toJSONString(EishayDecodeBytes.instance.getContent());
 
@@ -27,20 +21,8 @@ public class JSONValidateTest_0 extends TestCase {
         }
     }
 
-    public void test_validate_utf8() throws Exception {
-        byte[] json = JSON.toJSONBytes(EishayDecodeBytes.instance.getContent());
 
-        JSONValidator validator = JSONValidator.fromUtf8(json);
-        assertTrue(validator.validate());
-    }
 
-    public void test_validate_utf8_stream() throws Exception {
-        byte[] json = JSON.toJSONBytes(EishayDecodeBytes.instance.getContent());
-
-        JSONValidator validator = JSONValidator.fromUtf8(new ByteArrayInputStream(json));
-        assertTrue(validator.validate());
-        validator.close();
-    }
 
     public void test_validate_utf8_benchmark() throws Exception {
         byte[] json = JSON.toJSONBytes(EishayDecodeBytes.instance.getContent());

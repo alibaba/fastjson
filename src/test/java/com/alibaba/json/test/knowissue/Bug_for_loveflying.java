@@ -1,19 +1,20 @@
 package com.alibaba.json.test.knowissue;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
+import junit.framework.TestCase;
+import org.junit.Assert;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-
 public class Bug_for_loveflying extends TestCase {
 
-    public void test_for_loveflying() throws Exception {
+    public void test_for_loveflying() {
         User user = new User();
         user.setId(1l);
         user.setName("loveflying");
@@ -21,10 +22,12 @@ public class Bug_for_loveflying extends TestCase {
 
         UserLog userLog = new UserLog();
         userLog.setId(1l);
+        userLog.setUser(user);
         user.getUserLogs().add(userLog);
 
         userLog = new UserLog();
         userLog.setId(2l);
+        userLog.setUser(user);
         user.getUserLogs().add(userLog);
 
         SerializeConfig mapping = new SerializeConfig();
@@ -34,9 +37,20 @@ public class Bug_for_loveflying extends TestCase {
         // mapping.put(User.class, new JavaBeanSerializer(User.class,
         // Collections.singletonMap("id", "uid")));
 
-        JSONObject jsonObject = (JSONObject) JSON.toJSON(user);
-        jsonObject.put("ext", "新加的属性");
-        System.out.println(jsonObject.toJSONString(jsonObject, mapping));
+        // toJSON not support
+        try {
+            JSON.toJSON(user);
+        } catch (Throwable e) {
+            Assert.assertEquals(e.getClass(), StackOverflowError.class);
+        }
+
+        // User toJSONString deal circularReference
+        String userJSON = JSON.toJSONString(user, mapping, SerializerFeature.DisableCircularReferenceDetect);
+        Assert.assertNotNull(userJSON);
+
+        JSONObject userObject = JSON.parseObject(userJSON);
+        Assert.assertNotNull(userObject.get("createTime"));
+        Assert.assertTrue(userObject.getString("createTime").length() == 19);
     }
 
     public static class UserLog {

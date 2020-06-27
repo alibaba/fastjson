@@ -51,11 +51,7 @@ public class EnumSerializer implements ObjectSerializer {
             } else {
                 fieldValue = ((Method) member).invoke(object);
             }
-        } catch (IllegalArgumentException e) {
-            throw new JSONException("getEnumValue error", e);
-        } catch (IllegalAccessException e) {
-            throw new JSONException("getEnumValue error", e);
-        } catch (InvocationTargetException e) {
+        } catch (Exception e) {
             throw new JSONException("getEnumValue error", e);
         }
 

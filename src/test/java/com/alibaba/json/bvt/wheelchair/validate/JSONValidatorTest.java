@@ -1,4 +1,4 @@
-package com.wheelchair.validate;
+package com.alibaba.json.bvt.wheelchair.validate;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONValidator;
@@ -57,8 +57,13 @@ public class JSONValidatorTest {
 
     @Test
     public void validate_test_num4() throws Throwable {
-        boolean isValidate = JSONValidator.from("+1").validate();
-        assertFalse(isValidate);
+        assertTrue(
+                JSONValidator.from("+1")
+                        .validate());
+
+        assertFalse(
+                JSONValidator.from("++1")
+                        .validate());
     }
 
     @Test

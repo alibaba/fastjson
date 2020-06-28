@@ -164,9 +164,10 @@ public class ParserConfig {
     }
 
     public static ParserConfig getGlobalInstance() {
-        return global;
+        return global == null ? global = new ParserConfig() : global;
     }
-    public static ParserConfig                              global                = new ParserConfig();
+    public static ParserConfig                              initTrigger = new ParserConfig();
+    public static ParserConfig                              global;
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
     private final IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>> mixInDeserializers = new IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>>(16);
@@ -347,6 +348,7 @@ public class ParserConfig {
 
         Arrays.sort(hashCodes);
         acceptHashCodes = hashCodes;
+
     }
 
     public ParserConfig(){
@@ -395,6 +397,9 @@ public class ParserConfig {
         addItemsToDeny0(DENYS_INTERNAL);
         addItemsToAccept(AUTO_TYPE_ACCEPT_LIST);
 
+        if (global == null) {
+            global = this;
+        }
     }
 
     private void initDeserializers() {

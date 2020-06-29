@@ -484,8 +484,13 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
         in.defaultReadObject();
         for (Object item : list) {
-            if (item != null) {
-                ParserConfig.global.checkAutoType(item.getClass().getName(), null);
+            if (item == null) {
+                continue;
+            }
+
+            String typeName = item.getClass().getName();
+            if (TypeUtils.getClassFromMapping(typeName) == null) {
+                ParserConfig.global.checkAutoType(typeName, null);
             }
         }
     }

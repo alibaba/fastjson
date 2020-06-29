@@ -454,7 +454,7 @@ public class TypeUtils{
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
 
-            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0) {
+            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0 || format != null) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {

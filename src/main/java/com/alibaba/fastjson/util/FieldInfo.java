@@ -255,9 +255,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
     private long nameHashCode64(String name, JSONField annotation)
     {
         if (annotation != null && annotation.name().length() != 0) {
-            return TypeUtils.fnv1a_64_extract(name);
+            return TypeUtils.fnv1a_64_lower(name);
         }
-        return TypeUtils.fnv1a_64_lower(name);
+        return TypeUtils.fnv1a_64_extract(name);
     }
 
     protected char[] genFieldNameChars() {

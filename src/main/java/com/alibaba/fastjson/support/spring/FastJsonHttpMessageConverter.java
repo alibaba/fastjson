@@ -250,7 +250,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
      * @see org.springframework.http.converter.AbstractHttpMessageConverter#readInternal(java.lang.Class, org.springframework.http.HttpInputMessage)
      */
     @Override
-    protected Object readInternal(Class<? extends Object> clazz, //
+    protected Object readInternal(Class<?> clazz, //
                                   HttpInputMessage inputMessage //
     ) throws IOException, HttpMessageNotReadableException {
         return readType(getType(clazz, null), inputMessage);

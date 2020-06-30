@@ -352,11 +352,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
-    public void putAll(Map<? extends String, ? extends Object> m) {
+    public void putAll(Map<? extends String, ?> m) {
         map.putAll(m);
     }
 
-    public JSONObject fluentPutAll(Map<? extends String, ? extends Object> m) {
+    public JSONObject fluentPutAll(Map<? extends String, ?> m) {
         map.putAll(m);
         return this;
     }

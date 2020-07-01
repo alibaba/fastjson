@@ -12,6 +12,19 @@ import com.alibaba.fastjson.parser.Feature;
 
 public class DefaultJSONParserTest2 extends TestCase {
 
+    public void test_empty() throws Exception {
+        String text = "";
+        assertNull(JSON.parse(text));
+        assertNull(JSON.parseObject(text));
+        assertNull(JSON.parseObject(text, Object.class));
+        assertNull(JSON.parseObject(text, Map.class));
+        assertNull(JSON.parseObject(text, Entity.class));
+    }
+
+    public static class Entity {
+
+    }
+
     public void test_0() throws Exception {
         String text = "{}";
         Map map = (Map) JSON.parse(text);

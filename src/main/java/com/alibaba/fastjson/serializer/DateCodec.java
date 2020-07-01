@@ -55,7 +55,9 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             long millis = ((java.sql.Date) object).getTime();
             TimeZone timeZone = serializer.timeZone;
             int offset = timeZone.getOffset(millis);
-            if (offset == 0 || millis % offset == 0) {
+            //
+            if ((millis + offset) % (24 * 1000 * 3600) == 0
+                    && !SerializerFeature.isEnabled(out.features, features, SerializerFeature.WriteClassName)) {
                 out.writeString(object.toString());
                 return;
             }
@@ -63,10 +65,28 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         if (clazz == java.sql.Time.class) {
             long millis = ((java.sql.Time) object).getTime();
+            if ("unixtime".equals(serializer.getDateFormatPattern())) {
+                long seconds = millis / 1000;
+                out.writeLong(seconds);
+                return;
+            }
+
+            if ("millis".equals(serializer.getDateFormatPattern())) {
+                long seconds = millis;
+                out.writeLong(millis);
+                return;
+            }
+
             if (millis < 24L * 60L * 60L * 1000L) {
                 out.writeString(object.toString());
                 return;
             }
+        }
+
+        int nanos = 0;
+        if (clazz == java.sql.Timestamp.class) {
+            java.sql.Timestamp ts = (java.sql.Timestamp) object;
+            nanos = ts.getNanos();
         }
         
         Date date;
@@ -75,11 +95,29 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         } else {
             date = TypeUtils.castToDate(object);
         }
-        
+
+        if ("unixtime".equals(serializer.getDateFormatPattern())) {
+            long seconds = date.getTime() / 1000;
+            out.writeLong(seconds);
+            return;
+        }
+
+        if ("millis".equals(serializer.getDateFormatPattern())) {
+            long millis = date.getTime();
+            out.writeLong(millis);
+            return;
+        }
+
         if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
             DateFormat format = serializer.getDateFormat();
             if (format == null) {
-                format = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
+                // 如果是通过FastJsonConfig进行设置，优先从FastJsonConfig获取
+                String dateFormatPattern = serializer.getFastJsonConfigDateFormatPattern();
+                if(dateFormatPattern == null) {
+                    dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+                }
+
+                format = new SimpleDateFormat(dateFormatPattern, serializer.locale);
                 format.setTimeZone(serializer.timeZone);
             }
             String text = format.format(date);
@@ -121,7 +159,16 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             int millis = calendar.get(Calendar.MILLISECOND);
 
             char[] buf;
-            if (millis != 0) {
+            if (nanos > 0) {
+                buf = "0000-00-00 00:00:00.000000000".toCharArray();
+                IOUtils.getChars(nanos, 29, buf);
+                IOUtils.getChars(second, 19, buf);
+                IOUtils.getChars(minute, 16, buf);
+                IOUtils.getChars(hour, 13, buf);
+                IOUtils.getChars(day, 10, buf);
+                IOUtils.getChars(month, 7, buf);
+                IOUtils.getChars(year, 4, buf);
+            } else if (millis != 0) {
                 buf = "0000-00-00T00:00:00.000".toCharArray();
                 IOUtils.getChars(millis, 23, buf);
                 IOUtils.getChars(second, 19, buf);
@@ -147,7 +194,21 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     IOUtils.getChars(year, 4, buf);
                 }
             }
-            
+
+
+            if (nanos > 0) { // java.sql.Timestamp
+                int i = 0;
+                for (; i < 9; ++i) {
+                    int off = buf.length - i - 1;
+                    if (buf[off] != '0') {
+                        break;
+                    }
+                }
+                out.write(buf, 0, buf.length - i);
+                out.write(quote);
+                return;
+            }
+
             out.write(buf);
 
             float timeZoneF = calendar.getTimeZone().getOffset(calendar.getTimeInMillis()) / (3600.0f * 1000);
@@ -164,7 +225,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     out.writeInt(timeZone);
                 } else if (timeZone < -9) {
                     out.write('-');
-                    out.writeInt(timeZone);
+                    out.writeInt(-timeZone);
                 } else if (timeZone < 0) {
                     out.write('-');
                     out.write('0');
@@ -173,7 +234,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 out.write(':');
                 // handles uneven timeZones 30 mins, 45 mins
                 // this would always be less than 60
-                int offSet = (int)((timeZoneF - timeZone) * 60);
+                int offSet = (int)(Math.abs(timeZoneF - timeZone) * 60);
                 out.append(String.format("%02d", offSet));
             }
 
@@ -200,6 +261,10 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             String strVal = (String) val;
             if (strVal.length() == 0) {
                 return null;
+            }
+
+            if (strVal.length() == 23 && strVal.endsWith(" 000")) {
+                strVal = strVal.substring(0, 19);
             }
 
             {

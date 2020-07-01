@@ -67,6 +67,8 @@ public class DefaultJSONParser implements Closeable {
     private List<ExtraProcessor>       extraProcessors    = null;
     protected FieldTypeResolver        fieldTypeResolver  = null;
 
+    private int                        objectKeyLevel     = 0;
+
     private boolean                    autoTypeEnable;
     private String[]                   autoTypeAccept     = null;
 
@@ -199,7 +201,8 @@ public class DefaultJSONParser implements Closeable {
 
        ParseContext context = this.context;
         try {
-            Map map = object instanceof JSONObject ? ((JSONObject) object).getInnerMap() : object;
+            boolean isJsonObjectMap = object instanceof JSONObject;
+            Map map = isJsonObjectMap ? ((JSONObject) object).getInnerMap() : object;
 
             boolean setContextFlag = false;
             for (;;) {
@@ -264,7 +267,7 @@ public class DefaultJSONParser implements Closeable {
                         } else {
                             key = lexer.decimalValue(true);
                         }
-                        if (lexer.isEnabled(Feature.NonStringKeyAsString)) {
+                        if (lexer.isEnabled(Feature.NonStringKeyAsString) || isJsonObjectMap) {
                             key = key.toString();
                         }
                     } catch (NumberFormatException e) {
@@ -275,6 +278,9 @@ public class DefaultJSONParser implements Closeable {
                         throw new JSONException("parse number key error" + lexer.info());
                     }
                 } else if (ch == '{' || ch == '[') {
+                    if (objectKeyLevel++ > 512) {
+                        throw new JSONException("object key level > 512");
+                    }
                     lexer.nextToken();
                     key = parse();
                     isObjectKey = true;
@@ -340,19 +346,7 @@ public class DefaultJSONParser implements Closeable {
                             Object instance = null;
                             ObjectDeserializer deserializer = this.config.getDeserializer(clazz);
                             if (deserializer instanceof JavaBeanDeserializer) {
-                                JavaBeanDeserializer javaBeanDeserializer = (JavaBeanDeserializer) deserializer;
-                                instance = javaBeanDeserializer.createInstance(this, clazz);
-
-                                for (Object o : map.entrySet()) {
-                                    Map.Entry entry = (Map.Entry) o;
-                                    Object entryKey = entry.getKey();
-                                    if (entryKey instanceof String) {
-                                        FieldDeserializer fieldDeserializer = javaBeanDeserializer.getFieldDeserializer((String) entryKey);
-                                        if (fieldDeserializer != null) {
-                                            fieldDeserializer.setValue(instance, entry.getValue());
-                                        }
-                                    }
-                                }
+                            	instance = TypeUtils.cast(object, clazz, this.config);
                             }
 
                             if (instance == null) {
@@ -384,6 +378,7 @@ public class DefaultJSONParser implements Closeable {
 
                     if (object.size() > 0) {
                         Object newObj = TypeUtils.cast(object, clazz, this.config);
+                        this.setResolveStatus(NONE);
                         this.parseObject(newObj);
                         return newObj;
                     }
@@ -403,6 +398,7 @@ public class DefaultJSONParser implements Closeable {
 
                 if (key == "$ref"
                         && context != null
+                        && (object == null || object.size() == 0)
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -680,13 +676,16 @@ public class DefaultJSONParser implements Closeable {
             }
         }
 
-        ObjectDeserializer derializer = config.getDeserializer(type);
+        ObjectDeserializer deserializer = config.getDeserializer(type);
 
         try {
-            if (derializer.getClass() == JavaBeanDeserializer.class) {
-                return (T) ((JavaBeanDeserializer) derializer).deserialze(this, type, fieldName, 0);
+            if (deserializer.getClass() == JavaBeanDeserializer.class) {
+                if (lexer.token()!= JSONToken.LBRACE && lexer.token()!=JSONToken.LBRACKET) {
+                throw new JSONException("syntax error,except start with { or [,but actually start with "+ lexer.tokenName());
+            }
+                return (T) ((JavaBeanDeserializer) deserializer).deserialze(this, type, fieldName, 0);
             } else {
-                return (T) derializer.deserialze(this, type, fieldName);
+                return (T) deserializer.deserialze(this, type, fieldName);
             }
         } catch (JSONException e) {
             throw e;
@@ -845,8 +844,12 @@ public class DefaultJSONParser implements Closeable {
                     if (i == types.length - 1) {
                         if (type instanceof Class) {
                             Class<?> clazz = (Class<?>) type;
-                            isArray = clazz.isArray();
-                            componentType = clazz.getComponentType();
+                            //如果最后一个type是字节数组，且当前token为字符串类型，不应该当作可变长参数进行处理
+                            //而是作为一个整体的Base64字符串进行反序列化
+                            if (!((clazz == byte[].class || clazz == char[].class) && lexer.token() == LITERAL_STRING)) {
+                                isArray = clazz.isArray();
+                                componentType = clazz.getComponentType();
+                            }
                         }
                     }
 
@@ -854,12 +857,12 @@ public class DefaultJSONParser implements Closeable {
                     if (isArray && lexer.token() != JSONToken.LBRACKET) {
                         List<Object> varList = new ArrayList<Object>();
 
-                        ObjectDeserializer derializer = config.getDeserializer(componentType);
-                        int fastMatch = derializer.getFastMatchToken();
+                        ObjectDeserializer deserializer = config.getDeserializer(componentType);
+                        int fastMatch = deserializer.getFastMatchToken();
 
                         if (lexer.token() != JSONToken.RBRACKET) {
                             for (;;) {
-                                Object item = derializer.deserialze(this, type, null);
+                                Object item = deserializer.deserialze(this, type, null);
                                 varList.add(item);
 
                                 if (lexer.token() == JSONToken.COMMA) {
@@ -874,8 +877,8 @@ public class DefaultJSONParser implements Closeable {
 
                         value = TypeUtils.cast(varList, type, config);
                     } else {
-                        ObjectDeserializer derializer = config.getDeserializer(type);
-                        value = derializer.deserialze(this, type, i);
+                        ObjectDeserializer deserializer = config.getDeserializer(type);
+                        value = deserializer.deserialze(this, type, i);
                     }
                 }
             }
@@ -908,9 +911,9 @@ public class DefaultJSONParser implements Closeable {
     public void parseObject(Object object) {
         Class<?> clazz = object.getClass();
         JavaBeanDeserializer beanDeser = null;
-        ObjectDeserializer deserizer = config.getDeserializer(clazz);
-        if (deserizer instanceof JavaBeanDeserializer) {
-            beanDeser = (JavaBeanDeserializer) deserizer;
+        ObjectDeserializer deserializer = config.getDeserializer(clazz);
+        if (deserializer instanceof JavaBeanDeserializer) {
+            beanDeser = (JavaBeanDeserializer) deserializer;
         }
 
         if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.COMMA) {
@@ -1163,6 +1166,10 @@ public class DefaultJSONParser implements Closeable {
         }
 
         lexer.nextToken(JSONToken.LITERAL_STRING);
+
+        if (this.context != null && this.context.level > 512) {
+            throw new JSONException("array level > 512");
+        }
 
         ParseContext context = this.context;
         this.setContext(array, fieldName);
@@ -1558,7 +1565,10 @@ public class DefaultJSONParser implements Closeable {
                 refValue = getObject(ref);
                 if (refValue == null) {
                     try {
-                        refValue = JSONPath.eval(value, ref);
+                        JSONPath jsonpath = JSONPath.compile(ref);
+                        if (jsonpath.isRef()) {
+                            refValue = jsonpath.eval(value);
+                        }
                     } catch (JSONPathException ex) {
                         // skip
                     }
@@ -1575,7 +1585,10 @@ public class DefaultJSONParser implements Closeable {
                         && fieldDeser.fieldInfo != null
                         && !Map.class.isAssignableFrom(fieldDeser.fieldInfo.fieldClass)) {
                     Object root = this.contextArray[0].object;
-                    refValue = JSONPath.eval(root, ref);
+                    JSONPath jsonpath = JSONPath.compile(ref);
+                    if (jsonpath.isRef()) {
+                        refValue = jsonpath.eval(root);
+                    }
                 }
 
                 fieldDeser.setValue(object, refValue);

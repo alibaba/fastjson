@@ -37,4 +37,8 @@ public class FeatureTest extends TestCase {
         parser.config(Feature.InternFieldNames, false);
         Assert.assertEquals(false, parser.isEnabled(Feature.InternFieldNames));
     }
+
+    public void test_count() throws Exception {
+        assertTrue(Feature.values().length < 32);
+    }
 }

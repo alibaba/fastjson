@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONScanner;
@@ -107,10 +108,22 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
             long longVal;
             JSONScanner dateLexer = new JSONScanner(strVal);
             try {
+                if (strVal.length() > 19
+                        && strVal.charAt(4) == '-'
+                        && strVal.charAt(7) == '-'
+                        && strVal.charAt(10) == ' '
+                        && strVal.charAt(13) == ':'
+                        && strVal.charAt(16) == ':'
+                        && strVal.charAt(19) == '.') {
+                    String dateFomartPattern = parser.getDateFomartPattern();
+                    if (dateFomartPattern.length() != strVal.length() && dateFomartPattern == JSON.DEFFAULT_DATE_FORMAT) {
+                        return (T) java.sql.Timestamp.valueOf(strVal);
+                    }
+                }
+
                 if (dateLexer.scanISO8601DateIfMatch(false)) {
                     longVal = dateLexer.getCalendar().getTimeInMillis();
                 } else {
-
                     DateFormat dateFormat = parser.getDateFormat();
                     try {
                         java.util.Date date = (java.util.Date) dateFormat.parse(strVal);

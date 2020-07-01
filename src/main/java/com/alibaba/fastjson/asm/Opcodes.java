@@ -134,6 +134,6 @@ public interface Opcodes {
     
     int    IFNULL              = 198;                    // visitJumpInsn
     int    IFNONNULL           = 199;                    // -
-    // int GOTO_W = 200; // -
+    int    GOTO_W              = 200;                    // visitJumpInsn
     // int JSR_W = 201; // -
 }

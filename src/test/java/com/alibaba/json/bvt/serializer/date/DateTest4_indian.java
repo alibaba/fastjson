@@ -32,7 +32,7 @@ public class DateTest4_indian extends TestCase {
         assertEquals(-25200000, delta_4_3);
 
         long delta_5_4 = date5.getTime() - date4.getTime();
-        assertEquals(17100000, delta_5_4);
+        assertEquals(-3600000, delta_5_4);
 
     }
 

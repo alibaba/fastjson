@@ -124,6 +124,19 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
 
                 return (T) duration;
             } else if (type == Instant.class) {
+                boolean digit = true;
+                for (int i = 0; i < text.length(); ++i) {
+                    char ch = text.charAt(i);
+                    if (ch < '0' || ch > '9') {
+                        digit = false;
+                        break;
+                    }
+                }
+                if (digit && text.length() > 8 && text.length() < 19) {
+                    long epochMillis = Long.parseLong(text);
+                    return (T) new Instant(epochMillis);
+                }
+
                 Instant instant = Instant.parse(text);
 
                 return (T) instant;
@@ -178,14 +191,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 char c13 = text.charAt(13);
                 char c16 = text.charAt(16);
                 if (c13 == ':' && c16 == ':') {
-                    if (c4 == '-' && c7 == '-') {
+                    if (c4 == '-' && c7 == '-') { // yyyy-MM-dd  or  yyyy-MM-dd'T'
                         if (c10 == 'T') {
                             formatter = formatter_iso8601;
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -249,6 +260,19 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     formatter = formatter_dt19_kr;
                 }
             }
+
+            boolean digit = true;
+            for (int i = 0; i < text.length(); ++i) {
+                char ch = text.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    digit = false;
+                    break;
+                }
+            }
+            if (digit && text.length() > 8 && text.length() < 19) {
+                long epochMillis = Long.parseLong(text);
+                return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone));
+            }
         }
 
         return formatter == null ? //
@@ -306,6 +330,20 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     formatter = formatter_d10_kr;
                 }
             }
+
+            boolean digit = true;
+            for (int i = 0; i < text.length(); ++i) {
+                char ch = text.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    digit = false;
+                    break;
+                }
+            }
+            if (digit && text.length() > 8 && text.length() < 19) {
+                long epochMillis = Long.parseLong(text);
+                return new LocalDateTime(epochMillis, DateTimeZone.forTimeZone(JSON.defaultTimeZone))
+                        .toLocalDate();
+            }
         }
 
         return formatter == null ? //
@@ -322,14 +360,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 char c13 = text.charAt(13);
                 char c16 = text.charAt(16);
                 if (c13 == ':' && c16 == ':') {
-                    if (c4 == '-' && c7 == '-') {
+                    if (c4 == '-' && c7 == '-') { // yyyy-MM-dd  or  yyyy-MM-dd'T'
                         if (c10 == 'T') {
                             formatter = formatter_iso8601;
                         } else if (c10 == ' ') {
                             formatter = defaultFormatter;
                         }
-                    } else if (c4 == '-' && c7 == '-') {
-                        formatter = defaultFormatter;
                     } else if (c4 == '/' && c7 == '/') { // tw yyyy/mm/dd
                         formatter = formatter_dt19_tw;
                     } else {
@@ -405,6 +441,8 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 if (format == null) {
                     if ((features & mask) != 0 || serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
                         format = formatter_iso8601_pattern;
+                    } else if (serializer.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+                        format = JSON.DEFFAULT_DATE_FORMAT;
                     } else {
                         int millis = dateTime.getMillisOfSecond();
                         if (millis == 0) {
@@ -417,9 +455,6 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
 
                 if (format != null) {
                     write(out, dateTime, format);
-                } else if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-                    //使用固定格式转化时间
-                    write(out, dateTime, JSON.DEFFAULT_DATE_FORMAT);
                 } else {
                     out.writeLong(dateTime.toDateTime(DateTimeZone.forTimeZone(JSON.defaultTimeZone)).toInstant().getMillis());
                 }
@@ -437,7 +472,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
 
     private void write(SerializeWriter out, ReadablePartial object, String format) {
         DateTimeFormatter formatter;
-        if (format == formatter_iso8601_pattern) {
+        if (format.equals(formatter_iso8601_pattern)) {
             formatter = formatter_iso8601;
         } else {
             formatter = DateTimeFormat.forPattern(format);

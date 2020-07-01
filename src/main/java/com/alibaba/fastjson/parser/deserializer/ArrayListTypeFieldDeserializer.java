@@ -53,7 +53,11 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         final int token = lexer.token();
         if (token == JSONToken.NULL
                 || (token == JSONToken.LITERAL_STRING && lexer.stringVal().length() == 0)) {
-            setValue(object, null);
+            if (object == null) {
+                fieldValues.put(fieldInfo.name, null);
+            } else {
+                setValue(object, null);
+            }
             return;
         }
 

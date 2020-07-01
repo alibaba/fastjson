@@ -21,6 +21,7 @@ import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
@@ -124,7 +125,12 @@ public final class JSONScanner extends JSONLexerBase {
             return bytes;
         }
 
-        return IOUtils.decodeBase64(text, np + 1, sp);
+        if (!hasSpecial) {
+            return IOUtils.decodeBase64(text, np + 1, sp);
+        } else {
+            String escapedText = new String(sbuf, 0, sp);
+            return IOUtils.decodeBase64(escapedText);
+        }
     }
 
     /**
@@ -183,14 +189,18 @@ public final class JSONScanner extends JSONLexerBase {
             sp--;
         }
 
+        if (sp > 65535) {
+            throw new JSONException("decimal overflow");
+        }
+
         int offset = np, count = sp;
         if (count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
-            return new BigDecimal(sbuf, 0, count);
+            return new BigDecimal(sbuf, 0, count, MathContext.UNLIMITED);
         } else {
             char[] chars = new char[count];
             text.getChars(offset, offset + count, chars, 0);
-            return new BigDecimal(chars);
+            return new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         }
     }
 
@@ -387,8 +397,15 @@ public final class JSONScanner extends JSONLexerBase {
             y3 = c3;
             M0 = c5;
             M1 = c6;
-            d0 = c8;
-            d1 = c9;
+
+            if (c9 == ' ') {
+                d0 = '0';
+                d1 = c8;
+                date_len = 9;
+            } else {
+                d0 = c8;
+                d1 = c9;
+            }
         } else if ((c4 == '-' && c6 == '-') // cn yyyy-m-dd
         ) {
             y0 = c0;
@@ -608,14 +625,34 @@ public final class JSONScanner extends JSONLexerBase {
             char t3 = '0', t4 = '0';
             if (t2 == ':') { // ThreeLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
-                if (t3 != '0' && t3 != '3') {
-                    return false;
+                t4 = charAt(bp + date_len + 10 + millisLen + 5);
+
+                if(t3 == '4' && t4 == '5') {
+                    // handle some special timezones like xx:45
+
+                    if (t0 == '1' && (t1 == '2' || t1 == '3')) {
+                        // NZ-CHAT          => +12:45
+                        // Pacific/Chatham  => +12:45
+                        // NZ-CHAT          => +13:45 (DST)
+                        // Pacific/Chatham  => +13:45 (DST)
+                    } else if (t0 == '0' && (t1 == '5' || t1 == '8')) {
+                        // Asia/Kathmandu   => +05:45
+                        // Asia/Katmandu    => +05:45
+                        // Australia/Eucla  => +08:45
+                    } else {
+                        return false;
+                    }
+                } else {
+                    //handle normal timezone like xx:00 and xx:30
+                    if (t3 != '0' && t3 != '3') {
+                        return false;
+                    }
+
+                    if (t4 != '0') {
+                        return false;
+                    }
                 }
 
-                t4 = charAt(bp + date_len + 10 + millisLen + 5);
-                if (t4 != '0') {
-                    return false;
-                }
                 timzeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
@@ -681,11 +718,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         if (calendar.getTimeZone().getRawOffset() != timeZoneOffset) {
-            String[] timeZoneIDs = TimeZone.getAvailableIDs(timeZoneOffset);
-            if (timeZoneIDs.length > 0) {
-                TimeZone timeZone = TimeZone.getTimeZone(timeZoneIDs[0]);
-                calendar.setTimeZone(timeZone);
-            }
+            calendar.setTimeZone(new SimpleTimeZone(timeZoneOffset, Integer.toString(timeZoneOffset)));
         }
     }
 
@@ -791,7 +824,7 @@ public final class JSONScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bp == len || ch == EOI && bp + 1 == len;
+        return bp == len || (ch == EOI && bp + 1 >= len);
     }
 
     public int scanFieldInt(char[] fieldName) {
@@ -918,10 +951,15 @@ public final class JSONScanner extends JSONLexerBase {
         int startPos = this.bp;
         char startChar = this.ch;
 
+
         for (;;) {
             if (!charArrayCompare(text, bp, fieldName)) {
                 if (isWhitespace(ch)) {
                     next();
+
+                    while (isWhitespace(ch)) {
+                        next();
+                    }
                     continue;
                 }
                 matchStat = NOT_MATCH_NAME;
@@ -933,11 +971,19 @@ public final class JSONScanner extends JSONLexerBase {
 
         int index = bp + fieldName.length;
 
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
-            matchStat = NOT_MATCH;
+            while (isWhitespace(ch)) {
+                spaceCount++;
+                ch = charAt(index++);
+            }
 
-            return stringDefaultValue();
+            if (ch != '"') {
+                matchStat = NOT_MATCH;
+
+                return stringDefaultValue();
+            }
         }
 
         final String strVal;
@@ -965,10 +1011,14 @@ public final class JSONScanner extends JSONLexerBase {
                     endIndex = indexOf('"', endIndex + 1);
                 }
 
-                int chars_len = endIndex - (bp + fieldName.length + 1);
-                char[] chars = sub_chars(bp + fieldName.length + 1, chars_len);
+                int chars_len = endIndex - (bp + fieldName.length + 1 + spaceCount);
+                char[] chars = sub_chars(bp + fieldName.length + 1 + spaceCount, chars_len);
 
                 stringVal = readString(chars, chars_len);
+            }
+
+            if ((this.features & Feature.TrimStringFieldValue.mask) != 0) {
+                stringVal = stringVal.trim();
             }
 
             ch = charAt(endIndex + 1);
@@ -1140,17 +1190,37 @@ public final class JSONScanner extends JSONLexerBase {
     public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
-        if (!charArrayCompare(text, bp, fieldName)) {
-            matchStat = NOT_MATCH_NAME;
-            return 0;
+        for (;;) {
+            if (!charArrayCompare(text, bp, fieldName)) {
+                if (isWhitespace(ch)) {
+                    next();
+
+                    while (isWhitespace(ch)) {
+                        next();
+                    }
+                    continue;
+                }
+                matchStat = NOT_MATCH_NAME;
+                return 0;
+            } else {
+                break;
+            }
         }
 
         int index = bp + fieldName.length;
-
+        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
-            matchStat = NOT_MATCH;
-            return 0;
+            while (isWhitespace(ch)) {
+                ch = charAt(index++);
+                spaceCount++;
+            }
+
+            if (ch != '"') {
+                matchStat = NOT_MATCH;
+
+                return 0;
+            }
         }
 
         long hash = 0xcbf29ce484222325L;
@@ -1205,23 +1275,6 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         return hash;
-    }
-
-    public Collection<String> newCollectionByType(Class<?> type){
-        if (type.isAssignableFrom(HashSet.class)) {
-            HashSet<String> list = new HashSet<String>();
-            return list;
-        } else if (type.isAssignableFrom(ArrayList.class)) {
-            ArrayList<String> list2 = new ArrayList<String>();
-            return list2;
-        } else {
-            try {
-                Collection<String> list = (Collection<String>) type.newInstance();
-                return list;
-            } catch (Exception e) {
-                throw new JSONException(e.getMessage(), e);
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -2342,6 +2395,12 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
+        for (int j = 0; j < bp; j++) {
+            if (j < text.length() && text.charAt(j) == ' ') {
+                i++;
+            }
+        }
+
         if (i == text.length()) {
             throw new JSONException("illegal str, " + info());
         }
@@ -2967,5 +3026,28 @@ public final class JSONScanner extends JSONLexerBase {
                 throw new UnsupportedOperationException();
             }
         }
+    }
+
+    public String scanTypeName(SymbolTable symbolTable) {
+        if (text.startsWith("\"@type\":\"", bp)) {
+            int p = text.indexOf('"', bp + 9);
+            if (p != -1) {
+                bp += 9;
+                int h = 0;
+                for (int i = bp; i < p; i++) {
+                    h = 31 * h + text.charAt(i);
+                }
+                String typeName = addSymbol(bp, p - bp, h, symbolTable);
+                char separator = text.charAt(p + 1);
+                if (separator != ',' && separator != ']') {
+                    return null;
+                }
+                bp = p + 2;
+                ch = text.charAt(bp);
+                return typeName;
+            }
+        }
+
+        return null;
     }
 }

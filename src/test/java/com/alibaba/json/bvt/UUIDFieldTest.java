@@ -23,6 +23,14 @@ public class UUIDFieldTest extends TestCase {
 
         Assert.assertEquals(user1.getValue(), user.getValue());
     }
+    public void test_codec_upper_case() throws Exception {
+       User  user = new User();
+
+       String text ="{\"value\":\"79104776-6CA7-4E41-948F-4D2ECD06502A\"}";
+       user = JSON.parseObject(text,  User.class);
+
+       Assert.assertEquals("79104776-6CA7-4E41-948F-4D2ECD06502A", user.getValue().toString().toUpperCase());	   
+    }  
 
     public void test_codec_null() throws Exception {
         User user = new User();

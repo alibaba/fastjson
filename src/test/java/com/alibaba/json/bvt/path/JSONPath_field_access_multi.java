@@ -19,6 +19,18 @@ public class JSONPath_field_access_multi extends TestCase {
         Assert.assertSame(entity.getName(), result.get(1));
     }
 
+    public void test_list_map2() throws Exception {
+        Entity entity = new Entity(123, "wenshao");
+        JSONPath path = new JSONPath("$.entity['id','name']");
+
+        Root root = new Root();
+        root.setEntity(entity);
+
+        List<Object> result = (List<Object>) path.eval(root);
+        Assert.assertSame(entity.getId(), result.get(0));
+        Assert.assertSame(entity.getName(), result.get(1));
+    }
+
     public static class Entity {
 
         private Integer id;
@@ -45,5 +57,19 @@ public class JSONPath_field_access_multi extends TestCase {
             this.name = name;
         }
 
+    }
+
+    public static class Root {
+        private Entity entity;
+
+        public Entity getEntity()
+        {
+            return entity;
+        }
+
+        public void setEntity(Entity entity)
+        {
+            this.entity = entity;
+        }
     }
 }

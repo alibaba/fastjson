@@ -148,9 +148,6 @@ public class ASMSerializerFactory implements Opcodes {
             classNameFull = className;
         }
 
-        String packageName = ASMSerializerFactory.class.getPackage().getName();
-
-
         ClassWriter cw = new ClassWriter();
         cw.visit(V1_5 //
                  , ACC_PUBLIC + ACC_SUPER //

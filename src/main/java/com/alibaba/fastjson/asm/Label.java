@@ -34,7 +34,7 @@ package com.alibaba.fastjson.asm;
  * and for try catch blocks. A label designates the <i>instruction</i> that is just after. Note however that there can
  * be other elements between a label and the instruction it designates (such as other labels, stack map frames, line
  * numbers, etc.).
- * 
+ *
  * @author Eric Bruneton
  */
 public class Label {
@@ -60,6 +60,31 @@ public class Label {
      * resolved. Hence the same array can be used for both purposes without problems.
      */
     private int[]    srcAndRefPositions;
+
+    /**
+     * The bit mask to extract the type of a forward reference to this label. The extracted type is
+     * either {@link #FORWARD_REFERENCE_TYPE_SHORT} or {@link #FORWARD_REFERENCE_TYPE_WIDE}.
+     */
+    static final int FORWARD_REFERENCE_TYPE_MASK = 0xF0000000;
+
+    /**
+     * The bit mask to extract the 'handle' of a forward reference to this label. The extracted handle
+     * is the bytecode offset where the forward reference value is stored (using either 2 or 4 bytes,
+     * as indicated by the {@link #FORWARD_REFERENCE_TYPE_MASK}).
+     */
+    static final int FORWARD_REFERENCE_HANDLE_MASK = 0x0FFFFFFF;
+
+    /**
+     * The type of forward references stored with two bytes in the bytecode. This is the case, for
+     * instance, of a forward reference from an ifnull instruction.
+     */
+    static final int FORWARD_REFERENCE_TYPE_SHORT = 0x10000000;
+
+    /**
+     * The type of forward references stored in four bytes in the bytecode. This is the case, for
+     * instance, of a forward reference from a lookupswitch instruction.
+     */
+    static final int FORWARD_REFERENCE_TYPE_WIDE = 0x20000000;
 
     // ------------------------------------------------------------------------
 
@@ -109,7 +134,7 @@ public class Label {
      * The next basic block in the basic block stack. This stack is used in the main loop of the fix point algorithm
      * used in the second step of the control flow analysis algorithms. It is also used in {@link #visitSubroutine} to
      * avoid using a recursive method.
-     * 
+     *
      * @see MethodWriter#visitMaxs
      */
     Label            next;
@@ -132,7 +157,7 @@ public class Label {
      * Puts a reference to this label in the bytecode of a method. If the position of the label is known, the offset is
      * computed and written directly. Otherwise, a null offset is written and a new forward reference is declared for
      * this label.
-     * 
+     *
      * @param owner the code writer that calls this method.
      * @param out the bytecode of the method.
      * @param source the position of first byte of the bytecode instruction that contains this label.
@@ -140,12 +165,21 @@ public class Label {
      * stored with 2 bytes.
      * @throws IllegalArgumentException if this label has not been created by the given code writer.
      */
-    void put(final MethodWriter owner, final ByteVector out, final int source) {
-        if ((status & 2 /* RESOLVED */ ) == 0) {
-            addReference(source, out.length);
-            out.putShort(-1);
+    void put(final MethodWriter owner, final ByteVector out, final int source, boolean wideOffset) {
+        if ((status & 2 /* RESOLVED */) == 0) {
+            if (wideOffset) {
+                addReference(source, out.length, FORWARD_REFERENCE_TYPE_WIDE);
+                out.putInt(-1);
+            } else {
+                addReference(source, out.length, FORWARD_REFERENCE_TYPE_SHORT);
+                out.putShort(-1);
+            }
         } else {
-            out.putShort(position - source);
+            if (wideOffset) {
+                out.putInt(position - source);
+            } else {
+                out.putShort(position - source);
+            }
         }
     }
 
@@ -153,12 +187,12 @@ public class Label {
      * Adds a forward reference to this label. This method must be called only for a true forward reference, i.e. only
      * if this label is not resolved yet. For backward references, the offset of the reference can be, and must be,
      * computed and stored directly.
-     * 
+     *
      * @param sourcePosition the position of the referencing instruction. This position will be used to compute the
      * offset of this forward reference.
      * @param referencePosition the position where the offset for this forward reference must be stored.
      */
-    private void addReference(final int sourcePosition, final int referencePosition) {
+    private void addReference(final int sourcePosition, final int referencePosition, final int referenceType) {
         if (srcAndRefPositions == null) {
             srcAndRefPositions = new int[6];
         }
@@ -168,14 +202,14 @@ public class Label {
             srcAndRefPositions = a;
         }
         srcAndRefPositions[referenceCount++] = sourcePosition;
-        srcAndRefPositions[referenceCount++] = referencePosition;
+        srcAndRefPositions[referenceCount++] = referencePosition | referenceType;
     }
 
     /**
      * Resolves all forward references to this label. This method must be called when this label is added to the
      * bytecode of the method, i.e. when its position becomes known. This method fills in the blanks that where left in
      * the bytecode by each forward reference previously added to this label.
-     * 
+     *
      * @param owner the code writer that calls this method.
      * @param position the position of this label in the bytecode.
      * @param data the bytecode of the method.
@@ -193,10 +227,17 @@ public class Label {
         while (i < referenceCount) {
             int source = srcAndRefPositions[i++];
             int reference = srcAndRefPositions[i++];
+            int handle = reference & FORWARD_REFERENCE_HANDLE_MASK;
             int offset = position - source;
-            data[reference++] = (byte) (offset >>> 8);
-            data[reference] = (byte) offset;
-
+            if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_SHORT) {
+                data[handle++] = (byte) (offset >>> 8);
+                data[handle] = (byte) offset;
+            } else {
+                data[handle++] = (byte) (offset >>> 24);
+                data[handle++] = (byte) (offset >>> 16);
+                data[handle++] = (byte) (offset >>> 8);
+                data[handle] = (byte) offset;
+            }
         }
     }
 

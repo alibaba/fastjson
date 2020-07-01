@@ -26,6 +26,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
@@ -70,6 +71,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static int              DEFAULT_PARSER_FEATURE;
     public static int              DEFAULT_GENERATE_FEATURE;
+
+    private static final ConcurrentHashMap<Type, Type> mixInsMapper = new ConcurrentHashMap<Type, Type>(16);
+    
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -150,6 +154,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static Object parse(String text, ParserConfig config) {
         return parse(text, config, DEFAULT_PARSER_FEATURE);
+    }
+
+    /**
+     *
+     * @since 1.2.68
+     */
+    public static Object parse(String text, ParserConfig config, Feature... features) {
+        int featureValues = DEFAULT_PARSER_FEATURE;
+        for (Feature feature : features) {
+            featureValues = Feature.config(featureValues, feature, true);
+        }
+
+        return parse(text, config, featureValues);
     }
 
     /**
@@ -349,7 +366,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, ParseProcess processor,
                                           int featureValues, Feature... features) {
-        if (input == null) {
+        if (input == null || input.length() == 0) {
             return null;
         }
 
@@ -556,11 +573,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static JSONArray parseArray(String text) {
+        return parseArray(text, ParserConfig.global);
+    }
+
+    public static JSONArray parseArray(String text, ParserConfig parserConfig) {
         if (text == null) {
             return null;
         }
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, parserConfig);
 
         JSONArray array;
 
@@ -583,13 +604,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static <T> List<T> parseArray(String text, Class<T> clazz) {
+        return parseArray(text, clazz, ParserConfig.global);
+    }
+
+    public static <T> List<T> parseArray(String text, Class<T> clazz, ParserConfig config) {
         if (text == null) {
             return null;
         }
 
         List<T> list;
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         JSONLexer lexer = parser.lexer;
         int token = lexer.token();
         if (token == JSONToken.NULL) {
@@ -610,13 +635,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static List<Object> parseArray(String text, Type[] types) {
+        return parseArray(text, types, ParserConfig.global);
+    }
+
+    public static List<Object> parseArray(String text, Type[] types, ParserConfig config) {
         if (text == null) {
             return null;
         }
 
         List<Object> list;
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         Object[] objectArray = parser.parseArray(types);
         if (objectArray == null) {
             list = null;
@@ -824,6 +853,42 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * Use the date format in FastJsonConfig to serialize JSON
+     *
+     * @param  dateFormat the date format in FastJsonConfigs
+     * @since 1.2.55
+     */
+    public static byte[] toJSONBytesWithFastJsonConfig(Charset charset, //
+                                     Object object, //
+                                     SerializeConfig config, //
+                                     SerializeFilter[] filters, //
+                                     String dateFormat, //
+                                     int defaultFeatures, //
+                                     SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+            return out.toBytes(charset);
+        } finally {
+            out.close();
+        }
+    }
+
     public static String toJSONString(Object object, boolean prettyFormat) {
         if (!prettyFormat) {
             return toJSONString(object);
@@ -936,6 +1001,39 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             
             serializer.write(object);
             
+            int len = writer.writeToEx(os, charset);
+            return len;
+        } finally {
+            writer.close();
+        }
+    }
+
+    public static final int writeJSONStringWithFastJsonConfig(OutputStream os, //
+                                            Charset charset, //
+                                            Object object, //
+                                            SerializeConfig config, //
+                                            SerializeFilter[] filters, //
+                                            String dateFormat, //
+                                            int defaultFeatures, //
+                                            SerializerFeature... features) throws IOException {
+        SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(writer, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+
             int len = writer.writeToEx(os, charset);
             return len;
         } finally {
@@ -1087,7 +1185,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {
-                    json.put(entry.getKey(), toJSON(entry.getValue()));
+                    json.put(entry.getKey(), toJSON(entry.getValue(), config));
                 }
             } catch (Exception e) {
                 throw new JSONException("toJSON error", e);
@@ -1165,6 +1263,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return chars;
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValid(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1206,6 +1307,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidObject(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1231,6 +1335,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * @deprecated Please use {@link com.alibaba.fastjson.JSONValidator} instead.
+     */
     public static boolean isValidArray(String str) {
         if (str == null || str.length() == 0) {
             return false;
@@ -1255,6 +1362,29 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         parser.handleResovleTask(value);
     }
+    
+    public static void addMixInAnnotations(Type target, Type mixinSource) {
+        if (target != null && mixinSource != null) {
+            mixInsMapper.put(target, mixinSource);
+        }
+    }
 
-    public final static String VERSION = "1.2.60";
+    public static void removeMixInAnnotations(Type target) {
+        if (target != null) {
+            mixInsMapper.remove(target);
+        }
+    }
+
+    public static void clearMixInAnnotations() {
+        mixInsMapper.clear();
+    }
+
+    public static Type getMixInAnnotations(Type target) {
+        if (target != null) {
+            return mixInsMapper.get(target);
+        }
+        return null;
+    }
+
+    public final static String VERSION = "1.2.73";
 }

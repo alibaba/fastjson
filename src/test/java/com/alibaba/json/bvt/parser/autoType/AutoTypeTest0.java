@@ -16,7 +16,29 @@ public class AutoTypeTest0 extends TestCase {
         assertEquals(123, model2.id);
     }
 
+    public void test_nested() {
+        String text = "{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest0$ModelNested\",\"id\":123, \"nested\":{\"@type\":\"com.alibaba.json.bvt.parser.autoType.AutoTypeTest0$ModelNested\",\"id\":456, \"nested\":null}}";
+
+        ModelNested model = JSON.parseObject(text, ModelNested.class);
+        assertEquals(123, model.id);
+        ModelNested nested1 = model.nested;
+        assertEquals(456, nested1.id);
+        assertNull(nested1.nested);
+
+        ModelNested model2 = (ModelNested) JSON.parse(text);
+        assertEquals(123, model2.id);
+        ModelNested nested2 = model2.nested;
+        assertEquals(456, nested2.id);
+        assertNull(nested2.nested);
+    }
+
+
     public static class Model {
         public int id;
+    }
+
+    public static class ModelNested {
+        public int id;
+        public ModelNested nested;
     }
 }

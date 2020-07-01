@@ -23,6 +23,11 @@ public class JSONTypeTest_orders_arrayMapping extends TestCase {
 		JSON.parseObject(json2, Model[].class, Feature.SupportArrayToBean);
 	}
 
+	public void test_2() throws Exception {
+		String json = "[1001,\"xx\"]";
+		JSON.parseObject(json, Model.class, Feature.SupportArrayToBean);
+	}
+
 	@JSONType(orders = { "id", "name", "age" })
 	public static class Model {
 		private int id;

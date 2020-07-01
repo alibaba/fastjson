@@ -547,7 +547,7 @@ public class DefaultExtJSONParserTest extends TestCase {
         }
 
         public void setage(int age) {
-            throw new UnsupportedOperationException();
+            this.age = age;
         }
 
         public void set(int age) {

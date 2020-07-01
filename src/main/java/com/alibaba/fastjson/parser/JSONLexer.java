@@ -88,6 +88,8 @@ public interface JSONLexer {
 
     boolean isRef();
 
+    String scanTypeName(SymbolTable symbolTable);
+
     String numberString();
 
     byte[] bytesValue();
@@ -120,4 +122,5 @@ public interface JSONLexer {
     String info();
 
     int getFeatures();
+    void setFeatures(int features);
 }

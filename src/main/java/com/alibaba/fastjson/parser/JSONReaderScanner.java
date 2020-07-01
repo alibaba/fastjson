@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -296,7 +297,11 @@ public final class JSONReaderScanner extends JSONLexerBase {
             sp--;
         }
 
-        return new BigDecimal(buf, offset, sp);
+        if (sp > 65535) {
+            throw new JSONException("decimal overflow");
+        }
+
+        return new BigDecimal(buf, offset, sp, MathContext.UNLIMITED);
     }
 
     public void close() {
@@ -312,7 +317,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
 
     @Override
     public boolean isEOF() {
-        return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 == buf.length;
+        return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 >= buf.length;
     }
 
     public final boolean isBlankInput() {

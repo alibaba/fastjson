@@ -361,7 +361,7 @@ public class FastJsonProvider //
         }
 
         try {
-            JSON.writeJSONString(entityStream, //
+            JSON.writeJSONStringWithFastJsonConfig(entityStream, //
                     fastJsonConfig.getCharset(), //
                     obj, //
                     fastJsonConfig.getSerializeConfig(), //

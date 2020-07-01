@@ -1,10 +1,11 @@
 package com.alibaba.fastjson;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-public abstract class JSONValidator implements Cloneable {
+public abstract class JSONValidator implements Cloneable, Closeable {
     public enum Type {
         Object, Array, Value
     }
@@ -33,26 +34,43 @@ public abstract class JSONValidator implements Cloneable {
         return new ReaderValidator(r);
     }
 
+    public boolean isSupportMultiValue() {
+        return supportMultiValue;
+    }
+
+    public void setSupportMultiValue(boolean supportMultiValue) {
+        this.supportMultiValue = supportMultiValue;
+    }
+
     public Type getType() {
+        if (type == null) {
+            validate();
+        }
+
         return type;
     }
 
     abstract void next();
 
     public boolean validate() {
-
         for (;;) {
-            any();
-            count++;
+            if (!any()) {
+                return false;
+            }
 
-            if (supportMultiValue && !eof) {
+            count++;
+            if (eof) {
+                return true;
+            }
+
+            if (supportMultiValue) {
                 skipWhiteSpace();
                 if (eof) {
                     break;
                 }
                 continue;
             } else {
-                break;
+                return false;
             }
         }
 
@@ -63,7 +81,7 @@ public abstract class JSONValidator implements Cloneable {
 
     }
 
-    void any() {
+    private boolean any() {
         switch (ch) {
             case '{':
                 next();
@@ -71,26 +89,26 @@ public abstract class JSONValidator implements Cloneable {
                 if (ch == '}') {
                     next();
                     type = Type.Object;
-                    return;
+                    return true;
                 }
 
                 for (;;) {
                     if (ch == '"') {
                         fieldName();
-                    }
-                    else {
-                        error();
+                    } else {
+                        return false;
                     }
 
                     skipWhiteSpace();
                     if (ch == ':') {
                         next();
-                    }
-                    else {
-                        error();
+                    } else {
+                        return false;
                     }
                     skipWhiteSpace();
-                    any();
+                    if (!any()) {
+                        return false;
+                    }
 
                     skipWhiteSpace();
                     if (ch == ',') {
@@ -100,7 +118,7 @@ public abstract class JSONValidator implements Cloneable {
                     } else if (ch == '}') {
                         next();
                         type = Type.Object;
-                        return;
+                        return true;
                     }
                 }
             case '[':
@@ -110,11 +128,13 @@ public abstract class JSONValidator implements Cloneable {
                 if (ch == ']') {
                     next();
                     type = Type.Array;
-                    return;
+                    return true;
                 }
 
-                for (; ; ) {
-                    any();
+                for (;;) {
+                    if (!any()) {
+                        return false;
+                    }
 
                     skipWhiteSpace();
                     if (ch == ',') {
@@ -123,10 +143,10 @@ public abstract class JSONValidator implements Cloneable {
                     } else if (ch == ']') {
                         next();
                         type = Type.Array;
-                        return;
+                        return true;
                     }
                     else {
-                        error();
+                        return false;
                     }
                 }
             case '0':
@@ -145,18 +165,20 @@ public abstract class JSONValidator implements Cloneable {
                     next();
                     skipWhiteSpace();
                     if (ch < '0' || ch > '9') {
-                        error();
+                        return false;
                     }
                 }
 
                 do {
                     next();
-                }
-                while (ch >= '0' && ch <= '9');
+                } while (ch >= '0' && ch <= '9');
 
                 if (ch == '.') {
                     next();
-
+                    // bug fix: 0.e7 should not pass the test
+                    if (ch < '0' || ch > '9') {
+                        return false;
+                    }
                     while (ch >= '0' && ch <= '9') {
                         next();
                     }
@@ -172,13 +194,12 @@ public abstract class JSONValidator implements Cloneable {
                         next();
                     }
                     else {
-                        error();
+                        return false;
                     }
 
-                    do {
+                    while (ch >= '0' && ch <= '9') {
                         next();
                     }
-                    while (ch >= '0' && ch <= '9');
                 }
 
                 type = Type.Value;
@@ -201,7 +222,7 @@ public abstract class JSONValidator implements Cloneable {
                     } else if (ch == '"') {
                         next();
                         type = Type.Value;
-                        return;
+                        return true;
                     } else {
                         next();
                     }
@@ -210,79 +231,80 @@ public abstract class JSONValidator implements Cloneable {
                 next();
 
                 if (ch != 'r') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'u') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'e') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
                     type = Type.Value;
-                    return;
+                    return true;
                 }
-                error();
+                return false;
             case 'f':
                 next();
 
                 if (ch != 'a') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'l') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 's') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'e') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
                     type = Type.Value;
-                    return;
+                    return true;
                 }
-                error();
+                return false;
             case 'n':
                 next();
 
                 if (ch != 'u') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'l') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (ch != 'l') {
-                    error();
+                    return false;
                 }
                 next();
 
                 if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
                     type = Type.Value;
-                    return;
+                    return true;
                 }
-                error();
+                return false;
             default:
-                error();
+                return false;
         }
+        return true;
     }
 
     protected void fieldName()
@@ -311,10 +333,6 @@ public abstract class JSONValidator implements Cloneable {
                 next();
             }
         }
-    }
-
-    void error() {
-        throw new JSONException("error : " + pos);
     }
 
     void skipWhiteSpace() {
@@ -411,10 +429,6 @@ public abstract class JSONValidator implements Cloneable {
             }
         }
 
-        void error() {
-            throw new JSONException("error, readCount " + readCount + ", valueCount : " + count + ", pos " + pos);
-        }
-
         public void close() throws IOException {
             bufLocal.set(buf);
             is.close();
@@ -498,10 +512,6 @@ public abstract class JSONValidator implements Cloneable {
                     }
                 }
             }
-        }
-
-        void error() {
-            throw new JSONException("error, readCount " + readCount + ", valueCount : " + count + ", pos " + pos);
         }
 
         public void close() throws IOException {

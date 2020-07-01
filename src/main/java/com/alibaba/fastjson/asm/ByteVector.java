@@ -185,7 +185,7 @@ public class ByteVector {
 		data[len++] = (byte) charLength;
 		for (int i = 0; i < charLength; ++i) {
 			final char c = s.charAt(i);
-			if (c >= '\001' && c <= '\177') {
+			if ((c >= '\001' && c <= '\177') || (c >= '\u4E00' && c <= '\u9FFF')) {
 				data[len++] = (byte) c;
 			} else {
 				throw new UnsupportedOperationException();

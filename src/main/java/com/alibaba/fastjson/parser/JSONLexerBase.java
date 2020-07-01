@@ -18,6 +18,7 @@ package com.alibaba.fastjson.parser;
 import java.io.Closeable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
@@ -66,6 +67,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     private final static ThreadLocal<char[]> SBUF_LOCAL         = new ThreadLocal<char[]>();
 
     protected String                         stringDefaultValue = null;
+    protected int                            nanos              = 0;
 
     public JSONLexerBase(int features){
         this.features = features;
@@ -457,11 +459,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             // Accumulating negatively avoids surprises near MAX_VALUE
             digit = charAt(i++) - '0';
             if (result < multmin) {
-                return new BigInteger(numberString());
+                return new BigInteger(numberString(), 10);
             }
             result *= 10;
             if (result < limit + digit) {
-                return new BigInteger(numberString());
+                return new BigInteger(numberString(), 10);
             }
             result -= digit;
         }
@@ -970,18 +972,27 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        char x1 = ch = next();
-                        char x2 = ch = next();
+                        char x1 = next();
+                        char x2 = next();
 
-                        int x_val = digits[x1] * 16 + digits[x2];
-                        char x_char = (char) x_val;
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
+
+                        char x_char = (char) (digits[x1] * 16 + digits[x2]);
                         putChar(x_char);
                         break;
                     case 'u':
-                        char u1 = ch = next();
-                        char u2 = ch = next();
-                        char u3 = ch = next();
-                        char u4 = ch = next();
+                        char u1 = next();
+                        char u2 = next();
+                        char u3 = next();
+                        char u4 = next();
                         int val = Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
                         putChar((char) val);
                         break;
@@ -1100,6 +1111,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 && charAt(np + 2) == 'r' //
                 && charAt(np + 3) == 'e' //
                 && charAt(np + 4) == 'f';
+    }
+
+    public String scanTypeName(SymbolTable symbolTable) {
+        return null;
     }
 
     protected final static char[] typeFieldName = ("\"" + JSON.DEFAULT_TYPE_KEY + "\":\"").toCharArray();
@@ -1400,7 +1415,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 chLocal = charAt(bp + (offset++));
                 continue;
             } else {
-                matchStat = NOT_MATCH;
+                if (chLocal == ']') {
+                    bp += offset;
+                    this.ch = charAt(bp);
+                    matchStat = NOT_MATCH;
+                }
                 return strVal;
             }
         }
@@ -1631,15 +1650,14 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public Collection<String> newCollectionByType(Class<?> type){
         if (type.isAssignableFrom(HashSet.class)) {
-            HashSet<String> list = new HashSet<String>();
-            return list;
+            return new HashSet<String>();
         } else if (type.isAssignableFrom(ArrayList.class)) {
-            ArrayList<String> list2 = new ArrayList<String>();
-            return list2;
+            return new ArrayList<String>();
+        } else if (type.isAssignableFrom(LinkedList.class)) {
+            return new LinkedList<String>();
         } else {
             try {
-                Collection<String> list = (Collection<String>) type.newInstance();
-                return list;
+                return (Collection<String>) type.newInstance();
             } catch (Exception e) {
                 throw new JSONException(e.getMessage(), e);
             }
@@ -3024,8 +3042,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
+            if (count > 65535) {
+                throw new JSONException("decimal overflow");
+            }
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars);
+            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
@@ -3698,8 +3719,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
+            if (count > 65535) {
+                throw new JSONException("scan decimal overflow");
+            }
+
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars);
+            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
                    charAt(bp + offset + 1) == 'l' &&
@@ -3801,10 +3826,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         BigInteger value;
         if (chLocal >= '0' && chLocal <= '9') {
             long intVal = chLocal - '0';
+            boolean overflow = false;
+            long temp;
             for (;;) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    intVal = intVal * 10 + (chLocal - '0');
+                    temp = intVal * 10 + (chLocal - '0');
+                    if (temp < intVal) {
+                        overflow = true;
+                        break;
+                    }
+                    intVal = temp;
                     continue;
                 } else {
                     break;
@@ -3826,14 +3858,18 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 count = bp + offset - start - 1;
             }
 
-            if (count < 20 || (negative && count < 21)) {
+            if (!overflow && (count < 20 || (negative && count < 21))) {
                 value = BigInteger.valueOf(negative ? -intVal : intVal);
             } else {
 
 //            char[] chars = this.sub_chars(negative ? start + 1 : start, count);
 //            value = new BigInteger(chars, )
+                if (count > 65535) {
+                    throw new JSONException("scanInteger overflow");
+                }
+
                 String strVal = this.subString(start, count);
-                value = new BigInteger(strVal);
+                value = new BigInteger(strVal, 10);
             }
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
@@ -5005,7 +5041,20 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar('\\');
                         break;
                     case 'x':
-                        putChar((char) (digits[next()] * 16 + digits[next()]));
+                        char x1 = next();
+                        char x2 = next();
+
+                        boolean hex1 = (x1 >= '0' && x1 <= '9')
+                                || (x1 >= 'a' && x1 <= 'f')
+                                || (x1 >= 'A' && x1 <= 'F');
+                        boolean hex2 = (x2 >= '0' && x2 <= '9')
+                                || (x2 >= 'a' && x2 <= 'f')
+                                || (x2 >= 'A' && x2 <= 'F');
+                        if (!hex1 || !hex2) {
+                            throw new JSONException("invalid escape character \\x" + x1 + x2);
+                        }
+
+                        putChar((char) (digits[x1] * 16 + digits[x2]));
                         break;
                     case 'u':
                         putChar((char) Integer.parseInt(new String(new char[] { next(), next(), next(), next() }), 16));
@@ -5111,6 +5160,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
                 next();
             }
+        }
+
+        if (sp > 65535) {
+            throw new JSONException("scanNumber overflow");
         }
 
         if (ch == 'L') {
@@ -5286,5 +5339,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public int getFeatures() {
         return this.features;
+    }
+
+    public void setFeatures(int features) {
+        this.features = features;
     }
 }

@@ -90,6 +90,34 @@ public class IdentityHashMap<K, V> {
         return false;
     }
 
+    /**
+     * 复制
+     *
+     * @param initDeserializers
+     */
+    public void copy(IdentityHashMap<K, V> initDeserializers) {
+        for (int i = 0, len = initDeserializers.buckets.length; i < len; i++) {
+            if (initDeserializers.buckets[i] != null) {
+                this.put(initDeserializers.buckets[i].key, initDeserializers.buckets[i].value);
+            }
+        }
+    }
+
+    /**
+     * 非空判断
+     *
+     * @return
+     */
+    public boolean isNotEmpty() {
+        for (int i = 0, len = buckets.length; i < len; i++) {
+            if (buckets[i] != null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected static final class Entry<K, V> {
 
         public final int   hashCode;

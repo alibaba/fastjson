@@ -12,11 +12,11 @@ import javax.money.Monetary;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class MonetaCodec implements ObjectSerializer, ObjectDeserializer {
     public static final MonetaCodec instance = new MonetaCodec();
 
-    @Override
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         Money money = (Money) object;
         if (money == null) {
@@ -30,7 +30,6 @@ public class MonetaCodec implements ObjectSerializer, ObjectDeserializer {
         out.write('}');
     }
 
-    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONObject object = parser.parseObject();
         Object currency = object.get("currency");
@@ -44,14 +43,14 @@ public class MonetaCodec implements ObjectSerializer, ObjectDeserializer {
 
         Object numberStripped = object.get("numberStripped");
 
-        if (numberStripped instanceof BigDecimal) {
-            return (T) Money.of((BigDecimal) numberStripped, Monetary.getCurrency(currencyCode));
+        if (numberStripped instanceof BigDecimal
+                || numberStripped instanceof Integer || numberStripped instanceof BigInteger) {
+            return (T) Money.of((Number) numberStripped, Monetary.getCurrency(currencyCode));
         }
 
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public int getFastMatchToken() {
         return 0;
     }

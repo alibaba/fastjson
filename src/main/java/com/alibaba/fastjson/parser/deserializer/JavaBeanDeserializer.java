@@ -1307,16 +1307,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             // smartMatchHashArrayMapping
-            long smartKeyHash = TypeUtils.fnv1a_64_extract(key);
+            long smartKeyHash = TypeUtils.fnv1a_64_lower(key);
             int pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             if (pos < 0) {
-                long smartKeyHash1 = TypeUtils.fnv1a_64_lower(key);
+                long smartKeyHash1 = TypeUtils.fnv1a_64_extract(key);
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash1);
             }
 
             boolean is = false;
             if (pos < 0 && (is = key.startsWith("is"))) {
-                smartKeyHash = TypeUtils.fnv1a_64_lower(key.substring(2));
+                smartKeyHash = TypeUtils.fnv1a_64_extract(key.substring(2));
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash);
             }
 

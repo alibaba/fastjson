@@ -2,6 +2,7 @@ package com.alibaba.json.bvt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -129,5 +130,27 @@ public class JSONObjectTest_readObject extends TestCase {
 
         assertEquals(JSONObject.class, obj.getClass());
         assertEquals(jsonObject.toJSONString(), JSON.toJSONString(obj));
+    }
+
+    public void test_7() throws Exception {
+        ParserConfig.global.setSafeMode(true);
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("m", new java.util.HashMap());
+
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            ObjectOutputStream objOut = new ObjectOutputStream(bytesOut);
+            objOut.writeObject(jsonObject);
+            objOut.flush();
+
+            byte[] bytes = bytesOut.toByteArray();
+
+            ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+            ObjectInputStream objIn = new ObjectInputStream(bytesIn);
+
+            Object obj = objIn.readObject();
+        } finally {
+            ParserConfig.global.setSafeMode(false);
+        }
     }
 }

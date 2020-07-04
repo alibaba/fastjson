@@ -16,12 +16,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class DateFormatPriorityTest extends TestCase {
-    Calendar calendar = Calendar.getInstance();
+    Calendar calendar;
 
     protected void setUp() {
+        JSON.defaultTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        JSON.defaultLocale = Locale.CHINA;
+
+        calendar = Calendar.getInstance(JSON.defaultTimeZone);
         calendar.set(1995, Calendar.OCTOBER, 26);
     }
 

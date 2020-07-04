@@ -550,7 +550,7 @@ public class JavaBeanInfo {
                         add(fieldList, fieldInfo);
                     }
 
-                    if (clazz.getName().equals("javax.servlet.http.Cookie")) {
+                    if ((!kotlin) && !clazz.getName().equals("javax.servlet.http.Cookie")) {
                         return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
                     }
                 } else {

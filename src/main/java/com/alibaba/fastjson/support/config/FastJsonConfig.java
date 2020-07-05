@@ -1,6 +1,7 @@
 
 package com.alibaba.fastjson.support.config;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
@@ -52,6 +53,7 @@ public class FastJsonConfig {
      * serializerFeatures
      */
     private SerializerFeature[] serializerFeatures;
+    private int serializerFeaturesValues;
 
     /**
      * serializeFilters
@@ -92,10 +94,22 @@ public class FastJsonConfig {
                 SerializerFeature.BrowserSecure
         };
 
+        dealSerializerFeaturesValues();
         this.serializeFilters = new SerializeFilter[0];
         this.features = new Feature[0];
 
         this.writeContentLength = true;
+    }
+
+    /**
+     * Init serializerFeaturesValues
+     */
+    private void dealSerializerFeaturesValues() {
+        int featuresValue = JSON.DEFAULT_GENERATE_FEATURE;
+        for (SerializerFeature feature : serializerFeatures) {
+            featuresValue |= feature.getMask();
+        }
+        this.serializerFeaturesValues = featuresValue;
     }
 
     /**
@@ -138,6 +152,7 @@ public class FastJsonConfig {
      */
     public void setSerializerFeatures(SerializerFeature... serializerFeatures) {
         this.serializerFeatures = serializerFeatures;
+        dealSerializerFeaturesValues();
     }
 
     /**
@@ -253,5 +268,13 @@ public class FastJsonConfig {
      */
     public void setParseProcess(ParseProcess parseProcess) {
         this.parseProcess = parseProcess;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isWriteNullOfNullObject() {
+        return (this.serializerFeaturesValues & SerializerFeature.WriteNullOfNullObject.mask) != 0;
     }
 }

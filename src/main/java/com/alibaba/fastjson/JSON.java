@@ -673,22 +673,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
-        return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, DEFAULT_GENERATE_FEATURE, features);
     }
     
     /**
      * @since 1.2.11
      */
     public static String toJSONString(Object object, int defaultFeatures, SerializerFeature... features) {
-        SerializeWriter out = new SerializeWriter((Writer) null, defaultFeatures, features);
-
-        try {
-            JSONSerializer serializer = new JSONSerializer(out);
-            serializer.write(object);
-            return out.toString();
-        } finally {
-            out.close();
-        }
+        return toJSONString(object, SerializeConfig.globalInstance, null, null, defaultFeatures, features);
     }
 
     /**
@@ -753,6 +745,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
+            if (out.isWriteNullOfNullObject() && object == null) {
+                return null;
+            }
+
             JSONSerializer serializer = new JSONSerializer(out, config);
             
             if (dateFormat != null && dateFormat.length() != 0) {
@@ -833,6 +829,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
+            if (out.isWriteNullOfNullObject() && object == null) {
+                return null;
+            }
+
             JSONSerializer serializer = new JSONSerializer(out, config);
 
             if (dateFormat != null && dateFormat.length() != 0) {
@@ -869,6 +869,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
+            if (out.isWriteNullOfNullObject() && object == null) {
+                return null;
+            }
+
             JSONSerializer serializer = new JSONSerializer(out, config);
 
             if (dateFormat != null && dateFormat.length() != 0) {

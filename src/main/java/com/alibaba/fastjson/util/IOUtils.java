@@ -40,6 +40,7 @@ public class IOUtils {
     public final static String     FASTJSON_PROPERTIES              = "fastjson.properties";
     public final static String     FASTJSON_COMPATIBLEWITHJAVABEAN  = "fastjson.compatibleWithJavaBean";
     public final static String     FASTJSON_COMPATIBLEWITHFIELDNAME = "fastjson.compatibleWithFieldName";
+    public final static String     FASTJSON_BROWSERUNICODEWITHLOWERCASE = "fastjson.browserUnicodeWithLowercase";
     public final static Properties DEFAULT_PROPERTIES               = new Properties();
     public final static Charset    UTF8                             = Charset.forName("UTF-8");
     public final static char[]     DIGITS                           = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -72,6 +73,25 @@ public class IOUtils {
             loadPropertiesFromFile();
         } catch (Throwable e) {
             //skip
+        }
+
+        // deal browser unicode case
+        dealBrowserUnicodeWithLowerCase();
+    }
+
+    /**
+     * deal DIGITS with #FASTJSON_BROWSERUNICODEWITHLOWERCASE properties
+     */
+    public static void dealBrowserUnicodeWithLowerCase() {
+        if (!"true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_BROWSERUNICODEWITHLOWERCASE))) {
+            for (int i = 0; i < DIGITS.length; i++) {
+                DIGITS[i] = Character.toUpperCase(DIGITS[i]);
+            }
+            return;
+        }
+
+        for (int i = 0; i < DIGITS.length; i++) {
+            DIGITS[i] = Character.toLowerCase(DIGITS[i]);
         }
     }
     

@@ -49,4 +49,10 @@ public @interface JSONField {
     Feature[] parseFeatures() default {};
 
     String[] alternateNames() default {};
+
+    /**
+     * config ignore deserialize exception
+     * @return
+     */
+    boolean ignoreException() default false;
 }

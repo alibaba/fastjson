@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 import com.alibaba.fastjson.parser.deserializer.FieldDeserializer;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -67,10 +68,21 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         }
         String format = fieldInfo.format;
         Object value;
-        if (format != null && fieldValueDeserilizer instanceof DateCodec) {
-            value = ((DateCodec) fieldValueDeserilizer).deserialze(parser, fieldType, fieldInfo.name, format);
-        } else {
-            value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+        try {
+            if (format != null && fieldValueDeserilizer instanceof DateCodec) {
+                value = ((DateCodec) fieldValueDeserilizer).deserialze(parser, fieldType, fieldInfo.name, format);
+            } else {
+                value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+            }
+        } catch (Exception ex) {
+            if (fieldInfo.getAnnotation() != null && fieldInfo.getAnnotation().ignoreException()
+                    && ex instanceof JSONException) {
+                value = null;
+            } else if (ex instanceof JSONException) {
+                throw new JSONException(ex.getMessage(), ex);
+            } else {
+                throw new JSONException("deserialize field error , fieldName " + fieldInfo.name, ex);
+            }
         }
         if (parser.resolveStatus == DefaultJSONParser.NeedToResolve) {
             ResolveTask task = parser.getLastResolveTask();

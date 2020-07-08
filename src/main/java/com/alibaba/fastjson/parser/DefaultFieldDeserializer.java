@@ -75,8 +75,7 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
                 value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
             }
         } catch (Exception ex) {
-            if (fieldInfo.getAnnotation() != null && fieldInfo.getAnnotation().ignoreException()
-                    && ex instanceof JSONException) {
+            if (fieldInfo.getAnnotation() != null && fieldInfo.getAnnotation().ignoreException()) {
                 value = null;
             } else if (ex instanceof JSONException) {
                 throw new JSONException(ex.getMessage(), ex);

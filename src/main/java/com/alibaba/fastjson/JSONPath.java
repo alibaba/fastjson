@@ -82,17 +82,22 @@ public class JSONPath implements JSONAware {
     }
 
     public boolean isRef() {
-        init();
-        for (int i = 0; i < segments.length; ++i) {
-            Segment segment = segments[i];
-            Class segmentType = segment.getClass();
-            if (segmentType == ArrayAccessSegment.class
-                    || segmentType == PropertySegment.class) {
-                continue;
+        try {
+            init();
+            for (int i = 0; i < segments.length; ++i) {
+                Segment segment = segments[i];
+                Class segmentType = segment.getClass();
+                if (segmentType == ArrayAccessSegment.class
+                        || segmentType == PropertySegment.class) {
+                    continue;
+                }
+                return false;
             }
+            return true;
+        } catch (JSONPathException ex) {
+            // skip
             return false;
         }
-        return true;
     }
 
     public Object eval(Object rootObject) {

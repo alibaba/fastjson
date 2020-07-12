@@ -752,6 +752,10 @@ public class TypeUtils {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static final <T> T cast(Object obj, ParameterizedType type, ParserConfig mapping) {
+        if (obj == null) {
+            return null;
+        }
+
         Type rawTye = type.getRawType();
 
         if (rawTye == List.class //

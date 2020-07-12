@@ -258,6 +258,11 @@ public class TypeUtils{
             }
             return Byte.parseByte(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? (byte) 1 : (byte) 0;
+        }
+
         throw new JSONException("can not cast to byte, value : " + value);
     }
 
@@ -302,6 +307,10 @@ public class TypeUtils{
                 return null;
             }
             return Short.parseShort(strVal);
+        }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? (short) 1 : (short) 0;
         }
 
         throw new JSONException("can not cast to short, value : " + value);
@@ -381,6 +390,11 @@ public class TypeUtils{
             }
             return Float.parseFloat(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1F : 0F;
+        }
+
         throw new JSONException("can not cast to float, value : " + value);
     }
 
@@ -403,6 +417,11 @@ public class TypeUtils{
             }
             return Double.parseDouble(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1D : 0D;
+        }
+
         throw new JSONException("can not cast to double, value : " + value);
     }
 
@@ -849,6 +868,10 @@ public class TypeUtils{
                 Object value2 = iter.next();
                 return castToLong(value2);
             }
+        }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1L : 0L;
         }
 
         throw new JSONException("can not cast to long, value : " + value);

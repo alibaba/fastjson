@@ -1101,6 +1101,28 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
 
                 Object value = entry.getValue();
+
+                if (value == null) {
+                    Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
+                    if (fieldClass == int.class) {
+                        value = 0;
+                    } else if (fieldClass == long.class) {
+                        value = 0L;
+                    } else if (fieldClass == short.class) {
+                        value = Short.valueOf((short) 0);
+                    } else if (fieldClass == byte.class) {
+                        value = Byte.valueOf((byte) 0);
+                    } else if (fieldClass == float.class) {
+                        value = Float.valueOf(0);
+                    } else if (fieldClass == double.class) {
+                        value = Double.valueOf(0);
+                    } else if (fieldClass == char.class) {
+                        value = '0';
+                    } else if (fieldClass == boolean.class) {
+                        value = false;
+                    }
+                }
+
                 Method method = fieldDeser.fieldInfo.method;
                 if (method != null) {
                     Type paramType = method.getGenericParameterTypes()[0];

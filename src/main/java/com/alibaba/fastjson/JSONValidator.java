@@ -207,6 +207,10 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             case '"':
                 next();
                 for (;;) {
+                    if (eof) {
+                        return false;
+                    }
+
                     if (ch == '\\') {
                         next();
                         if (ch == 'u') {

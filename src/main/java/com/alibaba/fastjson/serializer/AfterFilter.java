@@ -21,7 +21,12 @@ public abstract class AfterFilter implements SerializeFilter {
     protected final void writeKeyValue(String key, Object value) {
         JSONSerializer serializer = serializerLocal.get();
         char seperator = seperatorLocal.get();
+
+        boolean ref = serializer.references.containsKey(value);
         serializer.writeKeyValue(seperator, key, value);
+        if (!ref) {
+            serializer.references.remove(value);
+        }
         if (seperator != ',') {
             seperatorLocal.set(COMMA);
         }

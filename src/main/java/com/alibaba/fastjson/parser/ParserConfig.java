@@ -216,6 +216,7 @@ public class ParserConfig {
                 0xA123A62F93178B20L,
                 0xA85882CE1044C450L,
                 0xAA3DAFFDB10C4937L,
+                0xAAAA0826487A3737L,
                 0xAC6262F52C98AA39L,
                 0xAD937A449831E8A0L,
                 0xAE50DA1FAD60A096L,
@@ -615,6 +616,11 @@ public class ParserConfig {
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
         ObjectDeserializer deserializer = get(type);
+        if (deserializer == null && type instanceof ParameterizedTypeImpl) {
+            Type innerType = TypeReference.intern((ParameterizedTypeImpl) type);
+            deserializer = get(innerType);
+        }
+
         if (deserializer != null) {
             return deserializer;
         }

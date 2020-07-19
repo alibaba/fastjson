@@ -109,4 +109,15 @@ public class IdentityHashMap<K, V> {
     public void clear() {
         Arrays.fill(this.buckets, null);
     }
+
+    public int size() {
+        int count = 0;
+        for (Entry<K, V> bucket : this.buckets) {
+            for (; bucket != null; bucket = bucket.next) {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }

@@ -92,7 +92,16 @@ public class TypeReference<T> {
         }
 
         type = cachedType;
+    }
 
+    public static Type intern(ParameterizedTypeImpl type) {
+        Type cachedType = classTypeCache.get(type);
+        if (cachedType == null) {
+            classTypeCache.putIfAbsent(type, type);
+            cachedType = classTypeCache.get(type);
+        }
+
+        return cachedType;
     }
 
     private Type handlerParameterizedType(ParameterizedType type, Type[] actualTypeArguments, int actualIndex) {

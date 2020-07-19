@@ -36,13 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.Feature;
@@ -96,8 +90,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     public boolean containsKey(Object key) {
         boolean result = map.containsKey(key);
-        if ((!result) && key instanceof Number) {
-            result = map.containsKey(key.toString());
+        if (!result) {
+            if (key instanceof Number
+                    || key instanceof Character
+                    || key instanceof Boolean
+                    || key instanceof UUID
+            ) {
+                result = map.containsKey(key.toString());
+            }
         }
         return result;
     }

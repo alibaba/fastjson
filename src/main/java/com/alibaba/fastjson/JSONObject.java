@@ -109,8 +109,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public Object get(Object key) {
         Object val = map.get(key);
 
-        if (val == null && key instanceof Number) {
-            val = map.get(key.toString());
+        if (val == null) {
+            if (key instanceof Number
+                    || key instanceof Character
+                    || key instanceof Boolean
+                    || key instanceof UUID
+            ) {
+                val = map.get(key.toString());
+            }
         }
 
         return val;

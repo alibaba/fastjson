@@ -47,6 +47,7 @@ public class DefaultJSONParser implements Closeable {
 
     private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
+    private Integer                    dateFormatLength;
 
     public final JSONLexer             lexer;
 
@@ -114,13 +115,23 @@ public class DefaultJSONParser implements Closeable {
         return dateFormat;
     }
 
+    public Integer getDateFormatLength() {
+        if (dateFormatLength == null) {
+            DateFormat dateFormat = getDateFormat();
+            dateFormatLength = dateFormat.format(new Date()).length();
+        }
+        return dateFormatLength;
+    }
+
     public void setDateFormat(String dateFormat) {
         this.dateFormatPattern = dateFormat;
         this.dateFormat = null;
+        this.dateFormatLength = null;
     }
 
     public void setDateFomrat(DateFormat dateFormat) {
         this.dateFormat = dateFormat;
+        this.dateFormatLength = null;
     }
 
     public DefaultJSONParser(String input){

@@ -47,6 +47,7 @@ public class DefaultJSONParser implements Closeable {
 
     private String                     dateFormatPattern  = JSON.DEFFAULT_DATE_FORMAT;
     private DateFormat                 dateFormat;
+    private final static Date          dateFormatTemplateDate = new Date();
     private Integer                    dateFormatLength;
 
     public final JSONLexer             lexer;
@@ -118,7 +119,7 @@ public class DefaultJSONParser implements Closeable {
     public Integer getDateFormatLength() {
         if (dateFormatLength == null) {
             DateFormat dateFormat = getDateFormat();
-            dateFormatLength = dateFormat.format(new Date()).length();
+            dateFormatLength = dateFormat.format(dateFormatTemplateDate).length();
         }
         return dateFormatLength;
     }

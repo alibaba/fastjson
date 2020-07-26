@@ -11,10 +11,11 @@ public abstract class AfterFilter implements SerializeFilter {
     private final static Character                   COMMA           = Character.valueOf(',');
 
     final char writeAfter(JSONSerializer serializer, Object object, char seperator) {
+        JSONSerializer last = serializerLocal.get();
         serializerLocal.set(serializer);
         seperatorLocal.set(seperator);
         writeAfter(object);
-        serializerLocal.set(null);
+        serializerLocal.set(last);
         return seperatorLocal.get();
     }
 

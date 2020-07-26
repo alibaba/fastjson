@@ -85,7 +85,11 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         switch (ch) {
             case '{':
                 next();
-                skipWhiteSpace();
+
+                while (isWhiteSpace(ch)) {
+                    next();
+                }
+
                 if (ch == '}') {
                     next();
                     type = Type.Object;
@@ -106,6 +110,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                         return false;
                     }
                     skipWhiteSpace();
+
                     if (!any()) {
                         return false;
                     }
@@ -339,6 +344,36 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         }
     }
 
+    protected boolean string()
+    {
+        next();
+        for (; !eof; ) {
+            if (ch == '\\') {
+                next();
+
+                if (ch == 'u') {
+                    next();
+
+                    next();
+                    next();
+                    next();
+                    next();
+                } else {
+                    next();
+                }
+            }
+            else if (ch == '"') {
+                next();
+                return true;
+            }
+            else {
+                next();
+            }
+        }
+
+        return false;
+    }
+
     void skipWhiteSpace() {
         while (isWhiteSpace(ch)) {
             next();
@@ -456,6 +491,56 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 eof = true;
             } else {
                 ch = str.charAt(pos);
+            }
+        }
+
+        protected final void fieldName()
+        {
+            for (int i = pos + 1; i < str.length(); ++i) {
+                char ch = str.charAt(i);
+                if (ch == '\\') {
+                    break;
+                }
+                if (ch == '\"') {
+                    this.ch = str.charAt(i + 1);
+                    pos = i + 1;
+                    return;
+                }
+            }
+
+            next();
+            for (; ; ) {
+                if (ch == '\\') {
+                    next();
+
+                    if (ch == 'u') {
+                        next();
+
+                        next();
+                        next();
+                        next();
+                        next();
+                    } else {
+                        next();
+                    }
+                }
+                else if (ch == '"') {
+                    next();
+                    break;
+                }
+                else {
+                    next();
+                }
+            }
+        }
+
+        final void skipWhiteSpace() {
+            if (ch > '\r') {
+                return;
+            }
+
+            while (isWhiteSpace(ch)) {
+                next();
             }
         }
     }

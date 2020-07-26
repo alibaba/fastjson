@@ -283,9 +283,13 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     dateLexer.close();
                 }
             }
-            
-            if (strVal.length() == parser.getDateFomartPattern().length()
-                    || (strVal.length() == 22 && parser.getDateFomartPattern().equals("yyyyMMddHHmmssSSSZ"))) {
+
+            String dateFomartPattern = parser.getDateFomartPattern();
+            boolean formatMatch = strVal.length() == dateFomartPattern.length()
+                    || (strVal.length() == 22 && dateFomartPattern.equals("yyyyMMddHHmmssSSSZ"))
+                    || (strVal.indexOf('T') != -1 && dateFomartPattern.contains("'T'") && strVal.length() + 2 == dateFomartPattern.length())
+                    ;
+            if (formatMatch) {
                 DateFormat dateFormat = parser.getDateFormat();
                 try {
                     return (T) dateFormat.parse(strVal);

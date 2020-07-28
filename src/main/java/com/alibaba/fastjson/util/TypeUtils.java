@@ -1267,17 +1267,13 @@ public class TypeUtils{
                         return (T) values[ordinal];
                     }
                 }
-            }
-
-            if(obj instanceof BigDecimal){
+            } else if(obj instanceof BigDecimal){
                 int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
                 if(ordinal < values.length){
                     return (T) values[ordinal];
                 }
-            }
-
-            if(obj instanceof Number){
+            } else if(obj instanceof Number){
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
                 if(ordinal < values.length){
@@ -1296,6 +1292,7 @@ public class TypeUtils{
         if (obj instanceof String) {
             return (String) obj;
         } else if (obj instanceof BigDecimal) {
+            // 避免出现科学计数符号
             return ((BigDecimal)obj).toPlainString();
         } else if (obj instanceof Number) {
             return String.valueOf(((Number) obj).intValue());

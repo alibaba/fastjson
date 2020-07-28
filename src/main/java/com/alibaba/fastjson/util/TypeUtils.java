@@ -1234,8 +1234,8 @@ public class TypeUtils{
         if (obj == null || (obj instanceof String && ((String) obj).length() == 0)) {
             return null;
         }
-        try{
 
+        try {
             if (mapping == null) {
                 mapping = ParserConfig.getGlobalInstance();
             }
@@ -1254,7 +1254,13 @@ public class TypeUtils{
                 DefaultJSONParser parser = new DefaultJSONParser(string, mapping);
                 return (T) deserializer.deserialze(parser, clazz, null);
             }
+        } catch(JSONException ex){
+            throw ex;
+        } catch(Exception ex){
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
+        }
 
+        try {
             if(obj instanceof String){
                 String name = (String) obj;
                 if (!isDigitString(name)) {
@@ -1280,12 +1286,10 @@ public class TypeUtils{
                     return (T) values[ordinal];
                 }
             }
-        } catch(JSONException e){
-            throw e;
         } catch(Exception ex){
-            throw new JSONException("can not cast to : " + clazz.getName(), ex);
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
         }
-        throw new JSONException("can not cast to : " + clazz.getName());
+        throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
     }
     
     private static String castToEnumString(Object obj, Class<?> clazz) {
@@ -1299,7 +1303,7 @@ public class TypeUtils{
         } else if (obj instanceof Boolean) {
             return String.valueOf(obj);
         } else {
-            throw new JSONException("can not cast to : " + clazz.getName());
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
         }
     }
     

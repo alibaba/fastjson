@@ -1231,24 +1231,42 @@ public class TypeUtils{
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping){
+        if (obj == null || (obj instanceof String && ((String) obj).length() == 0)) {
+            return null;
+        }
         try{
+
+            if (mapping == null) {
+                mapping = ParserConfig.getGlobalInstance();
+            }
+
+            // 不管是字符串还是数字, 只要注册了Deserializer, 就使用Deserializer
+            ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
+            if (deserializer instanceof EnumDeserializer) {
+                // 注册的是EnumDeserializer
+                String string = JSON.toJSONString(castToEnumString(obj, clazz));
+                EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
+                return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(string));
+            } else if (deserializer != null) {
+                // 注册的是普通的ObjectDeserializer
+                // ParserConfig.getGlobalInstance().putDeserializer(XxxState.class, new XxxStateDeserializer());
+                String string = JSON.toJSONString(castToEnumString(obj, clazz));
+                DefaultJSONParser parser = new DefaultJSONParser(string, mapping);
+                return (T) deserializer.deserialze(parser, clazz, null);
+            }
+
             if(obj instanceof String){
                 String name = (String) obj;
-                if(name.length() == 0){
-                    return null;
+                if (!isDigitString(name)) {
+                    return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
+                } else {
+                    // 数字型文本, TypeUtils.castToEnum("1", XxxState.class, null)
+                    int ordinal = Long.valueOf(name).intValue();
+                    Object[] values = clazz.getEnumConstants();
+                    if(ordinal < values.length){
+                        return (T) values[ordinal];
+                    }
                 }
-
-                if (mapping == null) {
-                    mapping = ParserConfig.getGlobalInstance();
-                }
-
-                ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
-                if (deserializer instanceof EnumDeserializer) {
-                    EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
-                    return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
-                }
-
-                return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
             }
 
             if(obj instanceof BigDecimal){
@@ -1266,10 +1284,39 @@ public class TypeUtils{
                     return (T) values[ordinal];
                 }
             }
+        } catch(JSONException e){
+            throw e;
         } catch(Exception ex){
             throw new JSONException("can not cast to : " + clazz.getName(), ex);
         }
         throw new JSONException("can not cast to : " + clazz.getName());
+    }
+    
+    private static String castToEnumString(Object obj, Class<?> clazz) {
+        if (obj instanceof String) {
+            return (String) obj;
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal)obj).toPlainString();
+        } else if (obj instanceof Number) {
+            return String.valueOf(((Number) obj).intValue());
+        } else if (obj instanceof Boolean) {
+            return String.valueOf(obj);
+        } else {
+            throw new JSONException("can not cast to : " + clazz.getName());
+        }
+    }
+    
+    private static boolean isDigitString(String string) {
+        if (string == null || string.length() == 0) {
+            return false;
+        }
+        for (int i = 0, z = string.length(); i < z; i++) {
+            char c = string.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")

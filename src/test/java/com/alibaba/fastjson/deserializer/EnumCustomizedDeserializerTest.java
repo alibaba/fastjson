@@ -25,11 +25,12 @@ public class EnumCustomizedDeserializerTest extends TestCase {
         test.setUp();
         test.testConvert();
         test.testException();
+        System.out.println("test passed!");
     }
 
     protected void setUp() {
         // 给UserState注册定制的反序列化处理类
-        ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());
+        ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new CodeEnumDeserializer());
     }
 
     public void testConvert() {
@@ -60,8 +61,13 @@ public class EnumCustomizedDeserializerTest extends TestCase {
         }
     }
 
+    /** 自定义编号的枚举类 **/
+    protected static interface CodeEnum {
+        int code();
+    }
+
     /** 用户状态 **/
-    protected static enum UserState {
+    protected static enum UserState implements CodeEnum {
 
         /** 1.正常 **/
         NORMAL(1),
@@ -83,9 +89,10 @@ public class EnumCustomizedDeserializerTest extends TestCase {
         }
     }
 
-    /** 用户状态专用反序列化处理类(数字根据code转换) **/
-    protected static class UserStateDeserializer implements ObjectDeserializer {
+    /** 返回自定义编号的专用反序列化处理类(数字根据code转换) **/
+    protected static class CodeEnumDeserializer implements ObjectDeserializer {
 
+        @SuppressWarnings("unchecked")
         public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
             JSONLexer lexer = parser.lexer;
             if (lexer.token() == JSONToken.NULL) {
@@ -93,69 +100,75 @@ public class EnumCustomizedDeserializerTest extends TestCase {
                 return null;
             }
 
-            Class<T> targetClass = (Class<T>) TypeUtils.getRawClass(type);
-            if (targetClass != UserState.class) {
-                throw new JSONException("UserStateDeserializer do not support " + targetClass.getName());
+            Class<?> targetClass = (Class<?>) TypeUtils.getRawClass(type);
+            // CodeEnumDeserializer只能注册给既是枚举又实现了CodeEnum接口的类
+            // ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new CodeEnumDeserializer());
+            if (!CodeEnum.class.isAssignableFrom(targetClass)) {
+                throw new JSONException("CodeEnumDeserializer do not support " + targetClass.getName());
             }
+            if (!Enum.class.isAssignableFrom(targetClass)) {
+                throw new JSONException("CodeEnumDeserializer do not support " + targetClass.getName());
+            }
+            Enum<?>[] ordinalEnums = (Enum[]) targetClass.getEnumConstants();
             if (lexer.token() == JSONToken.LITERAL_INT) {
                 BigDecimal number = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                return (T) convertFromNumber(number);
+                return (T) convertFromNumber(number, ordinalEnums, targetClass);
             } else if (lexer.token() == JSONToken.LITERAL_FLOAT) {
                 BigDecimal number = lexer.decimalValue();
                 lexer.nextToken(JSONToken.COMMA);
-                return (T) convertFromNumber(number);
+                return (T) convertFromNumber(number, ordinalEnums, targetClass);
             } else if (lexer.token() == JSONToken.LITERAL_STRING) {
                 String string = lexer.stringVal();
                 if (isDigitString(string)) {
                     BigDecimal number = new BigDecimal(string);
-                    return (T) convertFromNumber(number);
+                    return (T) convertFromNumber(number, ordinalEnums, targetClass);
                 } else {
-                    return (T) convertFromString(string);
+                    return (T) convertFromString(string, ordinalEnums, targetClass);
                 }
             }
 
             Object value = parser.parse();
-            String msg = value + " can not cast to : " + targetClass.getName();
+            String msg = "can not cast " + value + " to : " + targetClass.getName();
             throw new JSONException(msg);
         }
 
-        private UserState convertFromNumber(BigDecimal number) {
+        private Enum<?> convertFromNumber(BigDecimal number, Enum<?>[] enums, Class<?> type) {
             // 整数部分
             BigInteger integer = number.toBigInteger();
             // 是不是整数
             boolean isIntegral = number.compareTo(new BigDecimal(integer)) == 0;
             if (!isIntegral) { // 不是整数
-                String msg = number.toPlainString() + " can not cast to : " + UserState.class.getName();
+                String msg = "can not cast " + number.toPlainString() + " to : " + type.getName();
                 throw new JSONException(msg);
             }
             BigInteger minInteger = BigInteger.valueOf(Integer.MIN_VALUE);
             BigInteger maxInteger = BigInteger.valueOf(Integer.MAX_VALUE);
             if (integer.compareTo(minInteger) < 0 || integer.compareTo(maxInteger) > 0) {
                 // 不在Integer范围内
-                throw new JSONException(integer + " can not cast to : " + UserState.class.getName());
+                throw new JSONException("can not cast " + integer + "to : " + type.getName());
             }
             // 根据code转换
             int targetValue = number.intValue();
-            for (UserState item : UserState.values()) {
-                if (item.code() == targetValue) {
+            for (Enum<?> item : enums) {
+                if (((CodeEnum) item).code() == targetValue) {
                     return item;
                 }
             }
-            throw new JSONException(integer + " can not cast to : " + UserState.class.getName());
+            throw new JSONException("can not cast " + integer + "to : " + type.getName());
         }
 
-        private UserState convertFromString(String string) {
+        private Enum<?> convertFromString(String string, Enum<?>[] enums, Class<?> type) {
             if (string.length() == 0) {
                 return null;
             }
             // 根据name转换
-            for (UserState item : UserState.values()) {
+            for (Enum<?> item : enums) {
                 if (item.name().equals(string)) {
                     return item;
                 }
             }
-            throw new JSONException(string + " can not cast to : " + UserState.class.getName());
+            throw new JSONException("can not cast " + string + "to : " + type.getName());
         }
 
         private boolean isDigitString(String string) {
@@ -172,7 +185,7 @@ public class EnumCustomizedDeserializerTest extends TestCase {
         }
 
         public int getFastMatchToken() {
-            return JSONToken.UNDEFINED; // name or ordinal
+            return JSONToken.LITERAL_INT;
         }
 
     }

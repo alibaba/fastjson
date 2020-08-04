@@ -317,40 +317,41 @@ public class TypeUtils{
     }
 
     public static BigDecimal castToBigDecimal(Object value){
-        if(value == null){
+        value = castToNumberJudge(value);
+        if (value == null) {
             return null;
         }
-        if(value instanceof BigDecimal){
+        if (value instanceof BigDecimal) {
             return (BigDecimal) value;
         }
-        if(value instanceof BigInteger){
+        if (value instanceof BigInteger) {
             return new BigDecimal((BigInteger) value);
         }
         String strVal = value.toString();
-        if(strVal.length() == 0){
+        if (strVal.length() == 0) {
             return null;
         }
-        if(value instanceof Map && ((Map) value).size() == 0){
+        if (value instanceof Map && ((Map) value).size() == 0) {
             return null;
         }
-
         if (strVal.length() > 65535) {
             throw new JSONException("decimal overflow");
         }
         return new BigDecimal(strVal);
     }
-
-    public static BigInteger castToBigInteger(Object value){
-        if(value == null){
+    
+    public static BigInteger castToBigInteger(Object value) {
+        value = castToNumberJudge(value);
+        if (value == null) {
             return null;
         }
-        if(value instanceof BigInteger){
+        if (value instanceof BigInteger) {
             return (BigInteger) value;
         }
-        if(value instanceof Float || value instanceof Double){
+        if (value instanceof Float || value instanceof Double) {
             return BigInteger.valueOf(((Number) value).longValue());
         }
-        if(value instanceof BigDecimal){
+        if (value instanceof BigDecimal) {
             BigDecimal decimal = (BigDecimal) value;
             int scale = decimal.scale();
             if (scale > -1000 && scale < 1000) {
@@ -358,16 +359,9 @@ public class TypeUtils{
             }
         }
         String strVal = value.toString();
-        if(strVal.length() == 0 //
-                || "null".equals(strVal) //
-                || "NULL".equals(strVal)){
-            return null;
-        }
-
         if (strVal.length() > 65535) {
             throw new JSONException("decimal overflow");
         }
-
         return new BigInteger(strVal);
     }
 
@@ -1533,6 +1527,34 @@ public class TypeUtils{
         } catch(Exception e){
             throw new JSONException(e.getMessage(), e);
         }
+    }
+    
+    /**
+     * 转换成数值前的必要判断
+     * @param value 参数
+     * @return null或者原始值
+     */
+    private static Object castToNumberJudge(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number) {
+            if (value instanceof Float) {
+                if (Float.isNaN((Float) value) || Float.isInfinite((Float) value)) {
+                    return null;
+                }
+            } else if (value instanceof Double) {
+                if (Double.isNaN((Double) value) || Double.isInfinite((Double) value)) {
+                    return null;
+                }
+            }
+        } else {
+            String strVal = value.toString();
+            if (strVal.length() == 0 || "null".equals(strVal.toLowerCase())) {
+                return null;
+            }
+        }
+        return value;
     }
 
     private static void addBaseClassMappings(){

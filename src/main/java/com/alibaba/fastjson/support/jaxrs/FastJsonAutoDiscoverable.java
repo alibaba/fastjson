@@ -17,7 +17,13 @@ import javax.ws.rs.core.FeatureContext;
 @Priority(AutoDiscoverable.DEFAULT_PRIORITY - 1)
 public class FastJsonAutoDiscoverable implements AutoDiscoverable {
 
+    public static final String FASTJSON_AUTO_DISCOVERABLE = "fastjson.auto.discoverable";
+
     public volatile static boolean autoDiscover = true;
+
+    static {
+        autoDiscover = Boolean.parseBoolean(System.getProperty(FASTJSON_AUTO_DISCOVERABLE, String.valueOf(autoDiscover)));
+    }
 
     @Override
     public void configure(final FeatureContext context) {
@@ -30,4 +36,5 @@ public class FastJsonAutoDiscoverable implements AutoDiscoverable {
             context.register(FastJsonFeature.class);
         }
     }
+
 }

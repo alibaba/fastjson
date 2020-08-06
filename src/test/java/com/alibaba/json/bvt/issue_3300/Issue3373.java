@@ -17,6 +17,9 @@ public class Issue3373 extends TestCase {
         items.add(new Item("item2",category));
 
         System.out.println(JSON.toJSONString(items,refAfterFilterTest));
+        //DisableCircularReferenceDetect 特性报错
+        System.out.println(JSON.toJSONString(items,refAfterFilterTest,SerializerFeature.DisableCircularReferenceDetect));
+
     }
 
     public static class RefBeforeFilterTest extends BeforeFilter {

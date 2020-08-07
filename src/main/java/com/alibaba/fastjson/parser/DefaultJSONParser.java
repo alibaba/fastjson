@@ -441,8 +441,14 @@ public class DefaultJSONParser implements Closeable {
                                 setResolveStatus(DefaultJSONParser.NeedToResolve);
                             }
                         } else {
-                            addResolveTask(new ResolveTask(context, ref));
-                            setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            JSONPath jsonpath = JSONPath.compile(ref);
+                            if (jsonpath.isRef()) {
+                                addResolveTask(new ResolveTask(context, ref));
+                                setResolveStatus(DefaultJSONParser.NeedToResolve);
+                            } else {
+                                refValue = new JSONObject()
+                                        .fluentPut("$ref", ref);
+                            }
                         }
 
                         if (lexer.token() != JSONToken.RBRACE) {

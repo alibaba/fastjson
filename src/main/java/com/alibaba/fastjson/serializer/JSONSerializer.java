@@ -39,8 +39,16 @@ public class JSONSerializer extends SerializeFilterable {
     private int                                      indentCount = 0;
     private String                                   indent      = "\t";
 
+    /**
+     * #1868 为了区分全局配置（FastJsonConfig）的日期格式配置以及toJSONString传入的日期格式配置
+     * 建议使用以下调整：
+     * 1. dateFormatPattern、dateFormat只作为toJSONString传入配置使用；
+     * 2. 新增fastJsonConfigDateFormatPattern，用于存储通过（FastJsonConfig）配置的日期格式
+     */
     private String                                   dateFormatPattern;
     private DateFormat                               dateFormat;
+
+    private String                                   fastJsonConfigDateFormatPattern;
 
     protected IdentityHashMap<Object, SerialContext> references  = null;
     protected SerialContext                          context;
@@ -75,10 +83,16 @@ public class JSONSerializer extends SerializeFilterable {
     public DateFormat getDateFormat() {
         if (dateFormat == null) {
             if (dateFormatPattern != null) {
-                dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
-                dateFormat.setTimeZone(timeZone);
+                dateFormat = this.generateDateFormat( dateFormatPattern );
             }
         }
+
+        return dateFormat;
+    }
+
+    private DateFormat generateDateFormat(String dateFormatPattern) {
+        DateFormat dateFormat = new SimpleDateFormat(dateFormatPattern, locale);
+        dateFormat.setTimeZone(timeZone);
 
         return dateFormat;
     }
@@ -95,6 +109,19 @@ public class JSONSerializer extends SerializeFilterable {
         if (this.dateFormat != null) {
             this.dateFormat = null;
         }
+    }
+
+    /**
+     * Set global date format pattern in FastJsonConfig
+     *
+     * @param dateFormatPattern global date format pattern
+     */
+    public void setFastJsonConfigDateFormatPattern(String dateFormatPattern) {
+        this.fastJsonConfigDateFormatPattern = dateFormatPattern;
+    }
+
+    public String getFastJsonConfigDateFormatPattern() {
+        return this.fastJsonConfigDateFormatPattern;
     }
 
     public SerialContext getContext() {
@@ -351,13 +378,18 @@ public class JSONSerializer extends SerializeFilterable {
 
             DateFormat dateFormat = this.getDateFormat();
             if (dateFormat == null) {
-                try {
-                    dateFormat = new SimpleDateFormat(format, locale);
-                } catch (IllegalArgumentException e) {
-                    String format2 = format.replaceAll("T", "'T'");
-                    dateFormat = new SimpleDateFormat(format2, locale);
+                if (format != null) {
+                    try {
+                        dateFormat = this.generateDateFormat(format);
+                    } catch (IllegalArgumentException e) {
+                        String format2 = format.replaceAll("T", "'T'");
+                        dateFormat = this.generateDateFormat(format2);
+                    }
+                } else if (fastJsonConfigDateFormatPattern != null) {
+                    dateFormat = this.generateDateFormat(fastJsonConfigDateFormatPattern);
+                } else {
+                    dateFormat = this.generateDateFormat(JSON.DEFFAULT_DATE_FORMAT);
                 }
-                dateFormat.setTimeZone(timeZone);
             }
             String text = dateFormat.format((Date) object);
             out.writeString(text);

@@ -32,26 +32,15 @@ import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -111,11 +100,19 @@ public class TypeUtils{
     private static volatile Field field_XmlAccessType_FIELD = null;
     private static volatile Object field_XmlAccessType_FIELD_VALUE = null;
 
-    static{
-        try{
+    private static Class class_deque = null;
+
+    static {
+        try {
             TypeUtils.compatibleWithJavaBean = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHJAVABEAN));
             TypeUtils.compatibleWithFieldName = "true".equals(IOUtils.getStringProperty(IOUtils.FASTJSON_COMPATIBLEWITHFIELDNAME));
-        } catch(Throwable e){
+        } catch (Throwable e) {
+            // skip
+        }
+
+        try {
+            class_deque = Class.forName("java.util.Deque");
+        } catch (Throwable e) {
             // skip
         }
     }
@@ -261,6 +258,11 @@ public class TypeUtils{
             }
             return Byte.parseByte(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? (byte) 1 : (byte) 0;
+        }
+
         throw new JSONException("can not cast to byte, value : " + value);
     }
 
@@ -307,6 +309,10 @@ public class TypeUtils{
             return Short.parseShort(strVal);
         }
 
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? (short) 1 : (short) 0;
+        }
+
         throw new JSONException("can not cast to short, value : " + value);
     }
 
@@ -326,6 +332,10 @@ public class TypeUtils{
         }
         if(value instanceof Map && ((Map) value).size() == 0){
             return null;
+        }
+
+        if (strVal.length() > 65535) {
+            throw new JSONException("decimal overflow");
         }
         return new BigDecimal(strVal);
     }
@@ -353,6 +363,11 @@ public class TypeUtils{
                 || "NULL".equals(strVal)){
             return null;
         }
+
+        if (strVal.length() > 65535) {
+            throw new JSONException("decimal overflow");
+        }
+
         return new BigInteger(strVal);
     }
 
@@ -375,6 +390,11 @@ public class TypeUtils{
             }
             return Float.parseFloat(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1F : 0F;
+        }
+
         throw new JSONException("can not cast to float, value : " + value);
     }
 
@@ -397,6 +417,11 @@ public class TypeUtils{
             }
             return Double.parseDouble(strVal);
         }
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1D : 0D;
+        }
+
         throw new JSONException("can not cast to double, value : " + value);
     }
 
@@ -448,7 +473,7 @@ public class TypeUtils{
                 strVal = strVal.substring(6, strVal.length() - 2);
             }
 
-            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0) {
+            if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0 || format != null) {
                 if (format == null) {
                     if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
                             || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
@@ -786,7 +811,7 @@ public class TypeUtils{
             if(ch == '+' || ch == '-'){
                 if(i != 0){
                     return false;
-                } 
+                }
             } else if(ch < '0' || ch > '9'){
                 return false;
             }
@@ -844,7 +869,11 @@ public class TypeUtils{
                 return castToLong(value2);
             }
         }
-        
+
+        if (value instanceof Boolean) {
+            return ((Boolean) value).booleanValue() ? 1L : 0L;
+        }
+
         throw new JSONException("can not cast to long, value : " + value);
     }
 
@@ -927,7 +956,7 @@ public class TypeUtils{
             if(strVal.indexOf(',') != -1){
                 strVal = strVal.replaceAll(",", "");
             }
-            
+
             Matcher matcher = NUMBER_WITH_TRAILING_ZEROS_PATTERN.matcher(strVal);
             if(matcher.find()) {
                 strVal = matcher.replaceAll("");
@@ -1833,18 +1862,24 @@ public class TypeUtils{
             if(Modifier.isStatic(method.getModifiers())){
                 continue;
             }
-            if(method.getReturnType().equals(Void.TYPE)){
+
+            Class<?> returnType = method.getReturnType();
+            if(returnType.equals(Void.TYPE)){
                 continue;
             }
+
             if(method.getParameterTypes().length != 0){
                 continue;
             }
-            if(method.getReturnType() == ClassLoader.class){
+
+            if(returnType == ClassLoader.class
+                    || returnType == InputStream.class
+                    || returnType == Reader.class){
                 continue;
             }
 
             if(methodName.equals("getMetaClass")
-                    && method.getReturnType().getName().equals("groovy.lang.MetaClass")){
+                    && returnType.getName().equals("groovy.lang.MetaClass")){
                 continue;
             }
             if(methodName.equals("getSuppressed")
@@ -1958,7 +1993,7 @@ public class TypeUtils{
                     if(compatibleWithJavaBean){
                         propertyName = decapitalize(methodName.substring(3));
                     } else{
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
                     }
                     propertyName = getPropertyNameByCompatibleFieldName(fieldCacheMap, methodName, propertyName, 3);
                 } else if(c3 == '_'){
@@ -1992,7 +2027,7 @@ public class TypeUtils{
                     // 假如bean的field很多的情况一下，轮询时将大大降低效率
                     field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                 }
-                
+
                 if(field == null && propertyName.length() > 1){
                     char ch = propertyName.charAt(1);
                     if(ch >= 'A' && ch <= 'Z'){
@@ -2042,8 +2077,8 @@ public class TypeUtils{
                 if(methodName.length() < 3){
                     continue;
                 }
-                if(method.getReturnType() != Boolean.TYPE
-                        && method.getReturnType() != Boolean.class){
+                if(returnType != Boolean.TYPE
+                        && returnType != Boolean.class){
                     continue;
                 }
                 char c2 = methodName.charAt(2);
@@ -2080,11 +2115,11 @@ public class TypeUtils{
                 if(ignore){
                     continue;
                 }
-                
+
                 if(field == null) {
                     field = ParserConfig.getFieldFromCache(propertyName, fieldCacheMap);
                 }
-                
+
                 if(field == null){
                     field = ParserConfig.getFieldFromCache(methodName, fieldCacheMap);
                 }
@@ -2437,6 +2472,16 @@ public class TypeUtils{
         return new String(chars);
     }
 
+    /**
+     * resolve property name from get/set method name
+     *
+     * @param methodName get/set method name
+     * @return property name
+     */
+    public static String getPropertyNameByMethodName(String methodName) {
+        return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+    }
+
     static void setAccessible(AccessibleObject obj){
         if(!setAccessibleEnable){
             return;
@@ -2625,7 +2670,8 @@ public class TypeUtils{
                 itemType = Object.class;
             }
             list = EnumSet.noneOf((Class<Enum>) itemType);
-        } else if (rawClass.isAssignableFrom(Queue.class) || rawClass.isAssignableFrom(Deque.class)){
+        } else if (rawClass.isAssignableFrom(Queue.class)
+                || (class_deque != null && rawClass.isAssignableFrom(class_deque))){
             list = new LinkedList();
         } else {
             try {
@@ -2878,7 +2924,7 @@ public class TypeUtils{
         return Float.parseFloat(str);
     }
 
-    public static long fnv1a_64_lower(String key){
+    public static long fnv1a_64_extract(String key){
         long hashCode = 0xcbf29ce484222325L;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
@@ -2894,10 +2940,13 @@ public class TypeUtils{
         return hashCode;
     }
 
-    public static long fnv1a_64_extract(String key){
+    public static long fnv1a_64_lower(String key){
         long hashCode = 0xcbf29ce484222325L;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
+            if(ch >= 'A' && ch <= 'Z'){
+                ch = (char) (ch + 32);
+            }
             hashCode ^= ch;
             hashCode *= 0x100000001b3L;
         }
@@ -3060,8 +3109,9 @@ public class TypeUtils{
 
         if(mixInClass != null) {
             A mixInAnnotation = mixInClass.getAnnotation(annotationClass);
-            if(mixInAnnotation == null && mixInClass.getAnnotations().length > 0){
-                for(Annotation annotation : mixInClass.getAnnotations()){
+            Annotation[] annotations = mixInClass.getAnnotations();
+            if(mixInAnnotation == null && annotations.length > 0){
+                for(Annotation annotation : annotations){
                     mixInAnnotation = annotation.annotationType().getAnnotation(annotationClass);
                     if(mixInAnnotation != null){
                         break;
@@ -3073,8 +3123,9 @@ public class TypeUtils{
             }
         }
 
-        if(targetAnnotation == null && targetClass.getAnnotations().length > 0){
-            for(Annotation annotation : targetClass.getAnnotations()){
+        Annotation[] targetClassAnnotations = targetClass.getAnnotations();
+        if(targetAnnotation == null && targetClassAnnotations.length > 0){
+            for(Annotation annotation : targetClassAnnotations){
                 targetAnnotation = annotation.annotationType().getAnnotation(annotationClass);
                 if(targetAnnotation != null){
                     break;
@@ -3255,18 +3306,5 @@ public class TypeUtils{
             }
         }
         return class_JacksonCreator != null && method.isAnnotationPresent(class_JacksonCreator);
-    }
-
-    public static LocalDateTime castToLocalDateTime(Object value, String format) {
-        if (value == null) {
-            return null;
-        }
-
-        if (format == null) {
-            format = "yyyy-MM-dd HH:mm:ss";
-        }
-
-        DateTimeFormatter df = DateTimeFormatter.ofPattern(format);
-        return LocalDateTime.parse(value.toString(), df);
     }
 }

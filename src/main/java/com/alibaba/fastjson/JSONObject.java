@@ -36,13 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.Feature;
@@ -96,8 +90,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     public boolean containsKey(Object key) {
         boolean result = map.containsKey(key);
-        if ((!result) && key instanceof Number) {
-            result = map.containsKey(key.toString());
+        if (!result) {
+            if (key instanceof Number
+                    || key instanceof Character
+                    || key instanceof Boolean
+                    || key instanceof UUID
+            ) {
+                result = map.containsKey(key.toString());
+            }
         }
         return result;
     }
@@ -109,8 +109,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public Object get(Object key) {
         Object val = map.get(key);
 
-        if (val == null && key instanceof Number) {
-            val = map.get(key.toString());
+        if (val == null) {
+            if (key instanceof Number
+                    || key instanceof Character
+                    || key instanceof Boolean
+                    || key instanceof UUID
+            ) {
+                val = map.get(key.toString());
+            }
         }
 
         return val;
@@ -352,11 +358,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return this;
     }
 
-    public void putAll(Map<? extends String, ? extends Object> m) {
+    public void putAll(Map<? extends String, ?> m) {
         map.putAll(m);
     }
 
-    public JSONObject fluentPutAll(Map<? extends String, ? extends Object> m) {
+    public JSONObject fluentPutAll(Map<? extends String, ?> m) {
         map.putAll(m);
         return this;
     }
@@ -571,7 +577,10 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                 if (name.length() > 2 && name.charAt(0) == 'L' && name.charAt(name.length() - 1) == ';') {
                     name = name.substring(1, name.length() - 1);
                 }
-                ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
+
+                if (TypeUtils.getClassFromMapping(name) == null) {
+                    ParserConfig.global.checkAutoType(name, null, Feature.SupportAutoType.mask);
+                }
             }
             return super.resolveClass(desc);
         }
@@ -580,7 +589,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
                 throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
                 //检查是否处于黑名单
-                ParserConfig.global.checkAutoType(interfacename, null);
+                if (TypeUtils.getClassFromMapping(interfacename) == null) {
+                    ParserConfig.global.checkAutoType(interfacename, null);
+                }
             }
             return super.resolveProxyClass(interfaces);
         }

@@ -44,13 +44,11 @@ public class Issue2685 extends TestCase {
 
     public static class MyDeserializer implements ObjectDeserializer {
 
-        @Override
         public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
             String msg = StringCodec.deserialze(parser);
             return (T) CMPPCommonUtil.buildTextMessage(msg);
         }
 
-        @Override
         public int getFastMatchToken() {
             return JSONToken.LITERAL_STRING;
         }

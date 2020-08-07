@@ -1,5 +1,10 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.serializer.BeanContext;
+import com.alibaba.fastjson.util.FieldInfo;
+
 import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,11 +12,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.serializer.BeanContext;
-import com.alibaba.fastjson.util.FieldInfo;
 
 public abstract class FieldDeserializer {
 
@@ -94,9 +94,20 @@ public abstract class FieldDeserializer {
                             return;
                         }
                         if (map != null) {
-                            if (map == Collections.emptyMap()
-                                    || map.getClass().getName().startsWith("java.util.Collections$Unmodifiable")) {
+                            if (map == Collections.emptyMap()) {
+                                return;
+                            }
+
+                            if (map.isEmpty() && ((Map) value).isEmpty()) {
+                                return;
+                            }
+
+                            String mapClassName = map.getClass().getName();
+                            if (mapClassName.equals("java.util.ImmutableCollections$Map1")
+                                    || mapClassName.equals("java.util.ImmutableCollections$MapN")
+                                    || mapClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
+
                                 return;
                             }
 
@@ -119,8 +130,11 @@ public abstract class FieldDeserializer {
                         }
                         if (collection != null && value != null) {
                             String collectionClassName = collection.getClass().getName();
+
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
+                                    || collectionClassName == "java.util.ImmutableCollections$ListN"
+                                    || collectionClassName == "java.util.ImmutableCollections$List12"
                                     || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;
@@ -128,7 +142,10 @@ public abstract class FieldDeserializer {
 
                             if (!collection.isEmpty()) {
                                 collection.clear();
+                            } else if (((Collection) value).isEmpty()) {
+                                return; //skip
                             }
+
 
                             if (collectionClassName.equals("kotlin.collections.EmptyList")
                                     || collectionClassName.equals("kotlin.collections.EmptySet")) {

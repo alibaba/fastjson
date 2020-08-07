@@ -53,13 +53,13 @@ public class JSONWriter implements Closeable, Flushable {
 
         serializer.write(object);
 
-        afterWriter();
+        afterWrite();
     }
 
     public void writeObject(Object object) {
         beforeWrite();
         serializer.write(object);
-        afterWriter();
+        afterWrite();
     }
 
     public void startArray() {
@@ -145,7 +145,7 @@ public class JSONWriter implements Closeable, Flushable {
         }
     }
 
-    private void afterWriter() {
+    private void afterWrite() {
         if (context == null) {
             return;
         }

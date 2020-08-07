@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.asm.ClassReader;
@@ -215,6 +216,7 @@ public class ParserConfig {
                 0xA123A62F93178B20L,
                 0xA85882CE1044C450L,
                 0xAA3DAFFDB10C4937L,
+                0xAAAA0826487A3737L,
                 0xAC6262F52C98AA39L,
                 0xAD937A449831E8A0L,
                 0xAE50DA1FAD60A096L,
@@ -225,14 +227,17 @@ public class ParserConfig {
                 0xBCDD9DC12766F0CEL,
                 0xBEBA72FB1CCBA426L,
                 0xC00BE1DEBAF2808BL,
+                0xC1086AFAE32E6258L,
                 0xC2664D0958ECFE4CL,
                 0xC41FF7C9C87C7C05L,
+                0xC664B363BACA050AL,
                 0xC7599EBFE3E72406L,
                 0xC8D49E5601E661A9L,
                 0xC963695082FD728EL,
                 0xD1EFCDF4B3316D34L,
                 0xD54B91CC77B239EDL,
                 0xD59EE91F0B09EA01L,
+                0xD66F68AB92E7FEF5L,
                 0xD8CA3D595E982BACL,
                 0xDCD8D615A6449E3EL,
                 0xDE23A0809A8B9BD6L,
@@ -244,10 +249,12 @@ public class ParserConfig {
                 0xE603D6A51FAD692BL,
                 0xE9184BE55B1D962AL,
                 0xE9F20BAD25F60807L,
+                0xF2983D099D29B477L,
                 0xF3702A4A5490B8E8L,
                 0xF474E44518F26736L,
                 0xF7E96E74DFA58DBCL,
                 0xFC773AE20C827691L,
+                0xFCF3E78644B98BD8L,
                 0xFD5BFC610056D720L,
                 0xFFA15BF021F1E37CL,
                 0xFFDD1A80F1ED3405L,
@@ -269,23 +276,28 @@ public class ParserConfig {
                 0x193B2697EAAED41AL,
                 0x1CD6F11C6A358BB7L,
                 0x1E0A8C3358FF3DAEL,
+                0x24652CE717E713BBL,
                 0x24D2F6048FEF4E49L,
                 0x24EC99D5E7DC5571L,
                 0x25E962F1C28F71A2L,
                 0x275D0732B877AF29L,
+                0x28AC82E44E933606L,
                 0x2AD1CE3A112F015DL,
                 0x2ADFEFBBFE29D931L,
                 0x2B3A37467A344CDFL,
                 0x2B6DD8B3229D6837L,
                 0x2D308DBBC851B0D8L,
+                0x2FE950D3EA52AE0DL,
                 0x313BB4ABD8D4554CL,
                 0x327C8ED7C8706905L,
                 0x332F0B5369A18310L,
                 0x339A3E0B6BEEBEE9L,
                 0x33C64B921F523F2FL,
                 0x34A81EE78429FDF1L,
+                0x378307CB0111E878L,
                 0x3826F4B2380C8B9BL,
                 0x398F942E01920CF0L,
+                0x3A31412DBB05C7FFL,
                 0x3ADBA40367F73264L,
                 0x3B0B51ECBF6DB221L,
                 0x42D11A560FC9FBA9L,
@@ -296,6 +308,7 @@ public class ParserConfig {
                 0x4A3797B30328202CL,
                 0x4BA3E254E758D70DL,
                 0x4BF881E49D37F530L,
+                0x4CF54EEC05E3E818L,
                 0x4DA972745FEB30C1L,
                 0x4EF08C90FF16C675L,
                 0x4FD10DDC6D13821FL,
@@ -305,9 +318,11 @@ public class ParserConfig {
                 0x599B5C1213A099ACL,
                 0x5A5BD85C072E5EFEL,
                 0x5AB0CB3071AB40D1L,
+                0x5B6149820275EA42L,
                 0x5D74D3E5B9370476L,
                 0x5D92E6DDDE40ED84L,
                 0x5F215622FB630753L,
+                0x61C5BDD721385107L,
                 0x62DB241274397C34L,
                 0x63A220E60A17C7B9L,
                 0x647AB0224E149EBEL,
@@ -601,6 +616,11 @@ public class ParserConfig {
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
         ObjectDeserializer deserializer = get(type);
+        if (deserializer == null && type instanceof ParameterizedTypeImpl) {
+            Type innerType = TypeReference.intern((ParameterizedTypeImpl) type);
+            deserializer = get(innerType);
+        }
+
         if (deserializer != null) {
             return deserializer;
         }
@@ -812,8 +832,11 @@ public class ParserConfig {
                 }
             }
 
+            Class mixInType = (Class) JSON.getMixInAnnotations(clazz);
+
             Class<?> deserClass = null;
-            JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
+            JSONType jsonType = TypeUtils.getAnnotation(mixInType != null ? mixInType : clazz, JSONType.class);
+
             if (jsonType != null) {
                 deserClass = jsonType.deserializer();
                 try {
@@ -823,6 +846,26 @@ public class ParserConfig {
                 } catch (Throwable error) {
                     // skip
                 }
+            }
+
+            Method jsonCreatorMethod = null;
+            if (mixInType != null) {
+                Method mixedCreator = getEnumCreator(mixInType, clazz);
+                if (mixedCreator != null) {
+                    try {
+                        jsonCreatorMethod = clazz.getMethod(mixedCreator.getName(), mixedCreator.getParameterTypes());
+                    } catch (Exception e) {
+                        // skip
+                    }
+                }
+            } else {
+                jsonCreatorMethod = getEnumCreator(clazz, clazz);
+            }
+
+            if (jsonCreatorMethod != null) {
+                deserializer = new EnumCreatorDeserializer(jsonCreatorMethod);
+                putDeserializer(clazz, deserializer);
+                return deserializer;
             }
 
             deserializer = getEnumDeserializer(clazz);
@@ -848,6 +891,25 @@ public class ParserConfig {
         putDeserializer(type, deserializer);
 
         return deserializer;
+    }
+
+    private static Method getEnumCreator(Class clazz, Class enumClass) {
+        Method[] methods = clazz.getMethods();
+        Method jsonCreatorMethod = null;
+        for (Method method : methods) {
+            if (Modifier.isStatic(method.getModifiers())
+                    && method.getReturnType() == enumClass
+                    && method.getParameterTypes().length == 1
+            ) {
+                JSONCreator jsonCreator = method.getAnnotation(JSONCreator.class);
+                if (jsonCreator != null) {
+                    jsonCreatorMethod = method;
+                    break;
+                }
+            }
+        }
+
+        return jsonCreatorMethod;
     }
 
     /**
@@ -897,7 +959,8 @@ public class ParserConfig {
                     }
                 }
 
-                asmEnable = jsonType.asm();
+                asmEnable = jsonType.asm()
+                        && jsonType.parseFeatures().length == 0;
             }
 
             if (asmEnable) {

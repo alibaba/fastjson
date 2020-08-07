@@ -550,8 +550,7 @@ public class JavaBeanInfo {
                         add(fieldList, fieldInfo);
                     }
 
-                    if ((!kotlin)
-                            && !clazz.getName().equals("javax.servlet.http.Cookie")) {
+                    if ((!kotlin) && !clazz.getName().equals("javax.servlet.http.Cookie")) {
                         return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
                     }
                 } else {
@@ -771,16 +770,12 @@ public class JavaBeanInfo {
                 // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, isAbc的get方法名为isAbc(), abc的get方法名为getAbc()
                 if (kotlin) {
                     String getMethodName = "g" + methodName.substring(1);
-                    if (getMethodNameList.contains(getMethodName)) {
-                        propertyName = getMethodName.substring(3);
-                    } else {
-                        propertyName = "is" + getMethodName.substring(3);
-                    }
+                    propertyName = TypeUtils.getPropertyNameByMethodName(getMethodName);
                 } else {
                     if (TypeUtils.compatibleWithJavaBean) {
                         propertyName = TypeUtils.decapitalize(methodName.substring(3));
                     } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
                     }
                 }
 
@@ -895,7 +890,7 @@ public class JavaBeanInfo {
                     if (annotation != null && annotation.name().length() > 0) {
                         propertyName = annotation.name();
                     } else {
-                        propertyName = Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+                        propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
 
                         Field field = TypeUtils.getField(clazz, propertyName, declaredFields);
                         if (field != null) {

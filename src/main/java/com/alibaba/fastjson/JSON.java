@@ -35,7 +35,6 @@ import com.alibaba.fastjson.parser.deserializer.FieldTypeResolver;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.TypeUtils;
 
 /**
@@ -367,7 +366,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, ParserConfig config, ParseProcess processor,
                                           int featureValues, Feature... features) {
-        if (input == null || input.isEmpty()) {
+        if (input == null || input.length() == 0) {
             return null;
         }
 
@@ -574,11 +573,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static JSONArray parseArray(String text) {
+        return parseArray(text, ParserConfig.global);
+    }
+
+    public static JSONArray parseArray(String text, ParserConfig parserConfig) {
         if (text == null) {
             return null;
         }
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, parserConfig);
 
         JSONArray array;
 
@@ -601,13 +604,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static <T> List<T> parseArray(String text, Class<T> clazz) {
+        return parseArray(text, clazz, ParserConfig.global);
+    }
+
+    public static <T> List<T> parseArray(String text, Class<T> clazz, ParserConfig config) {
         if (text == null) {
             return null;
         }
 
         List<T> list;
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         JSONLexer lexer = parser.lexer;
         int token = lexer.token();
         if (token == JSONToken.NULL) {
@@ -628,13 +635,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static List<Object> parseArray(String text, Type[] types) {
+        return parseArray(text, types, ParserConfig.global);
+    }
+
+    public static List<Object> parseArray(String text, Type[] types, ParserConfig config) {
         if (text == null) {
             return null;
         }
 
         List<Object> list;
 
-        DefaultJSONParser parser = new DefaultJSONParser(text, ParserConfig.getGlobalInstance());
+        DefaultJSONParser parser = new DefaultJSONParser(text, config);
         Object[] objectArray = parser.parseArray(types);
         if (objectArray == null) {
             list = null;
@@ -842,6 +853,42 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    /**
+     * Use the date format in FastJsonConfig to serialize JSON
+     *
+     * @param  dateFormat the date format in FastJsonConfigs
+     * @since 1.2.55
+     */
+    public static byte[] toJSONBytesWithFastJsonConfig(Charset charset, //
+                                     Object object, //
+                                     SerializeConfig config, //
+                                     SerializeFilter[] filters, //
+                                     String dateFormat, //
+                                     int defaultFeatures, //
+                                     SerializerFeature... features) {
+        SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(out, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+            return out.toBytes(charset);
+        } finally {
+            out.close();
+        }
+    }
+
     public static String toJSONString(Object object, boolean prettyFormat) {
         if (!prettyFormat) {
             return toJSONString(object);
@@ -954,6 +1001,39 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             
             serializer.write(object);
             
+            int len = writer.writeToEx(os, charset);
+            return len;
+        } finally {
+            writer.close();
+        }
+    }
+
+    public static final int writeJSONStringWithFastJsonConfig(OutputStream os, //
+                                            Charset charset, //
+                                            Object object, //
+                                            SerializeConfig config, //
+                                            SerializeFilter[] filters, //
+                                            String dateFormat, //
+                                            int defaultFeatures, //
+                                            SerializerFeature... features) throws IOException {
+        SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
+
+        try {
+            JSONSerializer serializer = new JSONSerializer(writer, config);
+
+            if (dateFormat != null && dateFormat.length() != 0) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (filters != null) {
+                for (SerializeFilter filter : filters) {
+                    serializer.addFilter(filter);
+                }
+            }
+
+            serializer.write(object);
+
             int len = writer.writeToEx(os, charset);
             return len;
         } finally {
@@ -1306,5 +1386,5 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return null;
     }
 
-    public final static String VERSION = "1.2.71";
+    public final static String VERSION = "1.2.74";
 }

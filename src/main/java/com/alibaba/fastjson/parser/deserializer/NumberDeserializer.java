@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
@@ -71,9 +72,11 @@ public class NumberDeserializer implements ObjectDeserializer {
             BigDecimal val = lexer.decimalValue();
             lexer.nextToken(JSONToken.COMMA);
 
-
-
-            return (T) val;
+            if (lexer.isEnabled(Feature.UseBigDecimal)) {
+                return (T) val;
+            } else {
+                return (T) Double.valueOf(val.doubleValue());
+            }
         }
 
         if (lexer.token() == JSONToken.IDENTIFIER && "NaN".equals(lexer.stringVal())) {

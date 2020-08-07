@@ -131,20 +131,20 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         return list.containsAll(c);
     }
 
-    public boolean addAll(Collection<? extends Object> c) {
+    public boolean addAll(Collection<?> c) {
         return list.addAll(c);
     }
 
-    public JSONArray fluentAddAll(Collection<? extends Object> c) {
+    public JSONArray fluentAddAll(Collection<?> c) {
         list.addAll(c);
         return this;
     }
 
-    public boolean addAll(int index, Collection<? extends Object> c) {
+    public boolean addAll(int index, Collection<?> c) {
         return list.addAll(index, c);
     }
 
-    public JSONArray fluentAddAll(int index, Collection<? extends Object> c) {
+    public JSONArray fluentAddAll(int index, Collection<?> c) {
         list.addAll(index, c);
         return this;
     }
@@ -484,8 +484,13 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
 
         in.defaultReadObject();
         for (Object item : list) {
-            if (item != null) {
-                ParserConfig.global.checkAutoType(item.getClass().getName(), null);
+            if (item == null) {
+                continue;
+            }
+
+            String typeName = item.getClass().getName();
+            if (TypeUtils.getClassFromMapping(typeName) == null) {
+                ParserConfig.global.checkAutoType(typeName, null);
             }
         }
     }

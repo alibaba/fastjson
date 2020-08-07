@@ -240,7 +240,7 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
 
         public RequestBody convert(T value) throws IOException {
             try {
-                byte[] content = JSON.toJSONBytes(fastJsonConfig.getCharset()
+                byte[] content = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset()
                         , value
                         , fastJsonConfig.getSerializeConfig()
                         , fastJsonConfig.getSerializeFilters()

@@ -21,7 +21,9 @@ import java.util.Collection;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -29,21 +31,46 @@ import com.alibaba.fastjson.util.FieldInfo;
 public final class FieldSerializer implements Comparable<FieldSerializer> {
     public final FieldInfo  fieldInfo;
     protected final boolean writeNull;
-    protected final int     features;
+    protected int     features;
     protected final String  format;
     protected char[] name_chars;
+
+    /**
+     * Enum Serializer type
+     */
+    protected boolean             writeEnumUsingToString  = false;
+    protected boolean             writeEnumUsingName      = false;
     
     private RuntimeSerializerInfo runtimeInfo;
     
-    public FieldSerializer(FieldInfo fieldInfo){
+    public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo){
         this.fieldInfo = fieldInfo;
+
+        if (beanType != null) {
+            JSONType jsonType = beanType.getAnnotation(JSONType.class);
+            if (jsonType != null) {
+                for (SerializerFeature feature : jsonType.serialzeFeatures()) {
+                    if (feature == SerializerFeature.WriteEnumUsingToString) {
+                        writeEnumUsingToString = true;
+                    } else if(feature == SerializerFeature.WriteEnumUsingName){
+                        writeEnumUsingName = true;
+                    } else if (feature == SerializerFeature.WriteMapNullValue) {
+                        features |= SerializerFeature.WriteMapNullValue.mask;
+                    }
+                }
+            }
+        }
 
         boolean writeNull = false;
         JSONField annotation = fieldInfo.getAnnotation();
         String format = null;
         if (annotation != null) {
             for (SerializerFeature feature : annotation.serialzeFeatures()) {
-                if (feature == SerializerFeature.WriteMapNullValue) {
+                if (feature == SerializerFeature.WriteEnumUsingToString) {
+                    writeEnumUsingToString = true;
+                } else if(feature == SerializerFeature.WriteEnumUsingName){
+                    writeEnumUsingName = true;
+                } else if (feature == SerializerFeature.WriteMapNullValue) {
                     writeNull = true;
                 }
             }
@@ -55,10 +82,9 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
                 format = null;
             }
             
-            features = SerializerFeature.of(annotation.serialzeFeatures());
-        } else {
-            features = 0;
+            features |= SerializerFeature.of(annotation.serialzeFeatures());
         }
+
         this.writeNull = writeNull;
         this.format = format;
 
@@ -139,6 +165,18 @@ public final class FieldSerializer implements Comparable<FieldSerializer> {
 
             runtimeInfo.fieldSerializer.write(serializer, null, fieldInfo.name, runtimeInfo.runtimeFieldClass);
             return;
+        }
+
+        if (fieldInfo.isEnum) {
+            if (writeEnumUsingName) {
+                serializer.out.writeString(((Enum<?>) propertyValue).name());
+                return;
+            }
+
+            if (writeEnumUsingToString) {
+                serializer.out.writeString(((Enum<?>) propertyValue).toString());
+                return;
+            }
         }
 
         Class<?> valueClass = propertyValue.getClass();

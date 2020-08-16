@@ -77,7 +77,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         int features = 0;
         features |= SerializerFeature.QuoteFieldNames.mask;
         features |= SerializerFeature.SkipTransientField.mask;
-        features |= SerializerFeature.WriteEnumUsingToString.mask;
+        features |= SerializerFeature.WriteEnumUsingName.mask;
         features |= SerializerFeature.SortField.mask;
         // features |=
         // com.alibaba.fastjson.serializer.SerializerFeature.WriteSlashAsSpecial.getMask();

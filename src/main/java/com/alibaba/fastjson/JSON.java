@@ -1193,7 +1193,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return json;
         }
         
-        String text = JSON.toJSONString(javaObject);
+        String text = JSON.toJSONString(javaObject, config);
         return JSON.parse(text);
     }
 

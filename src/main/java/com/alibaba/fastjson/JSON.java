@@ -1359,6 +1359,32 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    public static boolean isJSONObject(String str){
+        return tryJSONObject(str);
+    }
+
+    public static boolean isJSONArray(String str){
+        return tryJSONArray(str);
+    }
+
+    public static boolean tryJSONObject(String str){
+        try {
+            JSONObject.parseObject(str);
+            return true;
+        }catch (JSONException e){
+            return false;
+        }
+    }
+
+    public static boolean tryJSONArray(String str){
+        try {
+            JSONArray.parseArray(str);
+            return true;
+        }catch (JSONException e){
+            return false;
+        }
+    }
+
     public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         parser.handleResovleTask(value);
     }

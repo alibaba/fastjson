@@ -22,7 +22,11 @@ public class FastJsonAutoDiscoverable implements AutoDiscoverable {
     public volatile static boolean autoDiscover = true;
 
     static {
-        autoDiscover = Boolean.parseBoolean(System.getProperty(FASTJSON_AUTO_DISCOVERABLE, String.valueOf(autoDiscover)));
+        try {
+            autoDiscover = Boolean.parseBoolean(System.getProperty(FASTJSON_AUTO_DISCOVERABLE, String.valueOf(autoDiscover)));
+        } catch (SecurityException ex) {
+            //skip
+        }
     }
 
     @Override

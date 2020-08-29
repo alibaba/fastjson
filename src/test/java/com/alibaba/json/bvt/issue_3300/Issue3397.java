@@ -6,19 +6,29 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * @Author ：Nanqi
  * @Date ：Created in 16:32 2020/8/16
  */
 public class Issue3397 extends TestCase {
+    @Override
+    public void setUp() throws Exception {
+        JSON.defaultTimeZone = TimeZone.getDefault();
+        JSON.defaultLocale = Locale.CHINA;
+    }
+
     public void test_for_issue() throws Exception {
         String text = "{\"date\":\"2020-08-16 16:35:18.188\"}";
         VO vo = JSON.parseObject(text, VO.class);
 
         JSONObject json = (JSONObject) JSONObject.toJSON(vo);
 
-        assertEquals("Sun Aug 16 16:35:18 CST 2020", json.getDate("date").toString());
+        Date date = json.getDate("date");
+        assertEquals("Sun Aug 16 16:35:18 CST 2020", date.toString());
     }
 
     public static class VO {

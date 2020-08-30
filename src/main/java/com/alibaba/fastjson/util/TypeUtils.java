@@ -356,17 +356,19 @@ public class TypeUtils{
         }
 
         if (value instanceof Float) {
-            if (Float.isNaN((Float) value) || Float.isInfinite((Float) value)) {
+            Float floatValue = (Float) value;
+            if (Float.isNaN(floatValue) || Float.isInfinite(floatValue)) {
                 return null;
             }
+            return BigInteger.valueOf(floatValue.longValue());
         } else if (value instanceof Double) {
-            if (Double.isNaN((Double) value) || Double.isInfinite((Double) value)) {
+            Double doubleValue = (Double) value;
+            if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
                 return null;
             }
+            return BigInteger.valueOf(doubleValue.longValue());
         } else if (value instanceof BigInteger) {
             return (BigInteger) value;
-        } else if (value instanceof Float || value instanceof Double) {
-            return BigInteger.valueOf(((Number) value).longValue());
         } else if (value instanceof BigDecimal) {
             BigDecimal decimal = (BigDecimal) value;
             int scale = decimal.scale();

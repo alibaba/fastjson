@@ -23,13 +23,13 @@ public class FastJsonAutoDiscoverable implements AutoDiscoverable {
 
     static {
         try {
-            autoDiscover = Boolean.parseBoolean(System.getProperty(FASTJSON_AUTO_DISCOVERABLE, String.valueOf(autoDiscover)));
-        } catch (SecurityException ex) {
+            autoDiscover = Boolean.parseBoolean(
+                    System.getProperty(FASTJSON_AUTO_DISCOVERABLE, String.valueOf(autoDiscover)));
+        } catch (Throwable ex) {
             //skip
         }
     }
 
-    @Override
     public void configure(final FeatureContext context) {
 
         final Configuration config = context.getConfiguration();

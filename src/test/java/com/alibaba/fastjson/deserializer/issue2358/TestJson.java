@@ -28,7 +28,7 @@ public class TestJson {
         this.test2 = test2;
     }
 
-    class TestJson2 {
+    static class TestJson2 {
         private String test1;
         private String test2;
 
@@ -46,6 +46,14 @@ public class TestJson {
 
         public void setTest2(String test2) {
             this.test2 = test2;
+        }
+
+        @Override
+        public String toString() {
+            return "TestJson2{" +
+                    "test1='" + test1 + '\'' +
+                    ", test2='" + test2 + '\'' +
+                    '}';
         }
     }
 

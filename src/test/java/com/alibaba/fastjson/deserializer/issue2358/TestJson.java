@@ -47,14 +47,6 @@ public class TestJson {
         public void setTest2(String test2) {
             this.test2 = test2;
         }
-
-        @Override
-        public String toString() {
-            return "TestJson2{" +
-                    "test1='" + test1 + '\'' +
-                    ", test2='" + test2 + '\'' +
-                    '}';
-        }
     }
 
     public static void main(String args[]) {

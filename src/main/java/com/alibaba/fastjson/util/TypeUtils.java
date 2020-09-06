@@ -2194,9 +2194,7 @@ public class TypeUtils{
                 fieldInfoList.add(field);
             }
         } else{
-            for(FieldInfo fieldInfo : fieldInfoMap.values()){
-                fieldInfoList.add(fieldInfo);
-            }
+            fieldInfoList.addAll(fieldInfoMap.values());
             if(sorted){
                 Collections.sort(fieldInfoList);
             }

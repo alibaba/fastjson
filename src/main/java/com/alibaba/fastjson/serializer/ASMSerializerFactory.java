@@ -798,6 +798,7 @@ public class ASMSerializerFactory implements Opcodes {
             for (FieldInfo getter : getters) {
                 if (getter.method != null) {
                     hasMethod = true;
+                    break;
                 }
             }
 

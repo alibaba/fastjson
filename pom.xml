@@ -6,7 +6,7 @@
     <artifactId>fastjson</artifactId>
     <version>1.2.74_preview_01</version>
 
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>fastjson</name>
     <description>Fastjson is a JSON processor (JSON parser + JSON generator) written in Java</description>
 
@@ -189,6 +189,111 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>4.2.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>fastjson</Bundle-Name>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            com.alibaba.fastjson,
+                            com.alibaba.fastjson.annotation,
+                            com.alibaba.fastjson.asm,
+                            com.alibaba.fastjson.parser,
+                            com.alibaba.fastjson.parser.deserializer,
+                            com.alibaba.fastjson.serializer,
+                            com.alibaba.fastjson.spi,
+                            com.alibaba.fastjson.support.config,
+                            com.alibaba.fastjson.support.geo,
+                            com.alibaba.fastjson.support.hsf,
+                            com.alibaba.fastjson.support.jaxrs,
+                            com.alibaba.fastjson.support.moneta,
+                            com.alibaba.fastjson.support.retrofit,
+                            com.alibaba.fastjson.support.spring,
+                            com.alibaba.fastjson.support.spring.annotation,
+                            com.alibaba.fastjson.support.spring.messaging,
+                            com.alibaba.fastjson.support.springfox,
+                            com.alibaba.fastjson.util
+                        </Export-Package>
+                        <Private-Package>com.alibaba.fastjson.*</Private-Package>
+                        <Import-Package>
+                            com.alibaba.fastjson,
+                            com.alibaba.fastjson.annotation,
+                            com.alibaba.fastjson.asm,
+                            com.alibaba.fastjson.parser,
+                            com.alibaba.fastjson.parser.deserializer,
+                            com.alibaba.fastjson.serializer,
+                            com.alibaba.fastjson.spi,
+                            com.alibaba.fastjson.support.config,
+                            com.alibaba.fastjson.support.geo,
+                            com.alibaba.fastjson.support.hsf,
+                            com.alibaba.fastjson.support.jaxrs,
+                            com.alibaba.fastjson.support.moneta,
+                            com.alibaba.fastjson.support.retrofit,
+                            com.alibaba.fastjson.support.spring,
+                            com.alibaba.fastjson.support.spring.annotation,
+                            com.alibaba.fastjson.support.spring.messaging,
+                            com.alibaba.fastjson.support.springfox,
+                            com.alibaba.fastjson.util,
+                            com.fasterxml.jackson.annotation;resolution:=optional,
+                            com.google.common.collect;resolution:=optional,
+                            javax.annotation;resolution:=optional,
+                            javax.money;resolution:=optional,
+                            javax.persistence;resolution:=optional,
+                            javax.servlet;resolution:=optional,
+                            javax.servlet.http;resolution:=optional,
+                            javax.sql;resolution:=optional,
+                            javax.ws.rs;resolution:=optional,
+                            javax.ws.rs.core;resolution:=optional,
+                            javax.ws.rs.ext;resolution:=optional,
+                            javax.xml.bind.annotation;resolution:=optional,
+                            javax.xml.datatype;resolution:=optional,
+                            javax.xml.transform;resolution:=optional,
+                            javax.xml.transform.dom;resolution:=optional,
+                            javax.xml.transform.stream;resolution:=optional,
+                            kotlin;resolution:=optional,
+                            kotlin.ranges;resolution:=optional,
+                            kotlin.reflect;resolution:=optional,
+                            kotlin.reflect.jvm.internal;resolution:=optional,
+                            net.sf.json;resolution:=optional,
+                            okhttp3;resolution:=optional,
+                            org.apache.commons.logging;resolution:=optional,
+                            org.glassfish.jersey;resolution:=optional,
+                            org.glassfish.jersey.internal.spi;resolution:=optional,
+                            org.glassfish.jersey.internal.util;resolution:=optional,
+                            org.hibernate;resolution:=optional,
+                            org.javamoney.moneta;resolution:=optional,
+                            org.joda.time;resolution:=optional,
+                            org.joda.time.format;resolution:=optional,
+                            org.json;resolution:=optional,
+                            org.springframework.core;resolution:=optional,
+                            org.springframework.core.annotation;resolution:=optional,
+                            org.springframework.data.redis.serializer;resolution:=optional,
+                            org.springframework.http;resolution:=optional,
+                            org.springframework.http.converter;resolution:=optional,
+                            org.springframework.http.server;resolution:=optional,
+                            org.springframework.messaging;resolution:=optional,
+                            org.springframework.messaging.converter;resolution:=optional,
+                            org.springframework.util;resolution:=optional,
+                            org.springframework.validation;resolution:=optional,
+                            org.springframework.web.bind.annotation;resolution:=optional,
+                            org.springframework.web.servlet.mvc.method.annotation;resolution:=optional,
+                            org.springframework.web.servlet.view;resolution:=optional,
+                            org.springframework.web.socket.sockjs.frame;resolution:=optional,
+                            org.w3c.dom;resolution:=optional,
+                            retrofit2;resolution:=optional,
+                            springfox.documentation.spring.web.json;resolution:=optional,
+                            sun.reflect.annotation;resolution:=optional
+                        </Import-Package>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

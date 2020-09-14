@@ -520,6 +520,8 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 if (format == null) {
                     if ((features & mask) != 0 || serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
                         format = formatter_iso8601_pattern;
+                    } else if (serializer.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
+                        format = JSON.DEFFAULT_DATE_FORMAT;
                     } else {
                         int nano = dateTime.getNano();
                         if (nano == 0) {
@@ -534,9 +536,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
                 if (format != null) {
                     write(out, dateTime, format);
-                } else if (out.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-                    //使用固定格式转化时间
-                    write(out, dateTime, JSON.DEFFAULT_DATE_FORMAT);
                 } else {
                     out.writeLong(dateTime.atZone(JSON.defaultTimeZone.toZoneId()).toInstant().toEpochMilli());
                 }

@@ -122,7 +122,7 @@ public class TypeReference<T> {
 
             // 如果有多层泛型且该泛型已经注明实现的情况下，判断该泛型下一层是否还有泛型
             if(argTypes[i] instanceof ParameterizedType) {
-                return handlerParameterizedType((ParameterizedType) argTypes[i], actualTypeArguments, actualIndex);
+                argTypes[i] = handlerParameterizedType((ParameterizedType) argTypes[i], actualTypeArguments, actualIndex);
             }
         }
 

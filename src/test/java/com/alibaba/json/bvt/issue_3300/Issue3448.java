@@ -23,7 +23,7 @@ public class Issue3448 extends TestCase {
 
     @Test
     public void test() {
-        List<Map<String, List<String>>> list = new ArrayList<>(4);
+        List<Map<String, List<String>>> list = new ArrayList(4);
         list.add(Collections.singletonMap("key1", Collections.singletonList("item")));
         String text = JSON.toJSONString(list);
         System.out.println("text = " + text);

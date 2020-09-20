@@ -48,7 +48,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
     public final String[]  alternateNames;
 
     public final long nameHashCode;
-    
+    public final long propertyNameHashCode;
     public FieldInfo(String name, // 
                      Class<?> declaringClass, // 
                      Class<?> fieldClass, // 
@@ -98,6 +98,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         this.alternateNames = new String[0];
 
         nameHashCode = nameHashCode64(name, fieldAnnotation);
+        propertyNameHashCode = nameHashCode64(name, null);
     }
 
     public FieldInfo(String name, //
@@ -167,6 +168,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         JSONField annotation = getAnnotation();
 
         nameHashCode = nameHashCode64(name, annotation);
+        propertyNameHashCode = nameHashCode64(name, null);
 
         boolean jsonDirect = false;
         if (annotation != null) {

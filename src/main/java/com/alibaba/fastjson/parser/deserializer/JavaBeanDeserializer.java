@@ -27,6 +27,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final FieldDeserializer[]   fieldDeserializers;
     protected final FieldDeserializer[] sortedFieldDeserializers;
+    protected final FieldDeserializer[] sortedPropertyDeserializers;
     protected final Class<?>            clazz;
     public final JavaBeanInfo           beanInfo;
     private ConcurrentMap<String, Object> extraFieldDeserializers;
@@ -35,6 +36,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
     private Map<String, FieldDeserializer> fieldDeserializerMap;
 
     private transient long[] smartMatchHashArray;
+    private transient long[] smartMatchHashArrayForProperty;
     private transient short[] smartMatchHashArrayMapping;
 
     private transient long[] hashArray;
@@ -68,11 +70,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
         Map<String, FieldDeserializer> alterNameFieldDeserializers = null;
         sortedFieldDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
+        //基于属性创建而不是注解
+        sortedPropertyDeserializers = new FieldDeserializer[beanInfo.sortedFields.length];
         for (int i = 0, size = beanInfo.sortedFields.length; i < size; ++i) {
             FieldInfo fieldInfo = beanInfo.sortedFields[i];
             FieldDeserializer fieldDeserializer = config.createFieldDeserializer(config, beanInfo, fieldInfo);
 
             sortedFieldDeserializers[i] = fieldDeserializer;
+            sortedPropertyDeserializers[i] = createFieldDeserializerForProperty(fieldDeserializer, config);
 
             if (size > 128) {
                 if (fieldDeserializerMap == null) {
@@ -96,6 +101,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             FieldDeserializer fieldDeserializer = getFieldDeserializer(fieldInfo.name);
             fieldDeserializers[i] = fieldDeserializer;
         }
+    }
+
+    private FieldDeserializer createFieldDeserializerForProperty(FieldDeserializer fieldDeserializer, ParserConfig config) {
+        FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
+        FieldInfo fieldInfoForProperty = new FieldInfo(fieldInfo.field != null ? fieldInfo.field.getName() : fieldInfo.name, fieldInfo.declaringClass, fieldInfo.fieldClass, fieldInfo.fieldType, fieldInfo.field, 0, fieldInfo.serialzeFeatures, fieldInfo.parserFeatures);
+        return config.createFieldDeserializer(config, beanInfo, fieldInfoForProperty);
     }
 
     public FieldDeserializer getFieldDeserializer(String key) {
@@ -1299,11 +1310,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (fieldDeserializer == null) {
             if (this.smartMatchHashArray == null) {
                 long[] hashArray = new long[sortedFieldDeserializers.length];
+                long[] hashArrayForProperty = new long[sortedPropertyDeserializers.length];
                 for (int i = 0; i < sortedFieldDeserializers.length; i++) {
                     hashArray[i] = sortedFieldDeserializers[i].fieldInfo.nameHashCode;
+                    hashArrayForProperty[i] = sortedPropertyDeserializers[i].fieldInfo.nameHashCode;
                 }
                 Arrays.sort(hashArray);
+                Arrays.sort(hashArrayForProperty);
                 this.smartMatchHashArray = hashArray;
+                this.smartMatchHashArrayForProperty = hashArrayForProperty;
             }
 
             // smartMatchHashArrayMapping
@@ -1313,7 +1328,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 long smartKeyHash1 = TypeUtils.fnv1a_64_extract(key);
                 pos = Arrays.binarySearch(smartMatchHashArray, smartKeyHash1);
             }
-
+            int posForProperty = -1;
+            if (pos < 0) {
+                posForProperty = Arrays.binarySearch(smartMatchHashArrayForProperty, smartKeyHash);
+            }
             boolean is = false;
             if (pos < 0 && (is = key.startsWith("is"))) {
                 smartKeyHash = TypeUtils.fnv1a_64_extract(key.substring(2));
@@ -1321,26 +1339,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             }
 
             if (pos >= 0) {
-                if (smartMatchHashArrayMapping == null) {
-                    short[] mapping = new short[smartMatchHashArray.length];
-                    Arrays.fill(mapping, (short) -1);
-                    for (int i = 0; i < sortedFieldDeserializers.length; i++) {
-                        int p = Arrays.binarySearch(smartMatchHashArray, sortedFieldDeserializers[i].fieldInfo.nameHashCode);
-                        if (p >= 0) {
-                            mapping[p] = (short) i;
-                        }
-                    }
-                    smartMatchHashArrayMapping = mapping;
-                }
-
-                int deserIndex = smartMatchHashArrayMapping[pos];
-                if (deserIndex != -1) {
-                    if (!isSetFlag(deserIndex, setFlags)) {
-                        fieldDeserializer = sortedFieldDeserializers[deserIndex];
-                    }
-                }
+                fieldDeserializer = findFieldDeserializer(smartMatchHashArrayMapping, smartMatchHashArray, sortedFieldDeserializers, pos, setFlags);
             }
 
+            if (fieldDeserializer == null && posForProperty >= 0) {
+                smartMatchHashArrayMapping = null;
+                fieldDeserializer = findFieldDeserializer(null, smartMatchHashArrayForProperty, sortedPropertyDeserializers, posForProperty, setFlags);
+            }
             if (fieldDeserializer != null) {
                 FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
                 if ((fieldInfo.parserFeatures & Feature.DisableFieldSmartMatch.mask) != 0) {
@@ -1355,6 +1360,29 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
 
+        return fieldDeserializer;
+    }
+
+    private FieldDeserializer findFieldDeserializer(short[] smartMatchHashArrayMapping, long[] smartMatchHashArray, FieldDeserializer[] sortedFieldDeserializers, int pos, int[] setFlags) {
+        FieldDeserializer fieldDeserializer = null;
+        if (smartMatchHashArrayMapping == null) {
+            short[] mapping = new short[smartMatchHashArray.length];
+            Arrays.fill(mapping, (short) -1);
+            for (int i = 0; i < sortedFieldDeserializers.length; i++) {
+                int p = Arrays.binarySearch(smartMatchHashArray, sortedFieldDeserializers[i].fieldInfo.nameHashCode);
+                if (p >= 0) {
+                    mapping[p] = (short) i;
+                }
+            }
+            smartMatchHashArrayMapping = mapping;
+        }
+
+        int deserIndex = smartMatchHashArrayMapping[pos];
+        if (deserIndex != -1) {
+            if (!isSetFlag(deserIndex, setFlags)) {
+                fieldDeserializer = sortedFieldDeserializers[deserIndex];
+            }
+        }
         return fieldDeserializer;
     }
 

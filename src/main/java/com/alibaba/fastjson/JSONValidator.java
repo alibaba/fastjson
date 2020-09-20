@@ -534,15 +534,6 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             }
         }
 
-        final void skipWhiteSpace() {
-            if (ch > '\r') {
-                return;
-            }
-
-            while (isWhiteSpace(ch)) {
-                next();
-            }
-        }
     }
 
     static class ReaderValidator extends JSONValidator {

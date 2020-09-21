@@ -206,6 +206,13 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                         next();
                     }
                 }
+                //如果满足这个条件说明后面是一个json Object类型 此类型只能以 '{' 开始 以此判定不是标准json格式
+                if (ch == '{'){
+                    if (any()){
+                        type = Type.Value;
+                        return false;
+                    }
+                }
 
                 type = Type.Value;
                 break;

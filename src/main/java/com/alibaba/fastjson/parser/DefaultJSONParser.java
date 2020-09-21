@@ -119,7 +119,7 @@ public class DefaultJSONParser implements Closeable {
         this.dateFormat = null;
     }
 
-    public void setDateFomrat(DateFormat dateFormat) {
+    public void setDateFormat(DateFormat dateFormat) {
         this.dateFormat = dateFormat;
     }
 

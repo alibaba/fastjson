@@ -23,9 +23,9 @@ public abstract class AfterFilter implements SerializeFilter {
         JSONSerializer serializer = serializerLocal.get();
         char seperator = seperatorLocal.get();
 
-        boolean ref = serializer.references.containsKey(value);
+        boolean ref = serializer.containsReference(value);
         serializer.writeKeyValue(seperator, key, value);
-        if (!ref) {
+        if (!ref && serializer.references != null) {
             serializer.references.remove(value);
         }
         if (seperator != ',') {

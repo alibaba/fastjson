@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.issue_1700;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -24,7 +25,8 @@ public class Issue1780_Module extends TestCase {
 		config.register(new myModule());
 		req.put("id", 1111);
 		req.put("name", "name11");
-		Assert.assertEquals("{\"name\":\"name11\",\"id\":1111}", JSON.toJSONString(req, config));
+		String text = JSON.toJSONString(req, SerializerFeature.SortField);
+		Assert.assertEquals("{\"id\":1111,\"name\":\"name11\"}", text);
 	}
 
 	public class myModule implements Module {

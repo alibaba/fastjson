@@ -374,9 +374,7 @@ public class JSONPath implements JSONAware {
 
         if (result instanceof Collection) {
             Collection collection = (Collection) result;
-            for (Object value : values) {
-                collection.add(value);
-            }
+            collection.addAll(Arrays.asList(values));
             return;
         }
 
@@ -2611,9 +2609,7 @@ public class JSONPath implements JSONAware {
                 if (object instanceof JSONObject) {
                     Collection<Object> values = ((JSONObject) object).values();
                     JSONArray array = new JSONArray(values.size());
-                    for (Object value : values) {
-                        array.add(value);
-                    }
+                    array.addAll(values);
                     context.object = array;
                     return;
                 } else if (object instanceof JSONArray) {

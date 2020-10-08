@@ -97,9 +97,7 @@ public class DefaultJSONParser implements Closeable {
                 String.class
         };
 
-        for (Class<?> clazz : classes) {
-            primitiveClasses.add(clazz);
-        }
+        primitiveClasses.addAll(Arrays.asList(classes));
     }
 
     public String getDateFomartPattern() {

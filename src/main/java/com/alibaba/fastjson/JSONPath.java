@@ -374,7 +374,9 @@ public class JSONPath implements JSONAware {
 
         if (result instanceof Collection) {
             Collection collection = (Collection) result;
-            collection.addAll(Arrays.asList(values));
+            for (Object value : values) {
+                collection.add(value);
+            }
             return;
         }
 

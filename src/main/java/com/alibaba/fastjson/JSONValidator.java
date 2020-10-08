@@ -16,7 +16,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     protected Type type;
 
     protected int count = 0;
-    protected boolean supportMultiValue = true;
+    protected boolean supportMultiValue = false;
 
     public static JSONValidator fromUtf8(byte[] jsonBytes) {
         return new UTF8Validator(jsonBytes);
@@ -38,8 +38,9 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         return supportMultiValue;
     }
 
-    public void setSupportMultiValue(boolean supportMultiValue) {
+    public JSONValidator setSupportMultiValue(boolean supportMultiValue) {
         this.supportMultiValue = supportMultiValue;
+        return this;
     }
 
     public Type getType() {

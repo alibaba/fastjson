@@ -2728,6 +2728,9 @@ public class TypeUtils{
             if (interfaceName.equals("org.hibernate.proxy.HibernateProxy")) {
                 return true;
             }
+            if (interfaceName.equals("org.springframework.context.annotation.ConfigurationClassEnhancer$EnhancedConfiguration")){
+                return true;
+            }
         }
         return false;
     }

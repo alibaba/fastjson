@@ -26,23 +26,21 @@ public class Issue1780_Module extends TestCase {
 		req.put("id", 1111);
 		req.put("name", "name11");
 		String text = JSON.toJSONString(req, SerializerFeature.SortField);
-		Assert.assertEquals("{\"id\":1111,\"name\":\"name11\"}", text);
+
+		assertTrue("{\"id\":1111,\"name\":\"name11\"}".equals(text) || "{\"name\":\"name11\",\"id\":1111}".equals(text));
 	}
 
 	public class myModule implements Module {
 
 		@SuppressWarnings("rawtypes")
-		@Override
 		public ObjectDeserializer createDeserializer(ParserConfig config, Class type) {
 			return null;
 		}
 
 		@SuppressWarnings("rawtypes")
-		@Override
 		public ObjectSerializer createSerializer(SerializeConfig config, Class type) {
 			return new ObjectSerializer() {
 
-				@Override
 				public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
 						int features) throws IOException {
 					System.out.println("-------------myModule.createSerializer-------------------");

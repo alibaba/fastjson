@@ -12,6 +12,8 @@ public class Issue1780_JSONObject extends TestCase {
 		req.put("id", 1111);
 		req.put("name", "name11");
 		String text = JSON.toJSONString(req, SerializerFeature.SortField);
-		Assert.assertEquals("{\"id\":1111,\"name\":\"name11\"}", text);
+		assertTrue("{\"id\":1111,\"name\":\"name11\"}".equals(text)
+				|| "{\"name\":\"name11\",\"id\":1111}".equals(text)
+		);
 	}
 }

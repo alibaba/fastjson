@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class FieldInfo implements Comparable<FieldInfo> {
@@ -352,8 +353,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
 
             if (changed) {
-                fieldType = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
-                                                      parameterizedFieldType.getRawType());
+                ParameterizedTypeImpl fieldTypeRaw = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
+                        parameterizedFieldType.getRawType());
+                fieldType = TypeReference.intern(fieldTypeRaw);
                 return fieldType;
             }
         }

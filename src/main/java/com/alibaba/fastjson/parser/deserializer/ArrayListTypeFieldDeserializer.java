@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
@@ -134,7 +135,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
                     if (paramIndex != -1) {
                         itemActualTypeArgs[0] = paramType.getActualTypeArguments()[paramIndex];
-                        itemType = new ParameterizedTypeImpl(itemActualTypeArgs, parameterizedItemType.getOwnerType(), parameterizedItemType.getRawType());
+                        itemType = TypeReference.intern(
+                                new ParameterizedTypeImpl(itemActualTypeArgs, parameterizedItemType.getOwnerType(), parameterizedItemType.getRawType())
+                        );
                     }
                 }
             }

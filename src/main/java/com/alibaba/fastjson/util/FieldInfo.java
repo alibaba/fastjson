@@ -353,9 +353,10 @@ public class FieldInfo implements Comparable<FieldInfo> {
             }
 
             if (changed) {
-                ParameterizedTypeImpl fieldTypeRaw = new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
-                        parameterizedFieldType.getRawType());
-                fieldType = TypeReference.intern(fieldTypeRaw);
+                fieldType = TypeReference.intern(
+                        new ParameterizedTypeImpl(arguments, parameterizedFieldType.getOwnerType(),
+                                parameterizedFieldType.getRawType())
+                );
                 return fieldType;
             }
         }
@@ -375,7 +376,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 Type[] p_typeArg_args = p_typeArg.getActualTypeArguments();
                 boolean p_changed = getArgument(p_typeArg_args, genericInfo);
                 if (p_changed) {
-                    typeArgs[i] = new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType());
+                    typeArgs[i] = TypeReference.intern(
+                            new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType())
+                    );
                     changed = true;
                 }
             } else if (typeArg instanceof TypeVariable) {
@@ -402,7 +405,9 @@ public class FieldInfo implements Comparable<FieldInfo> {
                 Type[] p_typeArg_args = p_typeArg.getActualTypeArguments();
                 boolean p_changed = getArgument(p_typeArg_args, typeVariables, arguments);
                 if (p_changed) {
-                    typeArgs[i] = new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType());
+                    typeArgs[i] = TypeReference.intern(
+                            new ParameterizedTypeImpl(p_typeArg_args, p_typeArg.getOwnerType(), p_typeArg.getRawType())
+                    );
                     changed = true;
                 }
             } else if (typeArg instanceof TypeVariable) {

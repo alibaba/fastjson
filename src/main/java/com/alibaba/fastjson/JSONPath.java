@@ -2611,9 +2611,7 @@ public class JSONPath implements JSONAware {
                 if (object instanceof JSONObject) {
                     Collection<Object> values = ((JSONObject) object).values();
                     JSONArray array = new JSONArray(values.size());
-                    for (Object value : values) {
-                        array.add(value);
-                    }
+                    array.addAll(values);
                     context.object = array;
                     return;
                 } else if (object instanceof JSONArray) {

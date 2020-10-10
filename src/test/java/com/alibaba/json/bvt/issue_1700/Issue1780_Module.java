@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.issue_1700;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -24,23 +25,22 @@ public class Issue1780_Module extends TestCase {
 		config.register(new myModule());
 		req.put("id", 1111);
 		req.put("name", "name11");
-		Assert.assertEquals("{\"name\":\"name11\",\"id\":1111}", JSON.toJSONString(req, config));
+		String text = JSON.toJSONString(req, SerializerFeature.SortField);
+
+		assertTrue("{\"id\":1111,\"name\":\"name11\"}".equals(text) || "{\"name\":\"name11\",\"id\":1111}".equals(text));
 	}
 
 	public class myModule implements Module {
 
 		@SuppressWarnings("rawtypes")
-		@Override
 		public ObjectDeserializer createDeserializer(ParserConfig config, Class type) {
 			return null;
 		}
 
 		@SuppressWarnings("rawtypes")
-		@Override
 		public ObjectSerializer createSerializer(SerializeConfig config, Class type) {
 			return new ObjectSerializer() {
 
-				@Override
 				public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType,
 						int features) throws IOException {
 					System.out.println("-------------myModule.createSerializer-------------------");

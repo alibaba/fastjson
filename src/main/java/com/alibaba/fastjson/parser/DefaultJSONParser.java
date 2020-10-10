@@ -97,9 +97,7 @@ public class DefaultJSONParser implements Closeable {
                 String.class
         };
 
-        for (Class<?> clazz : classes) {
-            primitiveClasses.add(clazz);
-        }
+        primitiveClasses.addAll(Arrays.asList(classes));
     }
 
     public String getDateFomartPattern() {
@@ -119,7 +117,15 @@ public class DefaultJSONParser implements Closeable {
         this.dateFormat = null;
     }
 
+    /**
+     * @deprecated
+     * @see setDateFormat
+     */
     public void setDateFomrat(DateFormat dateFormat) {
+        this.setDateFormat(dateFormat);
+    }
+
+    public void setDateFormat(DateFormat dateFormat) {
         this.dateFormat = dateFormat;
     }
 

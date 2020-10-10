@@ -1521,9 +1521,6 @@ public class TypeUtils{
                 Map innerMap = jsonObject.getInnerMap();
                 if (innerMap instanceof LinkedHashMap) {
                     return (T) innerMap;
-                } else {
-                    LinkedHashMap linkedHashMap = new LinkedHashMap();
-                    linkedHashMap.putAll(innerMap);
                 }
             }
 
@@ -2209,13 +2206,9 @@ public class TypeUtils{
                     map.remove(item);
                 }
             }
-            for(FieldInfo field : map.values()){
-                fieldInfoList.add(field);
-            }
+            fieldInfoList.addAll(map.values());
         } else{
-            for(FieldInfo fieldInfo : fieldInfoMap.values()){
-                fieldInfoList.add(fieldInfo);
-            }
+            fieldInfoList.addAll(fieldInfoMap.values());
             if(sorted){
                 Collections.sort(fieldInfoList);
             }

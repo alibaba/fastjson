@@ -65,7 +65,7 @@ public class DefaultJSONParserTest_date extends TestCase {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-DD-mm", JSON.defaultLocale);
         format.setTimeZone(JSON.defaultTimeZone);
         
-        parser.setDateFomrat(format);
+        parser.setDateFormat(format);
         parser.getDateFomartPattern();
         parser.getDateFormat();
         parser.parse();

@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.issue_2400;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +25,12 @@ public class Issue2428 extends TestCase {
         Issue2428 demoBean = new Issue2428();
         demoBean.setMyName("test name");
         demoBean.setNestedBean(new NestedBean("test id"));
-        assertEquals("{\"nestedBean\":{\"myId\":\"test id\"},\"myName\":\"test name\"}", JSON.toJSON(demoBean).toString());
+        String text = JSON.toJSONString(JSON.toJSON(demoBean), SerializerFeature.SortField);
+        assertEquals("{\"myName\":\"test name\",\"nestedBean\":{\"myId\":\"test id\"}}", text);
 
         SerializeConfig serializeConfig = new SerializeConfig();
         serializeConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
-
-        assertEquals("{\"my_name\":\"test name\",\"nested_bean\":{\"my_id\":\"test id\"}}", JSON.toJSON(demoBean, serializeConfig).toString());
+        text = JSON.toJSONString(JSON.toJSON(demoBean, serializeConfig), SerializerFeature.SortField);
+        assertEquals("{\"my_name\":\"test name\",\"nested_bean\":{\"my_id\":\"test id\"}}", text);
     }
 }

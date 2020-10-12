@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.issue_2400;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.ArrayListMultimap;
 
 import junit.framework.TestCase;
@@ -18,13 +19,13 @@ public class Issue2430 extends TestCase {
 		vo.setName("zhangsan");
 
 		assertEquals("{\"map\":{\"a\":[\"1\",\"2\",\"3\"],\"b\":[\"1\"]},\"name\":\"zhangsan\"}",
-				JSON.toJSONString(vo));
+				JSON.toJSONString(vo, SerializerFeature.MapSortField));
 	}
 
 	public void testForIssue2() {
 		String jsonString = "{\"map\":{\"a\":[\"1\",\"2\",\"3\"],\"b\":[\"1\"]},\"name\":\"zhangsan\"}";
 		VO vo = JSON.parseObject(jsonString, VO.class);
-		assertEquals("VO:{name->zhangsan,map->{a=[1, 2, 3], b=[1]}}", vo.toString());
+		assertEquals("VO:{name->zhangsan,map->{a=[1, 2, 3], b=[1]}}", JSON.toJSONString(vo, SerializerFeature.MapSortField));
 	}
 
 	public static class VO {

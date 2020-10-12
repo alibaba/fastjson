@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.issue_2400;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.LinkedHashMap;
@@ -15,8 +16,8 @@ public class Issue2447 extends TestCase {
         vo.location = new Location(127, 37);
 
         Object obj = JSON.toJSON(vo);
-        String json = JSON.toJSONString(vo);
-        assertEquals("{\"latitude\":37,\"id\":123,\"longitude\":127}", obj.toString());
+        String text = JSON.toJSONString(obj, SerializerFeature.SortField);
+        assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
     }
 
     public void test_for_issue2() {
@@ -26,7 +27,8 @@ public class Issue2447 extends TestCase {
         vo.properties.put("longitude", 127);
 
         Object obj = JSON.toJSON(vo);
-        assertEquals("{\"latitude\":37,\"id\":123,\"longitude\":127}", obj.toString());
+        String text = JSON.toJSONString(obj, SerializerFeature.SortField);
+        assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
     }
 
     public static class VO {

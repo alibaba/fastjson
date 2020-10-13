@@ -49,8 +49,12 @@ import java.util.regex.Pattern;
  * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig {
-
+    public static boolean                                 globalAsmEnable = !ASMUtils.IS_ANDROID;
     public final static SerializeConfig                   globalInstance  = new SerializeConfig();
+
+    static{
+        globalInstance.setAsmEnable(globalAsmEnable);
+    }
 
     private static boolean                                awtError        = false;
     private static boolean                                jdk8Error       = false;

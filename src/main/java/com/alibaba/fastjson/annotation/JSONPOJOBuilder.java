@@ -21,7 +21,7 @@ public @interface JSONPOJOBuilder {
      *<p>
      * Default value is "build".
      */
-    public String buildMethod() default "build";
+    String buildMethod() default "build";
 
     /**
      * Property used for (re)defining name prefix to use for
@@ -37,6 +37,6 @@ public @interface JSONPOJOBuilder {
      * would be used for binding JSON property "value" (using type
      * indicated by the argument; or one defined with annotations.
      */
-    public String withPrefix() default "with";
+    String withPrefix() default "with";
 
 }

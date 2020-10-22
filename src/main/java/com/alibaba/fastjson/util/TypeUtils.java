@@ -494,18 +494,19 @@ public class TypeUtils{
 
             if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0 || format != null) {
                 if (format == null) {
-                    if (strVal.length() == JSON.DEFFAULT_DATE_FORMAT.length()
-                            || (strVal.length() == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
+                    final int len = strVal.length();
+                    if (len == JSON.DEFFAULT_DATE_FORMAT.length()
+                            || (len == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
                         format = JSON.DEFFAULT_DATE_FORMAT;
-                    } else if (strVal.length() == 10) {
+                    } else if (len == 10) {
                         format = "yyyy-MM-dd";
-                    } else if (strVal.length() == "yyyy-MM-dd HH:mm:ss".length()) {
+                    } else if (len == "yyyy-MM-dd HH:mm:ss".length()) {
                         format = "yyyy-MM-dd HH:mm:ss";
-                    } else if (strVal.length() == 29
+                    } else if (len == 29
                             && strVal.charAt(26) == ':'
                             && strVal.charAt(28) == '0') {
                         format = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-                    } else if (strVal.length() == 23 && strVal.charAt(19) == ',') {
+                    } else if (len == 23 && strVal.charAt(19) == ',') {
                         format = "yyyy-MM-dd HH:mm:ss,SSS";
                     } else {
                         format = "yyyy-MM-dd HH:mm:ss.SSS";

@@ -1281,6 +1281,10 @@ public class DefaultJSONParser implements Closeable {
         return context;
     }
 
+    public ParseContext getOwnerContext() {
+        return context.parent;
+    }
+
     public List<ResolveTask> getResolveTaskList() {
         if (resolveTaskList == null) {
             resolveTaskList = new ArrayList<ResolveTask>(2);

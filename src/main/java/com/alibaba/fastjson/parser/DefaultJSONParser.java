@@ -1607,6 +1607,15 @@ public class DefaultJSONParser implements Closeable {
                     }
                 }
 
+                // workaround for bug
+                if (fieldDeser.getOwnerClass() != null
+                        && (!fieldDeser.getOwnerClass().isInstance(object))
+                        && task.ownerContext.parent != null
+                        && fieldDeser.getOwnerClass().isInstance(task.ownerContext.parent.object)
+                ) {
+                    object = task.ownerContext.parent.object;
+                }
+
                 fieldDeser.setValue(object, refValue);
             }
         }

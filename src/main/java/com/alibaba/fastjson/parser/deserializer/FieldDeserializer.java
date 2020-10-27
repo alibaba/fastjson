@@ -26,6 +26,10 @@ public abstract class FieldDeserializer {
         this.fieldInfo = fieldInfo;
     }
 
+    public Class<?> getOwnerClass() {
+        return clazz;
+    }
+
     public abstract void parseField(DefaultJSONParser parser, Object object, Type objectType,
                                     Map<String, Object> fieldValues);
 

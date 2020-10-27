@@ -1281,6 +1281,10 @@ public class DefaultJSONParser implements Closeable {
         return context;
     }
 
+    public ParseContext getOwnerContext() {
+        return context.parent;
+    }
+
     public List<ResolveTask> getResolveTaskList() {
         if (resolveTaskList == null) {
             resolveTaskList = new ArrayList<ResolveTask>(2);
@@ -1601,6 +1605,15 @@ public class DefaultJSONParser implements Closeable {
                     if (jsonpath.isRef()) {
                         refValue = jsonpath.eval(root);
                     }
+                }
+
+                // workaround for bug
+                if (fieldDeser.getOwnerClass() != null
+                        && (!fieldDeser.getOwnerClass().isInstance(object))
+                        && task.ownerContext.parent != null
+                        && fieldDeser.getOwnerClass().isInstance(task.ownerContext.parent.object)
+                ) {
+                    object = task.ownerContext.parent.object;
                 }
 
                 fieldDeser.setValue(object, refValue);

@@ -1,0 +1,958 @@
+package com.alibaba.fastjson.validate;
+
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.alibaba.fastjson.JSONValidator;
+import junit.framework.TestCase;
+
+public class JSONValidateTest_T1 {
+    @Before
+    public void setUp() throws Exception {
+
+    }
+
+    @Test
+    public void testCap1Case1() {
+        try {
+            JSONValidator.from((String) null).validate();
+            fail("Should not be able to validate a null object but it did");
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void testCap1Case2() {
+        try {
+            JSONValidator jsv = JSONValidator.from((String) null);
+            jsv.setSupportMultiValue(true);
+            jsv.validate();
+            fail("Should not be able to validate a null object but it did");
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void testCap1Case3() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : \"b\"}");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case4() {
+        JSONValidator jsv = JSONValidator.from("true");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case5() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : \"b\"}{\"a\" : \"b\"}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case6() {
+        JSONValidator jsv = JSONValidator.from("true true");
+        jsv.setSupportMultiValue(true);
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case7() {
+        JSONValidator jsv = JSONValidator.from("true true false");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case8() {
+        JSONValidator jsv = JSONValidator.from("true true false");
+        jsv.setSupportMultiValue(true);
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case9() {
+        JSONValidator jsv = JSONValidator.from("");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case10() {
+        JSONValidator jsv = JSONValidator.from("");
+        jsv.setSupportMultiValue(true);
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case11() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ˇÁ¨ˆØÏ◊ı˜");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case12() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ˇÁ¨ˆØÏ◊ı˜");
+        jsv.setSupportMultiValue(true);
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case13() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ ˇÁ¨ˆØÏ◊ı˜");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case14() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ ˇÁ¨ˆØÏ◊ı˜");
+        jsv.setSupportMultiValue(true);
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case15() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ ˇÁ¨ˆØÏ◊ı˜ ÏÇ◊ÎÏ◊Œ„´");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case16() {
+        JSONValidator jsv = JSONValidator.from("ÏÇ◊ÎÏ◊Œ„´ ˇÁ¨ˆØÏ◊ı˜ ÏÇ◊ÎÏ◊Œ„´");
+        jsv.setSupportMultiValue(true);
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case17() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : \"b\"},{\"a\" : \"b\"}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case18() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : \"b\"},{\"a\" : \"b\"},{\"a\" : \"b\"}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case19() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case20() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case21() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case22() {
+        JSONValidator jsv = JSONValidator.from("true, true");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case23() {
+        JSONValidator jsv = JSONValidator.from("true, true, true");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case24() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : \"c\"}}");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case25() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : \"c\"}},{\"a\" : {\"b\" : \"c\"}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case26() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : \"c\"}},{\"a\" : {\"b\" : \"c\"}},{\"a\" : {\"b\" : \"c\"}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case27() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : \"b\"}]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case28() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : \"b\"}],[{\"a\" : \"b\"}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case29() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : \"b\"}],[{\"a\" : \"b\"}],[{\"a\" : \"b\"}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case30() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : \"d\"}}}");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case31() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : \"d\"}}},{\"a\" : {\"b\" : {\"c\" : \"d\"}}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case32() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : \"d\"}}},{\"a\" : {\"b\" : {\"c\" : \"d\"}}},{\"a\" : {\"b\" : {\"c\" : \"d\"}}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case33() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case34() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case35() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}],[{\"a\" : {\"b\" : \"c\"}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case36() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}}");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case37() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}},{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case38() {
+        JSONValidator jsv = JSONValidator.from("{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}},{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}},{\"a\" : {\"b\" : {\"c\" : {\"d\" : \"e\"}}}}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case39() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case40() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}],[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case41() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}],[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}],[{\"a\" : {\"b\" : {\"c\" : \"d\"}}}]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case42() {
+        JSONValidator jsv = JSONValidator.from("1e4");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case43() {
+        JSONValidator jsv = JSONValidator.from("e10");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case44() {
+        JSONValidator jsv = JSONValidator.from("4e");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case46() {
+        JSONValidator jsv = JSONValidator.from("12.34");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case47() {
+        JSONValidator jsv = JSONValidator.from(".3");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case48() {
+        JSONValidator jsv = JSONValidator.from("13.");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case50() {
+        JSONValidator jsv = JSONValidator.from("-12");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case51() {
+        JSONValidator jsv = JSONValidator.from("+43");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case52() {
+        JSONValidator jsv = JSONValidator.from("-");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case53() {
+        JSONValidator jsv = JSONValidator.from("[\"a\",\"b\"]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case54() {
+        JSONValidator jsv = JSONValidator.from("1,2]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case55() {
+        JSONValidator jsv = JSONValidator.from("[{\"a\":\"b\"},123");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case56() {
+        JSONValidator jsv = JSONValidator.from("[1 {\"abc\":\"zxy\"}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case57() {
+        JSONValidator jsv = JSONValidator.from("{\"123\": [1,2,3]}");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case58() {
+        JSONValidator jsv = JSONValidator.from("\"Zxy\":\"abc\",\"x\":\"y\"}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case59() {
+        JSONValidator jsv = JSONValidator.from("{\"h\":[12,23],\"a\":\"b\"");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case60() {
+        JSONValidator jsv = JSONValidator.from("{\"a\":\"z\" \"b\":\"y\"");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case61() {
+        JSONValidator jsv = JSONValidator.from("{\"123\"\"abc\", \"efg\":\"456\"");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case62() {
+        JSONValidator jsv = JSONValidator.from("\"abc\"");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case63() {
+        JSONValidator jsv = JSONValidator.from("abc\"");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case64() {
+        JSONValidator jsv = JSONValidator.from("\"abc");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case65() {
+        JSONValidator jsv = JSONValidator.from("null");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case66() {
+        JSONValidator jsv = JSONValidator.from("abc");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case67() {
+        JSONValidator jsv = JSONValidator.from("true");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case68() {
+        JSONValidator jsv = JSONValidator.from("true;");
+        assertFalse(jsv.validate());
+        assertNull(jsv.getType());
+    }
+
+    @Test
+    public void testCap1Case69() {
+        JSONValidator jsv = JSONValidator.from("true ");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case70() {
+        JSONValidator jsv = JSONValidator.from("true\t");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case71() {
+        JSONValidator jsv = JSONValidator.from("true\r");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case72() {
+        JSONValidator jsv = JSONValidator.from("true\n");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case73() {
+        JSONValidator jsv = JSONValidator.from("true\f");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case74() {
+        JSONValidator jsv = JSONValidator.from("true\b");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case75() {
+        JSONValidator jsv = JSONValidator.from("true,");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case76() {
+        JSONValidator jsv = JSONValidator.from("true]");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case77() {
+        JSONValidator jsv = JSONValidator.from("true}");
+        assertFalse(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case78() {
+        JSONValidator jsv = JSONValidator.from("true\0");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case79() {
+        JSONValidator jsv = JSONValidator.from("{\"abc\":\"bcd\"}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case80() {
+        JSONValidator jsv = JSONValidator.from("{\"cat\":\"dog\"\"cat\":\"dog\"}");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case81() {
+        JSONValidator jsv = JSONValidator.from("{}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case82() {
+        JSONValidator jsv = JSONValidator.from("{ }");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case83() {
+        JSONValidator jsv = JSONValidator.from("{abc:\"abc\"}");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case84() {
+        JSONValidator jsv = JSONValidator.from("{\"xyz\" }");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case85() {
+        JSONValidator jsv = JSONValidator.from("{\"test\": test}");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case86() {
+        JSONValidator jsv = JSONValidator.from("{\"hello\":\"world\", \"x\":\"y\"}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case87() {
+        JSONValidator jsv = JSONValidator.from("[ 123 ]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case88() {
+        JSONValidator jsv = JSONValidator.from("[ \"ab\"");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case89() {
+        JSONValidator jsv = JSONValidator.from("[ true,\"g\" ]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case90() {
+        JSONValidator jsv = JSONValidator.from("[ tru ]");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case91() {
+        JSONValidator jsv = JSONValidator.from("[ ]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case92() {
+        JSONValidator jsv = JSONValidator.from("4.3e-1");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case94() {
+        JSONValidator jsv = JSONValidator.from("[4.3e-1]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case193() {
+        JSONValidator jsv = JSONValidator.from("4.3e-13");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case95() {
+        JSONValidator jsv = JSONValidator.from("4.3e-:");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case96() {
+        JSONValidator jsv = JSONValidator.from("4.3e-.");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case97() {
+        JSONValidator jsv = JSONValidator.from("4.3e+13");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case98() {
+        JSONValidator jsv = JSONValidator.from("4.3e13");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case99() {
+        JSONValidator jsv = JSONValidator.from("4.3E-1");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case100() {
+        JSONValidator jsv = JSONValidator.from("4.3");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case101() {
+        JSONValidator jsv = JSONValidator.from("4.:");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case102() {
+        JSONValidator jsv = JSONValidator.from("4..:");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case103() {
+        JSONValidator jsv = JSONValidator.from("45.3");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case104() {
+        JSONValidator jsv = JSONValidator.from("+4.3");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case105() {
+        JSONValidator jsv = JSONValidator.from("+]");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case106() {
+        JSONValidator jsv = JSONValidator.from("+.");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case107() {
+        JSONValidator jsv = JSONValidator.from("-4.3");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case108() {
+        JSONValidator jsv = JSONValidator.from("9");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case109() {
+        JSONValidator jsv = JSONValidator.from("8");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case110() {
+        JSONValidator jsv = JSONValidator.from("7");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case111() {
+        JSONValidator jsv = JSONValidator.from("6");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case112() {
+        JSONValidator jsv = JSONValidator.from("5");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case114() {
+        JSONValidator jsv = JSONValidator.from("3");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case115() {
+        JSONValidator jsv = JSONValidator.from("2");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case116() {
+        JSONValidator jsv = JSONValidator.from("1");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case117() {
+        JSONValidator jsv = JSONValidator.from("0");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case118() {
+        JSONValidator jsv = JSONValidator.from("{\"abc\":\"\"}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case119() {
+        JSONValidator jsv = JSONValidator.from("[\"a\"]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case120() {
+        JSONValidator jsv = JSONValidator.from("\"");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case121() {
+        JSONValidator jsv = JSONValidator.from("[\"\\\n\"]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case122() {
+        JSONValidator jsv = JSONValidator.from("[\"\\\uffff\"]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case124() {
+        JSONValidator jsv = JSONValidator.from("{\"qwe\":true}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case125() {
+        JSONValidator jsv = JSONValidator.from("[true]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case126() {
+        JSONValidator jsv = JSONValidator.from("[true, false]");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case123() {
+        JSONValidator jsv = JSONValidator.from("true");
+        assertTrue(jsv.validate());
+    }
+
+    @Test
+    public void testCap1Case127() {
+        JSONValidator jsv = JSONValidator.from("truu");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case128() {
+        JSONValidator jsv = JSONValidator.from("trr");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case129() {
+        JSONValidator jsv = JSONValidator.from("tt");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case130() {
+        JSONValidator jsv = JSONValidator.from("{\"hi\":false}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case131() {
+        JSONValidator jsv = JSONValidator.from("[false]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case132() {
+        JSONValidator jsv = JSONValidator.from("{\"abc\":false, \"bcd\":\"a\"}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case133() {
+        JSONValidator jsv = JSONValidator.from("false");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case134() {
+        JSONValidator jsv = JSONValidator.from("falss");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case135() {
+        JSONValidator jsv = JSONValidator.from("fall");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case136() {
+        JSONValidator jsv = JSONValidator.from("faa");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case137() {
+        JSONValidator jsv = JSONValidator.from("fo");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case138() {
+        JSONValidator jsv = JSONValidator.from("null1");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case139() {
+        JSONValidator jsv = JSONValidator.from("{\"abc\":null}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case140() {
+        JSONValidator jsv = JSONValidator.from("[null]");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case141() {
+        JSONValidator jsv = JSONValidator.from("{\"test\":[null,null]}");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case142() {
+        JSONValidator jsv = JSONValidator.from("null");
+        assertTrue(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case143() {
+        JSONValidator jsv = JSONValidator.from("nulo");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case144() {
+        JSONValidator jsv = JSONValidator.from("nui");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case145() {
+        JSONValidator jsv = JSONValidator.from("no");
+        assertFalse(jsv.validate());
+    }
+    
+    @Test
+    public void testCap1Case146() {
+        JSONValidator jsv = JSONValidator.from("[]");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Array, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case147() {
+        JSONValidator jsv = JSONValidator.from("[1]");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Array, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case148() {
+        JSONValidator jsv = JSONValidator.from("[1,2]");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Array, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case149() {
+        JSONValidator jsv = JSONValidator.from("{}");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Object, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case150() {
+        JSONValidator jsv = JSONValidator.from("{\"a\":\"b\"}");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Object, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case151() {
+        JSONValidator jsv = JSONValidator.from("{\"a\":\"b\",\"a\":\"b\"}");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Object, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case152() {
+        JSONValidator jsv = JSONValidator.from("\"\"");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Value, jsv.getType());
+    }
+    
+    @Test
+    public void testCap1Case153() {
+        JSONValidator jsv = JSONValidator.from("\"true\"");
+        jsv.validate();
+        assertEquals(JSONValidator.Type.Value, jsv.getType());
+    }
+    
+}

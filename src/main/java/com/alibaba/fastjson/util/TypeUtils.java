@@ -1694,8 +1694,12 @@ public class TypeUtils{
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
-        if(className == null || className.length() == 0 || className.length() > 128){
+        if(className == null || className.length() == 0){
             return null;
+        }
+
+        if (className.length() > 198) {
+            throw new JSONException("illegal className : " + className);
         }
 
         Class<?> clazz = mappings.get(className);

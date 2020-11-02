@@ -26,7 +26,7 @@ public class Issue2428 extends TestCase {
         demoBean.setMyName("test name");
         demoBean.setNestedBean(new NestedBean("test id"));
         String text = JSON.toJSONString(JSON.toJSON(demoBean), SerializerFeature.SortField);
-        assertEquals("{\"myName\":\"test name\",\"nestedBean\":{\"myId\":\"test id\"}}", text);
+        assertEquals("{\"nestedBean\":{\"myId\":\"test id\"},\"myName\":\"test name\"}", text);
 
         SerializeConfig serializeConfig = new SerializeConfig();
         serializeConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;

@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.guava;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.primitives.Ints;
@@ -16,8 +17,7 @@ public class ArrayListMultimapTest extends TestCase {
         multimap.putAll("a", Ints.asList(4, 2, 1));
         multimap.putAll("c", Ints.asList(2, 5, 3));
 
-
-        String json = JSON.toJSONString(multimap);
+        String json = JSON.toJSONString(multimap, SerializerFeature.MapSortField);
         assertEquals("{\"a\":[4,2,1],\"b\":[2,4,6],\"c\":[2,5,3]}", json);
 
         TreeMultimap treeMultimap = TreeMultimap.create(multimap);

@@ -559,7 +559,7 @@ public class DefaultJSONParser implements Closeable {
                     ParseContext ctxLocal = null;
 
                     if (!parentIsArray) {
-                        ctxLocal = setContext(context, input, key);
+                        ctxLocal = setContext(this.context, input, key);
                     }
 
                     Object obj = null;

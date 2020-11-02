@@ -102,7 +102,6 @@ public class ClassReader {
 
         // visits the header
         u = header;
-        v = items[readUnsignedShort(u + 4)];
         int len = readUnsignedShort(u + 6);
         u += 8;
         for (i = 0; i < len; ++i) {

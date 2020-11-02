@@ -168,6 +168,8 @@ public class JSONPath implements JSONAware {
                     eval = true;
                 } else if (segment instanceof WildCardSegment) {
                     eval = true;
+                }else if(segment instanceof MultiIndexSegment){
+                    eval = true;
                 } else {
                     eval = false;
                 }

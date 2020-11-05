@@ -126,8 +126,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         {
             if ("false".equals(properties.getProperty("fastjson.asmEnable"))) {
-                ParserConfig.getGlobalInstance().setAsmEnable(false);
-                SerializeConfig.getGlobalInstance().setAsmEnable(false);
+                ParserConfig.global.setAsmEnable(false);
+                SerializeConfig.globalInstance.setAsmEnable(false);
             }
         }
     }

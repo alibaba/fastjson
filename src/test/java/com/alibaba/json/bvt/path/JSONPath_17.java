@@ -19,4 +19,8 @@ public class JSONPath_17 extends TestCase {
         String oupput = JSON.parse(input).toString();
         assertEquals(obj, JSON.parse(oupput));
     }
+
+    public void test_for_jsonpath_1() throws Exception {
+        assertEquals("[5]", JSONPath.extract("[1, 2, 3, 4, 5]", "$[last]").toString());
+    }
 }

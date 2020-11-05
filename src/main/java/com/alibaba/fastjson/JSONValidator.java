@@ -14,6 +14,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     protected int pos = -1;
     protected char ch;
     protected Type type;
+    private Boolean valiateResult;
 
     protected int count = 0;
     protected boolean supportMultiValue = false;
@@ -54,13 +55,19 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     abstract void next();
 
     public boolean validate() {
+        if (valiateResult != null) {
+            return valiateResult;
+        }
+
         for (;;) {
             if (!any()) {
+                valiateResult = false;
                 return false;
             }
 
             count++;
             if (eof) {
+                valiateResult = true;
                 return true;
             }
 
@@ -71,10 +78,12 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 }
                 continue;
             } else {
+                valiateResult = false;
                 return false;
             }
         }
 
+        valiateResult = true;
         return true;
     }
 

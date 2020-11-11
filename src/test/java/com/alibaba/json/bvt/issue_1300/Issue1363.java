@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.issue_1300;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class Issue1363 extends TestCase {
         String jsonStr = JSON.toJSONString(b);
         System.out.println(jsonStr);
         DataSimpleVO obj = JSON.parseObject(jsonStr, DataSimpleVO.class);
-        assertEquals(jsonStr, JSON.toJSONString(obj));
+        assertEquals(jsonStr, JSON.toJSONString(obj, SerializerFeature.MapSortField));
 
     }
 
@@ -38,7 +39,7 @@ public class Issue1363 extends TestCase {
         DataSimpleVO obj = JSON.parseObject(jsonStr, DataSimpleVO.class);
         System.out.println(obj.toString());
         assertNotNull(obj.value1);
-        assertEquals(jsonStr, JSON.toJSONString(obj));
+        assertEquals(jsonStr, JSON.toJSONString(obj, SerializerFeature.MapSortField));
     }
 
     public static class DataSimpleVO {

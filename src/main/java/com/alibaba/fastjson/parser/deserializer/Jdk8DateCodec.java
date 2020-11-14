@@ -20,11 +20,13 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.serializer.*;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSerializer, ContextObjectSerializer, ObjectDeserializer {
 
@@ -231,6 +233,23 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             }
 
             throw new UnsupportedOperationException();
+        } else if (lexer.token() == JSONToken.LBRACE) {
+            JSONObject object = parser.parseObject();
+
+            if (type == Instant.class) {
+                Object epochSecond = object.get("epochSecond");
+                Object nano = object.get("nano");
+                if (epochSecond instanceof Number && nano instanceof Number) {
+                    return (T) Instant.ofEpochSecond(
+                            TypeUtils.longExtractValue((Number) epochSecond)
+                            , TypeUtils.longExtractValue((Number) nano));
+                }
+
+                if (epochSecond instanceof Number) {
+                    return (T) Instant.ofEpochSecond(
+                            TypeUtils.longExtractValue((Number) epochSecond));
+                }
+            }
         } else {
             throw new UnsupportedOperationException();
         }

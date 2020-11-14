@@ -1,6 +1,7 @@
 package com.alibaba.fastjson.serializer;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -11,6 +12,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
+import com.alibaba.fastjson.util.TypeUtils;
 import org.joda.time.*;
 import org.joda.time.format.*;
 
@@ -156,7 +158,7 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                 return (T) new DateTime(millis, DateTimeZone.forTimeZone(timeZone));
             }
 
-            LocalDateTime localDateTime =  new LocalDateTime(millis, DateTimeZone.forTimeZone(timeZone));
+            LocalDateTime localDateTime = new LocalDateTime(millis, DateTimeZone.forTimeZone(timeZone));
             if (type == LocalDateTime.class) {
                 return (T) localDateTime;
             }
@@ -176,6 +178,23 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
             }
 
             throw new UnsupportedOperationException();
+        } else if (lexer.token() == JSONToken.LBRACE) {
+            JSONObject object = parser.parseObject();
+
+            if (type == Instant.class) {
+                Object epochSecond = object.get("epochSecond");
+
+                if (epochSecond instanceof Number) {
+                    return (T) Instant.ofEpochSecond(
+                                TypeUtils.longExtractValue((Number) epochSecond));
+                }
+
+                Object millis = object.get("millis");
+                if (millis instanceof Number) {
+                    return (T) Instant.ofEpochMilli(
+                            TypeUtils.longExtractValue((Number) millis));
+                }
+            }
         } else {
             throw new UnsupportedOperationException();
         }

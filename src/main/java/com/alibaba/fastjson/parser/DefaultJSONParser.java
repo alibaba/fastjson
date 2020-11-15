@@ -15,8 +15,13 @@
  */
 package com.alibaba.fastjson.parser;
 
-import static com.alibaba.fastjson.parser.JSONLexer.EOI;
-import static com.alibaba.fastjson.parser.JSONToken.*;
+import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.parser.deserializer.*;
+import com.alibaba.fastjson.serializer.BeanContext;
+import com.alibaba.fastjson.serializer.IntegerCodec;
+import com.alibaba.fastjson.serializer.LongCodec;
+import com.alibaba.fastjson.serializer.StringCodec;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.Closeable;
 import java.lang.reflect.ParameterizedType;
@@ -29,10 +34,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.alibaba.fastjson.*;
-import com.alibaba.fastjson.parser.deserializer.*;
-import com.alibaba.fastjson.serializer.*;
-import com.alibaba.fastjson.util.TypeUtils;
+import static com.alibaba.fastjson.parser.JSONLexer.EOI;
+import static com.alibaba.fastjson.parser.JSONToken.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1611,9 +1614,13 @@ public class DefaultJSONParser implements Closeable {
                 if (fieldDeser.getOwnerClass() != null
                         && (!fieldDeser.getOwnerClass().isInstance(object))
                         && task.ownerContext.parent != null
-                        && fieldDeser.getOwnerClass().isInstance(task.ownerContext.parent.object)
                 ) {
-                    object = task.ownerContext.parent.object;
+                    for (ParseContext ctx = task.ownerContext.parent;ctx != null;ctx = ctx.parent) {
+                        if (fieldDeser.getOwnerClass().isInstance(ctx.object)) {
+                            object = ctx.object;
+                            break;
+                        }
+                    }
                 }
 
                 fieldDeser.setValue(object, refValue);

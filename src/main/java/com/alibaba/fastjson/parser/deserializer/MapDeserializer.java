@@ -85,6 +85,13 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
 
         int token = lexer.token();
         if (token != JSONToken.LBRACE) {
+            if (token == JSONToken.LITERAL_STRING) {
+                String stringVal = lexer.stringVal();
+                if (stringVal.length() == 0 || stringVal.equals("null")) {
+                    return null;
+                }
+            }
+
             String msg = "syntax error, expect {, actual " + lexer.tokenName();
             if (fieldName instanceof String) {
                 msg += ", fieldName ";

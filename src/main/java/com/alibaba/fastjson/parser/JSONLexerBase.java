@@ -3046,7 +3046,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 throw new JSONException("decimal overflow");
             }
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
+            value = new BigDecimal(chars, 0, count, MathContext.UNLIMITED);
         } else if (chLocal == 'n' && charAt(bp + offset) == 'u' && charAt(bp + offset + 1) == 'l' && charAt(bp + offset + 2) == 'l') {
             matchStat = VALUE_NULL;
             value = null;
@@ -3724,7 +3724,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             char[] chars = this.sub_chars(start, count);
-            value = new BigDecimal(chars, 0, chars.length, MathContext.UNLIMITED);
+            value = new BigDecimal(chars, 0, count, MathContext.UNLIMITED);
         } else if (chLocal == 'n' &&
                    charAt(bp + offset) == 'u' &&
                    charAt(bp + offset + 1) == 'l' &&

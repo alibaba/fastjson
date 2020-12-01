@@ -1362,9 +1362,7 @@ public class TypeUtils{
                 } else{
                     collection = new ArrayList();
                 }
-                for(Iterator it = ((Iterable) obj).iterator(); it.hasNext(); ){
-                    Object item = it.next();
-
+                for (Object item : (Iterable) obj) {
                     Object itemValue;
                     if (itemType instanceof Class) {
                         if (item != null && item.getClass() == JSONObject.class) {
@@ -2348,16 +2346,16 @@ public class TypeUtils{
             // 不过，相信开发者应该都是严格按照大小写敏感的方式进行属性设置的
             String[] fields = jsonType.includes();
             if(fields.length > 0){
-                for(int i = 0; i < fields.length; i++){
-                    if(propertyName.equals(fields[i])){
+                for (String field : fields) {
+                    if (propertyName.equals(field)) {
                         return false;
                     }
                 }
                 return true;
             } else{
                 fields = jsonType.ignores();
-                for(int i = 0; i < fields.length; i++){
-                    if(propertyName.equals(fields[i])){
+                for (String field : fields) {
+                    if (propertyName.equals(field)) {
                         return true;
                     }
                 }

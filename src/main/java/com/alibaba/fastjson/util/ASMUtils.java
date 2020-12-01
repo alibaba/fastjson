@@ -34,8 +34,8 @@ public class ASMUtils {
     	Class<?>[] types = method.getParameterTypes();
         StringBuilder buf = new StringBuilder((types.length + 1) << 4);
         buf.append('(');
-        for (int i = 0; i < types.length; ++i) {
-            buf.append(desc(types[i]));
+        for (Class<?> type : types) {
+            buf.append(desc(type));
         }
         buf.append(')');
         buf.append(desc(method.getReturnType()));
@@ -162,9 +162,9 @@ public class ASMUtils {
             for (int i = 0; i < parameterNames.length; i++) {
                 Annotation[] annotations = parameterAnnotations[i];
                 if (annotations != null) {
-                    for (int j = 0; j < annotations.length; j++) {
-                        if (annotations[j] instanceof JSONField) {
-                            JSONField jsonField = (JSONField) annotations[j];
+                    for (Annotation annotation : annotations) {
+                        if (annotation instanceof JSONField) {
+                            JSONField jsonField = (JSONField) annotation;
                             String fieldName = jsonField.name();
                             if (fieldName != null && fieldName.length() > 0) {
                                 parameterNames[i] = fieldName;

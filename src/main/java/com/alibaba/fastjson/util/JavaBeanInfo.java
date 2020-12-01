@@ -773,9 +773,9 @@ public class JavaBeanInfo {
 
             if (kotlin) {
                 getMethodNameList = new ArrayList();
-                for (int i = 0; i < methods.length; i++) {
-                    if (methods[i].getName().startsWith("get")) {
-                        getMethodNameList.add(methods[i].getName());
+                for (Method aMethod : methods) {
+                    if (aMethod.getName().startsWith("get")) {
+                        getMethodNameList.add(aMethod.getName());
                     }
                 }
             }

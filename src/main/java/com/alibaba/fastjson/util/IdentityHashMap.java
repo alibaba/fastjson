@@ -51,9 +51,7 @@ public class IdentityHashMap<K, V> {
     }
 
     public Class findClass(String keyString) {
-        for (int i = 0; i < buckets.length; i++) {
-            Entry bucket = buckets[i];
-
+        for (Entry bucket : buckets) {
             if (bucket == null) {
                 continue;
             }

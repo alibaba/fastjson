@@ -22,5 +22,20 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Test with Maven
         run: mvn test -B --file pom.xml
+  
+  nondex:
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        java: [8]
+      fail-fast: false
+    name: NonDex Test JDK ${{ matrix.java }}, macOS-latest
 
-...
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Run NonDex
+        run: sh ./nondex.sh

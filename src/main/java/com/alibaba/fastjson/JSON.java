@@ -673,6 +673,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
+
+        if(object instanceof BigDecimal) {
+            BigDecimal[] bigDecimals = ((BigDecimal) object).divideAndRemainder(new BigDecimal("1"));
+            int compareValue = bigDecimals[1].compareTo(new BigDecimal("0"));
+            if(compareValue == 0 && !(object.toString().contains(".0"))) {
+                object = ((BigDecimal) object).intValue();
+            }
+        }
+
         return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
     }
     

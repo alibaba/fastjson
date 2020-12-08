@@ -61,6 +61,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
     private final static String formatter_iso8601_pattern_29     = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";
     private final static DateTimeFormatter formatter_iso8601  = DateTimeFormatter.ofPattern(formatter_iso8601_pattern);
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int feature) {
         JSONLexer lexer = parser.lexer;
@@ -289,10 +290,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                             } else {
                                 String country = Locale.getDefault().getCountry();
 
-                                if (country.equals("US")) {
+                                if ("US".equals(country)) {
                                     formatter = formatter_dt19_us;
-                                } else if (country.equals("BR") //
-                                           || country.equals("AU")) {
+                                } else if ("BR".equals(country) //
+                                           || "AU".equals(country)) {
                                     formatter = formatter_dt19_eur;
                                 }
                             }
@@ -390,10 +391,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     } else {
                         String country = Locale.getDefault().getCountry();
 
-                        if (country.equals("US")) {
+                        if ("US".equals(country)) {
                             formatter = formatter_d10_us;
-                        } else if (country.equals("BR") //
-                                   || country.equals("AU")) {
+                        } else if ("BR".equals(country) //
+                                   || "AU".equals(country)) {
                             formatter = formatter_d10_eur;
                         }
                     }
@@ -469,10 +470,10 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                             } else {
                                 String country = Locale.getDefault().getCountry();
 
-                                if (country.equals("US")) {
+                                if ("US".equals(country)) {
                                     formatter = formatter_dt19_us;
-                                } else if (country.equals("BR") //
-                                        || country.equals("AU")) {
+                                } else if ("BR".equals(country) //
+                                        || "AU".equals(country)) {
                                     formatter = formatter_dt19_eur;
                                 }
                             }

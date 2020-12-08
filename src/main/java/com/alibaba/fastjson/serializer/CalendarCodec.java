@@ -31,7 +31,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         String format = context.getFormat();
         Calendar calendar = (Calendar) object;
 
-        if (format.equals("unixtime")) {
+        if ("unixtime".equals(format)) {
             long seconds = calendar.getTimeInMillis() / 1000L;
             out.writeInt((int) seconds);
             return;
@@ -141,6 +141,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         }
     }
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return deserialze(parser, clazz, fieldName, null, 0);
     }

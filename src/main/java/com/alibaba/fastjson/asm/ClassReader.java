@@ -202,7 +202,7 @@ public class ClassReader {
             u += 6;
             // tests are sorted in decreasing frequency order
             // (based on frequencies observed on typical classes)
-            if (attrName.equals("Code")) {
+            if ("Code".equals(attrName)) {
                 v = u;
             }
             u += attrSize;
@@ -240,9 +240,9 @@ public class ClassReader {
             v += 2;
             for (; j > 0; --j) {
                 attrName = readUTF8(v, c);
-                if (attrName.equals("LocalVariableTable")) {
+                if ("LocalVariableTable".equals(attrName)) {
                     varTable = v + 6;
-                } else if (attrName.equals("LocalVariableTypeTable")) {
+                } else if ("LocalVariableTypeTable".equals(attrName)) {
                     varTypeTable = v + 6;
                 }
                 v += 6 + readInt(v + 2);

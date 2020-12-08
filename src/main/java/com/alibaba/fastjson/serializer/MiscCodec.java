@@ -154,7 +154,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             }
             out.write('}');
             return;
-        } else if (object.getClass().getName().equals("net.sf.json.JSONNull")) {
+        } else if ("net.sf.json.JSONNull".equals(object.getClass().getName())) {
             out.writeNull();
             return;
         } else if (object instanceof org.w3c.dom.Node) {
@@ -213,10 +213,10 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
                 String key = lexer.stringVal();
                 lexer.nextToken(JSONToken.COLON);
 
-                if (key.equals("address")) {
+                if ("address".equals(key)) {
                     parser.accept(JSONToken.COLON);
                     address = parser.parseObject(InetAddress.class);
-                } else if (key.equals("port")) {
+                } else if ("port".equals(key)) {
                     parser.accept(JSONToken.COLON);
                     if (lexer.token() != JSONToken.LITERAL_INT) {
                         throw new JSONException("port is not int");
@@ -376,7 +376,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         if (clazz instanceof Class) {
             String className = ((Class) clazz).getName();
 
-            if (className.equals("java.nio.file.Path")) {
+            if ("java.nio.file.Path".equals(className)) {
                 try {
                     if (method_paths_get == null && !method_paths_get_error) {
                         Class<?> paths = TypeUtils.loadClass("java.nio.file.Paths");

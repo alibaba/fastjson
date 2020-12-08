@@ -752,7 +752,7 @@ public class JSONPath implements JSONAware {
                 Object key = entry.getKey();
 
                 if (key instanceof String) {
-                    String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                    String path = "/".equals(parent) ?  "/" + key : parent + "/" + key;
                     paths(values, paths, path, entry.getValue(), config);
                 }
             }
@@ -764,7 +764,7 @@ public class JSONPath implements JSONAware {
 
             int i = 0;
             for (Object item : collection) {
-                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                String path = "/".equals(parent) ?  "/" + i : parent + "/" + i;
                 paths(values, paths, path, item, config);
                 ++i;
             }
@@ -780,7 +780,7 @@ public class JSONPath implements JSONAware {
             for (int i = 0; i < len; ++i) {
                 Object item = Array.get(javaObject, i);
 
-                String path = parent.equals("/") ?  "/" + i : parent + "/" + i;
+                String path = "/".equals(parent) ?  "/" + i : parent + "/" + i;
                 paths(values, paths, path, item, config);
             }
 
@@ -801,7 +801,7 @@ public class JSONPath implements JSONAware {
                     String key = entry.getKey();
 
                     if (key instanceof String) {
-                        String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                        String path = "/".equals(parent) ?  "/" + key : parent + "/" + key;
                         paths(values, paths, path, entry.getValue(), config);
                     }
                 }
@@ -1024,7 +1024,7 @@ public class JSONPath implements JSONAware {
 
                 if (acceptBracket && ch == ']') {
                     if (isEOF()) {
-                        if (propertyName.equals("last")) {
+                        if ("last".equals(propertyName)) {
                             return new MultiIndexSegment(new int[]{-1});
                         }
                     }
@@ -1896,7 +1896,7 @@ public class JSONPath implements JSONAware {
 
                 if (segment instanceof PropertySegment) {
                     PropertySegment propertySegment = (PropertySegment) segment;
-                    if ((!propertySegment.deep) && propertySegment.propertyName.equals("*")) {
+                    if ((!propertySegment.deep) && "*".equals(propertySegment.propertyName)) {
                         continue;
                     }
                 }

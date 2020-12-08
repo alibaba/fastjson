@@ -46,6 +46,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         super(new MimeType("application", "json", Charset.forName("UTF-8")));
     }
 
+    @Override
     protected boolean supports(Class<?> clazz) {
         return true;
     }

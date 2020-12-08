@@ -49,7 +49,7 @@ public class TypeCollector {
         int longOrDoubleQuantity = 0;
         for (Type t : argTypes) {
             String className = t.getClassName();
-            if (className.equals("long") || className.equals("double")) {
+            if ("long".equals(className) || "double".equals(className)) {
                 longOrDoubleQuantity++;
             }
         }

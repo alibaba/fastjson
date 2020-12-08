@@ -234,10 +234,10 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                             } else {
                                 String country = Locale.getDefault().getCountry();
 
-                                if (country.equals("US")) {
+                                if ("US".equals(country)) {
                                     formatter = formatter_dt19_us;
-                                } else if (country.equals("BR") //
-                                        || country.equals("AU")) {
+                                } else if ("BR".equals(country) //
+                                        || "AU".equals(country)) {
                                     formatter = formatter_dt19_eur;
                                 }
                             }
@@ -327,10 +327,10 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                     } else {
                         String country = Locale.getDefault().getCountry();
 
-                        if (country.equals("US")) {
+                        if ("US".equals(country)) {
                             formatter = formatter_d10_us;
-                        } else if (country.equals("BR") //
-                                || country.equals("AU")) {
+                        } else if ("BR".equals(country) //
+                                || "AU".equals(country)) {
                             formatter = formatter_d10_eur;
                         }
                     }
@@ -403,10 +403,10 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
                             } else {
                                 String country = Locale.getDefault().getCountry();
 
-                                if (country.equals("US")) {
+                                if ("US".equals(country)) {
                                     formatter = formatter_dt19_us;
-                                } else if (country.equals("BR") //
-                                        || country.equals("AU")) {
+                                } else if ("BR".equals(country) //
+                                        || "AU".equals(country)) {
                                     formatter = formatter_dt19_eur;
                                 }
                             }

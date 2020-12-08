@@ -12,6 +12,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 public abstract class AbstractDateDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
 
+    @Override
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         return deserialze(parser, clazz, fieldName, null, 0);
     }
@@ -35,7 +36,7 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
             if (format != null) {
                 if ("yyyy-MM-dd HH:mm:ss.SSSSSSSSS".equals(format)
                         && clazz instanceof Class
-                        && ((Class) clazz).getName().equals("java.sql.Timestamp")) {
+                        && "java.sql.Timestamp".equals(((Class) clazz).getName())) {
                     return (T) TypeUtils.castToTimestamp(strVal);
                 }
 
@@ -88,7 +89,7 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                 }
 
                 if (val == null) {
-                    if (format.equals("yyyy-MM-dd'T'HH:mm:ss.SSS") //
+                    if ("yyyy-MM-dd'T'HH:mm:ss.SSS".equals(format) //
                             && strVal.length() == 19) {
                         try {
                             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", JSON.defaultLocale);

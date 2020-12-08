@@ -51,6 +51,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final char charAt(int index) {
         if (index >= len) {
             return EOI;
@@ -59,6 +60,7 @@ public final class JSONScanner extends JSONLexerBase {
         return text.charAt(index);
     }
 
+    @Override
     public final char next() {
         int index = ++bp;
         return ch = (index >= this.len ? //
@@ -74,6 +76,7 @@ public final class JSONScanner extends JSONLexerBase {
         this(new String(input, 0, inputLength), features);
     }
 
+    @Override
     protected final void copyTo(int offset, int count, char[] dest) {
         text.getChars(offset, offset + count, dest, 0);
     }
@@ -93,18 +96,22 @@ public final class JSONScanner extends JSONLexerBase {
         return true;
     }
 
+    @Override
     public final boolean charArrayCompare(char[] chars) {
         return charArrayCompare(text, bp, chars);
     }
 
+    @Override
     public final int indexOf(char ch, int startIndex) {
         return text.indexOf(ch, startIndex);
     }
 
+    @Override
     public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(text, offset, len, hash);
     }
 
+    @Override
     public byte[] bytesValue() {
         if (token == JSONToken.HEX) {
             int start = np + 1, len = sp;
@@ -136,6 +143,7 @@ public final class JSONScanner extends JSONLexerBase {
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
+    @Override
     public final String stringVal() {
         if (!hasSpecial) {
             return this.subString(np + 1, sp);
@@ -144,6 +152,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final String subString(int offset, int count) {
         if (ASMUtils.IS_ANDROID) {
             if (count < sbuf.length) {
@@ -159,6 +168,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final char[] sub_chars(int offset, int count) {
         if (ASMUtils.IS_ANDROID && count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
@@ -170,6 +180,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final String numberString() {
         char chLocal = charAt(np + sp - 1);
 
@@ -181,6 +192,7 @@ public final class JSONScanner extends JSONLexerBase {
         return this.subString(np, sp);
     }
 
+    @Override
     public final BigDecimal decimalValue() {
         char chLocal = charAt(np + sp - 1);
 
@@ -827,6 +839,7 @@ public final class JSONScanner extends JSONLexerBase {
         return bp == len || (ch == EOI && bp + 1 >= len);
     }
 
+    @Override
     public int scanFieldInt(char[] fieldName) {
         matchStat = UNKNOWN;
         int startPos = this.bp;
@@ -946,6 +959,7 @@ public final class JSONScanner extends JSONLexerBase {
         return negative ? -value : value;
     }
 
+    @Override
     public String scanFieldString(char[] fieldName) {
         matchStat = UNKNOWN;
         int startPos = this.bp;
@@ -1069,6 +1083,7 @@ public final class JSONScanner extends JSONLexerBase {
         return strVal;
     }
 
+    @Override
     public java.util.Date scanFieldDate(char[] fieldName) {
         matchStat = UNKNOWN;
         int startPos = this.bp;
@@ -1187,6 +1202,7 @@ public final class JSONScanner extends JSONLexerBase {
         return dateVal;
     }
 
+    @Override
     public long scanFieldSymbol(char[] fieldName) {
         matchStat = UNKNOWN;
 
@@ -1277,6 +1293,7 @@ public final class JSONScanner extends JSONLexerBase {
         return hash;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKNOWN;
@@ -1440,6 +1457,7 @@ public final class JSONScanner extends JSONLexerBase {
         return list;
     }
 
+    @Override
     public long scanFieldLong(char[] fieldName) {
         matchStat = UNKNOWN;
         int startPos = this.bp;
@@ -1554,6 +1572,7 @@ public final class JSONScanner extends JSONLexerBase {
         return negative ? -value : value;
     }
 
+    @Override
     public boolean scanFieldBoolean(char[] fieldName) {
         matchStat = UNKNOWN;
 
@@ -1688,6 +1707,7 @@ public final class JSONScanner extends JSONLexerBase {
         return value;
     }
 
+    @Override
     public final int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
@@ -1797,6 +1817,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public  double scanDouble(char seperator) {
         matchStat = UNKNOWN;
 
@@ -1937,6 +1958,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public long scanLong(char seperator) {
         matchStat = UNKNOWN;
 
@@ -2038,6 +2060,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public java.util.Date scanDate(char seperator) {
         matchStat = UNKNOWN;
         int startPos = this.bp;
@@ -2165,10 +2188,12 @@ public final class JSONScanner extends JSONLexerBase {
         return dateVal;
     }
 
+    @Override
     protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         text.getChars(srcPos, srcPos + length, dest, destPos);
     }
 
+    @Override
     public String info() {
         StringBuilder buf = new StringBuilder();
 
@@ -2203,6 +2228,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     // for hsf support
+    @Override
     public String[] scanFieldStringArray(char[] fieldName, int argTypesCount, SymbolTable typeSymbolTable) {
         int startPos = bp;
         char starChar = ch;
@@ -2306,6 +2332,7 @@ public final class JSONScanner extends JSONLexerBase {
         return types;
     }
 
+    @Override
     public boolean matchField2(char[] fieldName) {
         while (isWhitespace(ch)) {
             next();
@@ -2332,10 +2359,12 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final void skipObject() {
         skipObject(false);
     }
 
+    @Override
     public final void skipObject(boolean valid) {
         boolean quote = false;
         int braceCnt = 0;
@@ -2406,6 +2435,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public final void skipArray() {
         skipArray(false);
     }
@@ -2486,6 +2516,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public boolean seekArrayToItem(int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index must > 0, but " + index);
@@ -2560,6 +2591,7 @@ public final class JSONScanner extends JSONLexerBase {
         return true;
     }
 
+    @Override
     public int seekObjectToField(long fieldNameHash, boolean deepScan) {
         if (token == JSONToken.EOF) {
             return JSONLexer.NOT_MATCH;
@@ -2829,6 +2861,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public int seekObjectToField(long[] fieldNameHash) {
         if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
             throw new UnsupportedOperationException();
@@ -3028,6 +3061,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    @Override
     public String scanTypeName(SymbolTable symbolTable) {
         if (text.startsWith("\"@type\":\"", bp)) {
             int p = text.indexOf('"', bp + 9);

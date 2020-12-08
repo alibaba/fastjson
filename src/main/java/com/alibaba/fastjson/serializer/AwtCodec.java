@@ -146,21 +146,21 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
             }
 
 
-            if (key.equalsIgnoreCase("name")) {
+            if ("name".equalsIgnoreCase(key)) {
                 if (lexer.token() == JSONToken.LITERAL_STRING) {
                     name = lexer.stringVal();
                     lexer.nextToken();
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key.equalsIgnoreCase("style")) {
+            } else if ("style".equalsIgnoreCase(key)) {
                 if (lexer.token() == JSONToken.LITERAL_INT) {
                     style = lexer.intValue();
                     lexer.nextToken();
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key.equalsIgnoreCase("size")) {
+            } else if ("size".equalsIgnoreCase(key)) {
                 if (lexer.token() == JSONToken.LITERAL_INT) {
                     size = lexer.intValue();
                     lexer.nextToken();
@@ -205,13 +205,13 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
                 throw new JSONException("syntax error");
             }
 
-            if (key.equalsIgnoreCase("r")) {
+            if ("r".equalsIgnoreCase(key)) {
                 r = val;
-            } else if (key.equalsIgnoreCase("g")) {
+            } else if ("g".equalsIgnoreCase(key)) {
                 g = val;
-            } else if (key.equalsIgnoreCase("b")) {
+            } else if ("b".equalsIgnoreCase(key)) {
                 b = val;
-            } else if (key.equalsIgnoreCase("alpha")) {
+            } else if ("alpha".equalsIgnoreCase(key)) {
                 alpha = val;
             } else {
                 throw new JSONException("syntax error, " + key);
@@ -255,13 +255,13 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
                 throw new JSONException("syntax error");
             }
 
-            if (key.equalsIgnoreCase("x")) {
+            if ("x".equalsIgnoreCase(key)) {
                 x = val;
-            } else if (key.equalsIgnoreCase("y")) {
+            } else if ("y".equalsIgnoreCase(key)) {
                 y = val;
-            } else if (key.equalsIgnoreCase("width")) {
+            } else if ("width".equalsIgnoreCase(key)) {
                 width = val;
-            } else if (key.equalsIgnoreCase("height")) {
+            } else if ("height".equalsIgnoreCase(key)) {
                 height = val;
             } else {
                 throw new JSONException("syntax error, " + key);
@@ -315,9 +315,9 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
                 throw new JSONException("syntax error : " + lexer.tokenName());
             }
 
-            if (key.equalsIgnoreCase("x")) {
+            if ("x".equalsIgnoreCase(key)) {
                 x = val;
-            } else if (key.equalsIgnoreCase("y")) {
+            } else if ("y".equalsIgnoreCase(key)) {
                 y = val;
             } else {
                 throw new JSONException("syntax error, " + key);

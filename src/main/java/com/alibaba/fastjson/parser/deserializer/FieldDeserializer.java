@@ -60,7 +60,7 @@ public abstract class FieldDeserializer {
             return;
         } else if (fieldInfo.fieldClass == String.class
                 && fieldInfo.format != null
-                && fieldInfo.format.equals("trim")) {
+                && "trim".equals(fieldInfo.format)) {
             value = ((String) value).trim();
         }
 
@@ -107,15 +107,15 @@ public abstract class FieldDeserializer {
                             }
 
                             String mapClassName = map.getClass().getName();
-                            if (mapClassName.equals("java.util.ImmutableCollections$Map1")
-                                    || mapClassName.equals("java.util.ImmutableCollections$MapN")
+                            if ("java.util.ImmutableCollections$Map1".equals(mapClassName)
+                                    || "java.util.ImmutableCollections$MapN".equals(mapClassName)
                                     || mapClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
 
                                 return;
                             }
 
-                            if (map.getClass().getName().equals("kotlin.collections.EmptyMap")) {
+                            if ("kotlin.collections.EmptyMap".equals(map.getClass().getName())) {
                                 degradeValueAssignment(fieldInfo.field, method, object, value);
                                 return;
                             }
@@ -151,8 +151,8 @@ public abstract class FieldDeserializer {
                             }
 
 
-                            if (collectionClassName.equals("kotlin.collections.EmptyList")
-                                    || collectionClassName.equals("kotlin.collections.EmptySet")) {
+                            if ("kotlin.collections.EmptyList".equals(collectionClassName)
+                                    || "kotlin.collections.EmptySet".equals(collectionClassName)) {
                                 degradeValueAssignment(fieldInfo.field, method, object, value);
                                 return;
                             }

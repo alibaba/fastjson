@@ -1466,7 +1466,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 String format = fieldInfo.format;
                 if (format != null && paramType == Date.class) {
                     value = TypeUtils.castToDate(value, format);
-                } else if (format != null && (paramType instanceof Class) && (((Class) paramType).getName().equals("java.time.LocalDateTime"))) {
+                } else if (format != null && (paramType instanceof Class) && ("java.time.LocalDateTime".equals(((Class) paramType).getName()))) {
                     value = Jdk8DateCodec.castToLocalDateTime(value, format);
                 } else {
                     if (paramType instanceof ParameterizedType) {

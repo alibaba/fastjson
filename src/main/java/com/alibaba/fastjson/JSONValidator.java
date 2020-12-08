@@ -409,6 +409,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
+        @Override
         void next() {
             ++pos;
 
@@ -442,6 +443,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
+        @Override
         void next() {
             if (pos < end) {
                 ch = (char) buf[++pos];
@@ -478,6 +480,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             }
         }
 
+        @Override
         public void close() throws IOException {
             bufLocal.set(buf);
             is.close();
@@ -493,6 +496,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
+        @Override
         void next() {
             ++pos;
 
@@ -504,6 +508,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             }
         }
 
+        @Override
         protected final void fieldName()
         {
             for (int i = pos + 1; i < str.length(); ++i) {
@@ -568,6 +573,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
+        @Override
         void next() {
             if (pos < end) {
                 ch = buf[++pos];
@@ -604,6 +610,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             }
         }
 
+        @Override
         public void close() throws IOException {
             bufLocal.set(buf);
             r.close();;

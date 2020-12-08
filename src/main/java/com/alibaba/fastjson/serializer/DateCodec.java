@@ -244,6 +244,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
         }
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
@@ -286,7 +287,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
             String dateFomartPattern = parser.getDateFomartPattern();
             boolean formatMatch = strVal.length() == dateFomartPattern.length()
-                    || (strVal.length() == 22 && dateFomartPattern.equals("yyyyMMddHHmmssSSSZ"))
+                    || (strVal.length() == 22 && "yyyyMMddHHmmssSSSZ".equals(dateFomartPattern))
                     || (strVal.indexOf('T') != -1 && dateFomartPattern.contains("'T'") && strVal.length() + 2 == dateFomartPattern.length())
                     ;
             if (formatMatch) {

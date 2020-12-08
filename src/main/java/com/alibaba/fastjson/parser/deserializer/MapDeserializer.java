@@ -16,6 +16,7 @@ import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
 public class MapDeserializer extends ContextObjectDeserializer implements ObjectDeserializer {
     public static MapDeserializer instance = new MapDeserializer();
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName, String format, int features)
     {
@@ -60,7 +61,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
             Type valueType = null;
-            if(map.getClass().getName().equals("org.springframework.util.LinkedMultiValueMap")){
+            if("org.springframework.util.LinkedMultiValueMap".equals(map.getClass().getName())){
                 valueType = List.class;
             }else{
                 valueType = parameterizedType.getActualTypeArguments()[1];
@@ -87,7 +88,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         if (token != JSONToken.LBRACE) {
             if (token == JSONToken.LITERAL_STRING) {
                 String stringVal = lexer.stringVal();
-                if (stringVal.length() == 0 || stringVal.equals("null")) {
+                if (stringVal.length() == 0 || "null".equals(stringVal)) {
                     return null;
                 }
             }
@@ -180,7 +181,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
 
                     Class<?> clazz;
 
-                    if (typeName.equals("java.util.HashMap")) {
+                    if ("java.util.HashMap".equals(typeName)) {
                         clazz = java.util.HashMap.class;
                     } else {
                         clazz = config.checkAutoType(typeName, null, lexer.getFeatures());

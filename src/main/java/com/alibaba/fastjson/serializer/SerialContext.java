@@ -14,6 +14,7 @@ public class SerialContext {
         this.features = features;
     }
 
+    @Override
     public String toString() {
         if (parent == null) {
             return "$";

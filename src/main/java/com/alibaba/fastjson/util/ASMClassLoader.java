@@ -157,6 +157,7 @@ public class ASMClassLoader extends ClassLoader {
         return JSON.class.getClassLoader();
     }
 
+    @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> mappingClass = classMapping.get(name);
         if (mappingClass != null) {

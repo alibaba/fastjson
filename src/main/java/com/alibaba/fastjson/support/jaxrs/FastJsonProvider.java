@@ -245,8 +245,9 @@ public class FastJsonProvider //
      */
     protected boolean isAssignableFrom(Class<?> type, Class<?>[] classes) {
 
-        if (type == null)
+        if (type == null) {
             return false;
+        }
 
         //  there are some other abstract/interface types to exclude too:
         for (Class<?> cls : classes) {
@@ -266,14 +267,16 @@ public class FastJsonProvider //
      * @return true if valid
      */
     protected boolean isValidType(Class<?> type, Annotation[] classAnnotations) {
-        if (type == null)
+        if (type == null) {
             return false;
+        }
 
         if (clazzes != null) {
             for (Class<?> cls : clazzes) { // must strictly equal. Don't check
                 // inheritance
-                if (cls == type)
+                if (cls == type) {
                     return true;
+                }
             }
 
             return false;
@@ -315,8 +318,9 @@ public class FastJsonProvider //
             return false;
         }
 
-        if (!isAssignableFrom(type, DEFAULT_UNWRITABLES))
+        if (!isAssignableFrom(type, DEFAULT_UNWRITABLES)) {
             return false;
+        }
 
         return isValidType(type, annotations);
     }
@@ -350,8 +354,9 @@ public class FastJsonProvider //
         SerializerFeature[] serializerFeatures = fastJsonConfig.getSerializerFeatures();
 
         if (pretty) {
-            if (serializerFeatures == null)
+            if (serializerFeatures == null) {
                 serializerFeatures = new SerializerFeature[]{SerializerFeature.PrettyFormat};
+            }
             else {
                 List<SerializerFeature> featureList = new ArrayList<SerializerFeature>(Arrays.asList(serializerFeatures));
                 featureList.add(SerializerFeature.PrettyFormat);
@@ -391,8 +396,9 @@ public class FastJsonProvider //
             return false;
         }
 
-        if (!isAssignableFrom(type, DEFAULT_UNREADABLES))
+        if (!isAssignableFrom(type, DEFAULT_UNREADABLES)) {
             return false;
+        }
 
         return isValidType(type, annotations);
     }

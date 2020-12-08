@@ -456,7 +456,7 @@ public class JavaBeanInfo {
                     for (Constructor constructor : constructors) {
                         Class<?>[] parameterTypes = constructor.getParameterTypes();
 
-                        if (className.equals("org.springframework.security.web.authentication.WebAuthenticationDetails")) {
+                        if ("org.springframework.security.web.authentication.WebAuthenticationDetails".equals(className)) {
                             if (parameterTypes.length == 2 && parameterTypes[0] == String.class && parameterTypes[1] == String.class) {
                                 creatorConstructor = constructor;
                                 creatorConstructor.setAccessible(true);
@@ -467,7 +467,7 @@ public class JavaBeanInfo {
                             }
                         }
 
-                        if (className.equals("org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken")) {
+                        if ("org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken".equals(className)) {
                             if (parameterTypes.length == 3
                                     && parameterTypes[0] == Object.class
                                     && parameterTypes[1] == Object.class
@@ -481,7 +481,7 @@ public class JavaBeanInfo {
                             }
                         }
 
-                        if (className.equals("org.springframework.security.core.authority.SimpleGrantedAuthority")) {
+                        if ("org.springframework.security.core.authority.SimpleGrantedAuthority".equals(className)) {
                             if (parameterTypes.length == 1
                                     && parameterTypes[0] == String.class) {
                                 creatorConstructor = constructor;
@@ -567,7 +567,7 @@ public class JavaBeanInfo {
                         add(fieldList, fieldInfo);
                     }
 
-                    if ((!kotlin) && !clazz.getName().equals("javax.servlet.http.Cookie")) {
+                    if ((!kotlin) && !"javax.servlet.http.Cookie".equals(clazz.getName())) {
                         return new JavaBeanInfo(clazz, builderClass, null, creatorConstructor, null, null, jsonType, fieldList);
                     }
                 } else {
@@ -1140,7 +1140,7 @@ public class JavaBeanInfo {
     }
 
     public static Class<?> getBuilderClass(Class<?> clazz, JSONType type) {
-        if (clazz != null && clazz.getName().equals("org.springframework.security.web.savedrequest.DefaultSavedRequest")) {
+        if (clazz != null && "org.springframework.security.web.savedrequest.DefaultSavedRequest".equals(clazz.getName())) {
             return TypeUtils.loadClass("org.springframework.security.web.savedrequest.DefaultSavedRequest$Builder");
         }
 

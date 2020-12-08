@@ -784,11 +784,11 @@ public class ParserConfig {
             }
         }
 
-        if (className.equals("java.nio.ByteBuffer")) {
+        if ("java.nio.ByteBuffer".equals(className)) {
             putDeserializer(clazz, deserializer = ByteBufferCodec.instance);
         }
 
-        if (className.equals("java.nio.file.Path")) {
+        if ("java.nio.file.Path".equals(className)) {
             putDeserializer(clazz, deserializer = MiscCodec.instance);
         }
 
@@ -796,7 +796,7 @@ public class ParserConfig {
             putDeserializer(clazz, deserializer = MiscCodec.instance);
         }
 
-        if (className.equals("org.javamoney.moneta.Money")) {
+        if ("org.javamoney.moneta.Money".equals(className)) {
             putDeserializer(clazz, deserializer = MonetaCodec.instance);
         }
 

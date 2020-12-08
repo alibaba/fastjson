@@ -405,10 +405,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         );
     }
 
+    @Override
     public boolean equals(Object obj) {
         return this.map.equals(obj);
     }
 
+    @Override
     public int hashCode() {
         return this.map.hashCode();
     }
@@ -416,7 +418,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
-            if (method.getName().equals("equals")) {
+            if ("equals".equals(method.getName())) {
                 return this.equals(args[0]);
             }
 
@@ -566,6 +568,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             }
         }
 
+        @Override
         protected Class<?> resolveClass(ObjectStreamClass desc)
                 throws IOException, ClassNotFoundException {
             String name = desc.getName();
@@ -585,6 +588,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return super.resolveClass(desc);
         }
 
+        @Override
         protected Class<?> resolveProxyClass(String[] interfaces)
                 throws IOException, ClassNotFoundException {
             for (String interfacename : interfaces) {
@@ -597,11 +601,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         //Hack:默认构造方法会调用这个方法，重写此方法使用反射还原部分关键属性
+        @Override
         protected void readStreamHeader() throws IOException, StreamCorruptedException {
 
         }
     }
 
+    @Override
     public <T> T toJavaObject(Class<T> clazz) {
         if (clazz == Map.class || clazz == JSONObject.class || clazz == JSON.class) {
             return (T) this;

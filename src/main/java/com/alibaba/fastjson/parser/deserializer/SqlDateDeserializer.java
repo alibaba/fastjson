@@ -28,6 +28,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         this.timestamp = true;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
         if (timestamp) {

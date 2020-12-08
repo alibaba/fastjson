@@ -466,6 +466,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
         return actualType;
     }
 
+    @Override
     public String toString() {
         return this.name;
     }

@@ -43,6 +43,7 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         }
     }
 
+    @Override
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }

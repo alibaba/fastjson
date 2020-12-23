@@ -33,19 +33,19 @@ public class ThreadLocalCacheTest extends TestCase {
         clearChars();
 
     }
-    
+
     static char[] allocateChars(int length) throws Exception {
         Method method = JSON.class.getDeclaredMethod("allocateChars", int.class);
         method.setAccessible(true);
         return (char[]) method.invoke(null, length);
     }
-    
+
     public static void clearChars() throws Exception {
         Field field = JSON.class.getDeclaredField("charsLocal");
         field.setAccessible(true);
-        
+
         ThreadLocal<char[]> charsLocal = (ThreadLocal<char[]>) field.get(null);
-        charsLocal.set(null);
+        charsLocal.remove();
     }
 
     public void testBytes() throws Exception {
@@ -67,29 +67,29 @@ public class ThreadLocalCacheTest extends TestCase {
         clearBytes();
 
     }
-    
+
     public static byte[] getBytes(int length) throws Exception {
         Field field = SerializeWriter.class.getDeclaredField("bytesBufLocal");
         field.setAccessible(true);
         ThreadLocal<byte[]> bytesBufLocal = (ThreadLocal<byte[]>) field.get(null);
-        
+
         byte[] bytes = bytesBufLocal.get();
 
         if (bytes == null) {
             bytes = new byte[1024 * 8];
             bytesBufLocal.set(bytes);
         }
-        
+
         return bytes.length < length //
             ? new byte[length] //
             : bytes;
     }
-    
+
     public static void clearBytes() throws Exception {
         Field field = SerializeWriter.class.getDeclaredField("bytesBufLocal");
         field.setAccessible(true);
         ThreadLocal<byte[]> bytesBufLocal = (ThreadLocal<byte[]>) field.get(null);
-        bytesBufLocal.set(null);
+        bytesBufLocal.remove();
     }
 
     public void test_chars() throws Exception {

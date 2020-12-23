@@ -26,7 +26,7 @@ public class ThreadLocalCache {
     }
 
     public static void clearChars() {
-        charsBufLocal.set(null);
+        charsBufLocal.remove();
     }
 
     public static char[] getChars(int length) {
@@ -81,7 +81,7 @@ public class ThreadLocalCache {
     private final static ThreadLocal<SoftReference<byte[]>> bytesBufLocal        = new ThreadLocal<SoftReference<byte[]>>();
 
     public static void clearBytes() {
-        bytesBufLocal.set(null);
+        bytesBufLocal.remove();
     }
 
     public static byte[] getBytes(int length) {

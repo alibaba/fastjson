@@ -111,7 +111,7 @@ public final class SerializeWriter extends Writer {
         buf = bufLocal.get();
 
         if (buf != null) {
-            bufLocal.set(null);
+            bufLocal.remove();
         } else {
             buf = new char[2048];
         }
@@ -234,7 +234,7 @@ public final class SerializeWriter extends Writer {
     public boolean isEnabled(SerializerFeature feature) {
         return (this.features & feature.mask) != 0;
     }
-    
+
     public boolean isEnabled(int feature) {
         return (this.features & feature) != 0;
     }
@@ -258,7 +258,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Writes characters to the buffer.
-     * 
+     *
      * @param c the data to be written
      * @param off the start offset in the data
      * @param len the number of chars that are written
@@ -317,7 +317,7 @@ public final class SerializeWriter extends Writer {
 
         buf = newValue;
     }
-    
+
     public SerializeWriter append(CharSequence csq) {
         String s = (csq == null ? "null" : csq.toString());
         write(s, 0, s.length());
@@ -337,7 +337,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Write a portion of a string to the buffer.
-     * 
+     *
      * @param str String to be written from
      * @param off Offset from which to start reading characters
      * @param len Number of characters to be written
@@ -365,7 +365,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Writes the contents of the buffer to another character stream.
-     * 
+     *
      * @param out the output stream to write to
      * @throws IOException If an I/O error occurs.
      */
@@ -379,7 +379,7 @@ public final class SerializeWriter extends Writer {
     public void writeTo(OutputStream out, String charsetName) throws IOException {
         writeTo(out, Charset.forName(charsetName));
     }
-    
+
     public void writeTo(OutputStream out, Charset charset) throws IOException {
         writeToEx(out, charset);
     }
@@ -388,7 +388,7 @@ public final class SerializeWriter extends Writer {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
-        
+
         if (charset == IOUtils.UTF8) {
             return encodeToUTF8(out);
         } else {
@@ -400,7 +400,7 @@ public final class SerializeWriter extends Writer {
 
     /**
      * Returns a copy of the input data.
-     * 
+     *
      * @return an array of chars copied from the input data.
      */
     public char[] toCharArray() {
@@ -412,7 +412,7 @@ public final class SerializeWriter extends Writer {
         System.arraycopy(buf, 0, newValue, 0, count);
         return newValue;
     }
-    
+
     /**
      * only for springwebsocket
      * @return
@@ -437,7 +437,7 @@ public final class SerializeWriter extends Writer {
         if (this.writer != null) {
             throw new UnsupportedOperationException("writer not null");
         }
-        
+
         if (charset == IOUtils.UTF8) {
             return encodeToUTF8Bytes();
         } else {
@@ -469,7 +469,7 @@ public final class SerializeWriter extends Writer {
 
         return position;
     }
-    
+
     private byte[] encodeToUTF8Bytes() {
         int bytesLength = (int) (count * (double) 3);
         byte[] bytes = bytesBufLocal.get();
@@ -494,7 +494,7 @@ public final class SerializeWriter extends Writer {
 
         return copy;
     }
-    
+
     public int size() {
         return count;
     }
@@ -722,7 +722,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
             return;
         }
-        
+
         String strVal = null;
         if (writeEnumUsingName && !writeEnumUsingToString) {
             strVal = value.name();
@@ -797,11 +797,11 @@ public final class SerializeWriter extends Writer {
     public void writeNull() {
         write("null");
     }
-    
+
     public void writeNull(SerializerFeature feature) {
         writeNull(0, feature.mask);
     }
-    
+
     public void writeNull(int beanFeatures , int feature) {
         if ((beanFeatures & feature) == 0 //
             && (this.features & feature) == 0) {
@@ -814,7 +814,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
             return;
         }
-        
+
         if (feature == SerializerFeature.WriteNullListAsEmpty.mask) {
             write("[]");
         } else if (feature == SerializerFeature.WriteNullStringAsEmpty.mask) {
@@ -827,7 +827,7 @@ public final class SerializeWriter extends Writer {
             writeNull();
         }
     }
-    
+
     public void writeStringWithDoubleQuote(String text, final char seperator) {
         if (text == null) {
             writeNull();
@@ -1594,7 +1594,7 @@ public final class SerializeWriter extends Writer {
             buf[count - 1] = '\"';
         }
     }
-    
+
     public void writeFieldNameDirect(String text) {
         int len = text.length();
         int newcount = count + len + 3;
@@ -1681,7 +1681,7 @@ public final class SerializeWriter extends Writer {
         count = offset;
     }
 
-    
+
     public void writeFieldValue(char seperator, String name, char value) {
         write(seperator);
         writeFieldName(name);
@@ -2083,7 +2083,7 @@ public final class SerializeWriter extends Writer {
                 }
             }
         }
-        
+
 
         buf[count - 1] = '\"';
     }
@@ -2129,7 +2129,7 @@ public final class SerializeWriter extends Writer {
     }
 
 
-    
+
     public void writeFieldValue(char seperator, String name, Enum<?> value) {
         if (value == null) {
             write(seperator);

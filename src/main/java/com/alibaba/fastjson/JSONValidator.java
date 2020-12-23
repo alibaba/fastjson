@@ -433,7 +433,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             this.is = is;
             buf = bufLocal.get();
             if (buf != null) {
-                bufLocal.set(null);
+                bufLocal.remove();
             } else {
                 buf = new byte[1024 * 8];
             }
@@ -559,7 +559,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             this.r = r;
             buf = bufLocal.get();
             if (buf != null) {
-                bufLocal.set(null);
+                bufLocal.remove();
             } else {
                 buf = new char[1024 * 8];
             }

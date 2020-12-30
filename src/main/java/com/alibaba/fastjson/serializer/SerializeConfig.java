@@ -77,7 +77,7 @@ public class SerializeConfig {
             };
 
     private List<Module>                                    modules                = new ArrayList<Module>();
-    
+
 	public String getTypeKey() {
 		return typeKey;
 	}
@@ -852,12 +852,9 @@ public class SerializeConfig {
         for (Field field : clazz.getFields()) {
             JSONField jsonField = field.getAnnotation(JSONField.class);
 
+            // Returns null if @JSONField is on the enumeration field
             if (jsonField != null) {
-                if (member != null) {
-                    return null;
-                }
-
-                member = field;
+                return null;
             }
         }
 

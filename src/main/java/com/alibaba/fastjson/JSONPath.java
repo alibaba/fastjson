@@ -3779,7 +3779,7 @@ public class JSONPath implements JSONAware {
                         fieldValues = new JSONArray(list.size());
                     }
                     fieldValues.addAll(collection);
-                } else if (itemValue != null) {
+                } else {
                     if (fieldValues == null) {
                         fieldValues = new JSONArray(list.size());
                     }

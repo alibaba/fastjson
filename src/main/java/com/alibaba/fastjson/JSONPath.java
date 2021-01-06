@@ -53,11 +53,17 @@ public class JSONPath implements JSONAware {
     private SerializeConfig                        serializeConfig;
     private ParserConfig                           parserConfig;
 
+    private boolean                                ignoreNullValue;
+
     public JSONPath(String path){
-        this(path, SerializeConfig.getGlobalInstance(), ParserConfig.getGlobalInstance());
+        this(path, SerializeConfig.getGlobalInstance(), ParserConfig.getGlobalInstance(), true);
     }
 
-    public JSONPath(String path, SerializeConfig serializeConfig, ParserConfig parserConfig){
+    public JSONPath(String path, boolean ignoreNullValue){
+        this(path, SerializeConfig.getGlobalInstance(), ParserConfig.getGlobalInstance(), ignoreNullValue);
+    }
+
+    public JSONPath(String path, SerializeConfig serializeConfig, ParserConfig parserConfig, boolean ignoreNullValue){
         if (path == null || path.length() == 0) {
             throw new JSONPathException("json-path can not be null or empty");
         }
@@ -65,6 +71,7 @@ public class JSONPath implements JSONAware {
         this.path = path;
         this.serializeConfig = serializeConfig;
         this.parserConfig = parserConfig;
+        this.ignoreNullValue = ignoreNullValue;
     }
 
     protected void init() {
@@ -612,6 +619,11 @@ public class JSONPath implements JSONAware {
         return jsonpath.eval(rootObject);
     }
 
+    public static Object eval(Object rootObject, String path, boolean ignoreNullValue) {
+        JSONPath jsonpath = compile(path, ignoreNullValue);
+        return jsonpath.eval(rootObject);
+    }
+
     public static int size(Object rootObject, String path) {
         JSONPath jsonpath = compile(path);
         Object result = jsonpath.eval(rootObject);
@@ -668,6 +680,22 @@ public class JSONPath implements JSONAware {
         JSONPath jsonpath = pathCache.get(path);
         if (jsonpath == null) {
             jsonpath = new JSONPath(path);
+            if (pathCache.size() < 1024) {
+                pathCache.putIfAbsent(path, jsonpath);
+                jsonpath = pathCache.get(path);
+            }
+        }
+        return jsonpath;
+    }
+
+    public static JSONPath compile(String path, boolean ignoreNullValue) {
+        if (path == null) {
+            throw new JSONPathException("jsonpath can not be null");
+        }
+
+        JSONPath jsonpath = pathCache.get(path);
+        if (jsonpath == null) {
+            jsonpath = new JSONPath(path, ignoreNullValue);
             if (pathCache.size() < 1024) {
                 pathCache.putIfAbsent(path, jsonpath);
                 jsonpath = pathCache.get(path);
@@ -3779,7 +3807,7 @@ public class JSONPath implements JSONAware {
                         fieldValues = new JSONArray(list.size());
                     }
                     fieldValues.addAll(collection);
-                } else {
+                } else if (itemValue != null || !ignoreNullValue) {
                     if (fieldValues == null) {
                         fieldValues = new JSONArray(list.size());
                     }
@@ -3816,7 +3844,7 @@ public class JSONPath implements JSONAware {
                 if (itemValue instanceof Collection) {
                     Collection collection = (Collection) itemValue;
                     fieldValues.addAll(collection);
-                } else if (itemValue != null) {
+                } else if (itemValue != null || !ignoreNullValue) {
                     fieldValues.add(itemValue);
                 }
             }

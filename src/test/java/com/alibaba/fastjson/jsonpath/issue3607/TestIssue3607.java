@@ -78,7 +78,7 @@ public class TestIssue3607 {
                 "}", TestData.class);
 
 
-        List<String> evalResult = (List<String>) JSONPath.eval(testData, "$.data.dataRows[*].dataFields[*].value");
+        List<String> evalResult = (List<String>) JSONPath.eval(testData, "$.data.dataRows[*].dataFields[*].value", false);
         Assert.assertEquals(testData.getData().getDataRows().get(0).getDataFields().size(), evalResult.size());
 
     }

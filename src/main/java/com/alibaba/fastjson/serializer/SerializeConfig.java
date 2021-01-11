@@ -852,9 +852,12 @@ public class SerializeConfig {
         for (Field field : clazz.getFields()) {
             JSONField jsonField = field.getAnnotation(JSONField.class);
 
-            // Returns null if @JSONField is on the enumeration field
             if (jsonField != null) {
-                return null;
+                if (member != null) {
+                    return null;
+                }
+
+                member = field;
             }
         }
 

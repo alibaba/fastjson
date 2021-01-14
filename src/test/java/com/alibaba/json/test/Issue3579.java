@@ -18,7 +18,7 @@ public class Issue3579 {
     @Test
     public void test3579() {
         Assert.assertEquals("1", JSON.toJSONString(new BigDecimal("1"), SerializerFeature.WriteClassName));
-        Assert.assertEquals("2", JSON.toJSONString(new BigDecimal("2"), SerializerFeature.WriteClassName));
+        Assert.assertEquals("3", JSON.toJSONString(new BigDecimal("3"), SerializerFeature.WriteClassName));
     }
 
 }

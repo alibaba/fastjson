@@ -913,12 +913,21 @@ public class JSONPath implements JSONAware {
                             next();
                         }
                     }
-                    if (ch == '*') {
+                    if (ch == '*' || (deep && ch == '[')) {
+                        boolean objectOnly = ch == '[';
                         if (!isEOF()) {
                             next();
                         }
 
-                        return deep ? WildCardSegment.instance_deep : WildCardSegment.instance;
+                        if (deep) {
+                            if (objectOnly) {
+                                return WildCardSegment.instance_deep_objectOnly;
+                            } else {
+                                return WildCardSegment.instance_deep;
+                            }
+                        } else {
+                            return WildCardSegment.instance;
+                        }
                     }
                     
                     if (isDigitFirst(ch)) {
@@ -2618,13 +2627,16 @@ public class JSONPath implements JSONAware {
 
     static class WildCardSegment implements Segment {
         private boolean deep;
+        private boolean objectOnly;
 
-        private WildCardSegment(boolean deep) {
+        private WildCardSegment(boolean deep, boolean objectOnly) {
             this.deep = deep;
+            this.objectOnly = objectOnly;
         }
 
-        public final static WildCardSegment instance = new WildCardSegment(false);
-        public final static WildCardSegment instance_deep = new WildCardSegment(true);
+        public final static WildCardSegment instance = new WildCardSegment(false, false);
+        public final static WildCardSegment instance_deep = new WildCardSegment(true, false);
+        public final static WildCardSegment instance_deep_objectOnly = new WildCardSegment(true, true);
 
         public Object eval(JSONPath path, Object rootObject, Object currentObject) {
             if (!deep) {
@@ -2641,7 +2653,11 @@ public class JSONPath implements JSONAware {
                 Object object = parser.parse();
                 if (deep) {
                     List<Object> values = new ArrayList<Object>();
-                    path.deepGetPropertyValues(object, values);
+                    if (objectOnly) {
+                        path.deepGetObjects(object, values);
+                    } else {
+                        path.deepGetPropertyValues(object, values);
+                    }
                     context.object = values;
                     return;
                 }
@@ -3623,6 +3639,41 @@ public class JSONPath implements JSONAware {
         }
 
         throw new UnsupportedOperationException();
+    }
+
+    protected void deepGetObjects(final Object currentObject, List<Object> outValues) {
+        final Class<?> currentClass = currentObject.getClass();
+
+        JavaBeanSerializer beanSerializer = getJavaBeanSerializer(currentClass);
+
+        Collection collection = null;
+        if (beanSerializer != null) {
+            try {
+                collection = beanSerializer.getFieldValues(currentObject);
+                outValues.add(currentObject);
+            } catch (Exception e) {
+                throw new JSONPathException("jsonpath error, path " + path, e);
+            }
+        } else if (currentObject instanceof Map) {
+            outValues.add(currentObject);
+            Map map = (Map) currentObject;
+            collection = map.values();
+        } else if (currentObject instanceof Collection) {
+            collection = (Collection) currentObject;
+        }
+
+        if (collection != null) {
+            for (Object fieldValue : collection) {
+                if (fieldValue == null || ParserConfig.isPrimitive2(fieldValue.getClass())) {
+                    // skip
+                } else {
+                    deepGetObjects(fieldValue, outValues);
+                }
+            }
+            return;
+        }
+
+        throw new UnsupportedOperationException(currentClass.getName());
     }
 
     protected void deepGetPropertyValues(final Object currentObject, List<Object> outValues) {

@@ -327,6 +327,8 @@ public class DefaultJSONParser implements Closeable {
                     if (object != null
                             && object.getClass().getName().equals(typeName)) {
                         clazz = object.getClass();
+                    } else if ("java.util.HashMap".equals(typeName)) {
+                        clazz = java.util.HashMap.class;
                     } else {
 
                         boolean allDigits = true;

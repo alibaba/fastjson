@@ -36,6 +36,7 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.raycloud.xcrm.common.tool.fastjson.EncryptValueFilter;
 
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
@@ -697,6 +698,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String toJSONStringWithDateFormat(Object object, String dateFormat,
                                                           SerializerFeature... features) {
         return toJSONString(object, SerializeConfig.globalInstance, null, dateFormat, DEFAULT_GENERATE_FEATURE, features);
+    }
+
+    public static String toJSONStringWithDefaultDateFormat(Object object, SerializeFilter filter, SerializerFeature... features) {
+        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, DEFFAULT_DATE_FORMAT, DEFAULT_GENERATE_FEATURE, features);
+    }
+
+    public static String toJSONStringWithDateFormat(Object object, SerializeFilter filter, String dateFormat, SerializerFeature... features) {
+        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, dateFormat, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {

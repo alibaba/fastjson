@@ -323,7 +323,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
                     String keyStrValue = lexer.stringVal();
                     lexer.nextToken();
                     DefaultJSONParser keyParser = new DefaultJSONParser(keyStrValue, parser.getConfig(), parser.getLexer().getFeatures());
-                    keyParser.setDateFormat(parser.getDateFomartPattern());
+                    keyParser.setDateFormat(parser.getDateFormatPattern());
                     key = keyDeserializer.deserialze(keyParser, keyType, null);
                 } else {
                     key = keyDeserializer.deserialze(parser, keyType, null);

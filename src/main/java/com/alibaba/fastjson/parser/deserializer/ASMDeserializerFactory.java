@@ -1,46 +1,22 @@
 package com.alibaba.fastjson.parser.deserializer;
 
-import static com.alibaba.fastjson.util.ASMUtils.desc;
-import static com.alibaba.fastjson.util.ASMUtils.type;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.alibaba.fastjson.asm.ClassWriter;
-import com.alibaba.fastjson.asm.FieldWriter;
-import com.alibaba.fastjson.asm.Label;
-import com.alibaba.fastjson.asm.MethodVisitor;
-import com.alibaba.fastjson.asm.MethodWriter;
-import com.alibaba.fastjson.asm.Opcodes;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.asm.*;
+import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONLexerBase;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.parser.SymbolTable;
 import com.alibaba.fastjson.util.ASMClassLoader;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.JavaBeanInfo;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static com.alibaba.fastjson.util.ASMUtils.desc;
+import static com.alibaba.fastjson.util.ASMUtils.type;
 
 public class ASMDeserializerFactory implements Opcodes {
 
@@ -1173,7 +1149,6 @@ public class ASMDeserializerFactory implements Opcodes {
 
             mw.visitMethodInsn(INVOKESPECIAL, type(defaultConstructor.getDeclaringClass()), "<init>", "()V");
 
-            mw.visitVarInsn(ASTORE, context.var("instance"));
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);
@@ -1182,8 +1157,8 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class), "createInstance",
                                "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;)Ljava/lang/Object;");
             mw.visitTypeInsn(CHECKCAST, type(context.getInstClass())); // cast
-            mw.visitVarInsn(ASTORE, context.var("instance"));
         }
+        mw.visitVarInsn(ASTORE, context.var("instance"));
     }
 
     private void _batchSet(Context context, MethodVisitor mw) {

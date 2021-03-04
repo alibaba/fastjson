@@ -1,7 +1,7 @@
 ---
 name: Java CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -15,7 +15,7 @@ jobs:
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:

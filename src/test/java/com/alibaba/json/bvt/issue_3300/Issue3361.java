@@ -14,6 +14,13 @@ import java.util.Date;
 
 @Slf4j
 public class Issue3361 extends TestCase {
+    private static String ORIGIN_JSON_DEFAULT_DATE_FORMAT;
+
+    @Override
+    public void setUp() throws Exception {
+        ORIGIN_JSON_DEFAULT_DATE_FORMAT = JSON.DEFFAULT_DATE_FORMAT;
+    }
+
     public void test_for_issue() throws Exception {
         Model model = new Model();
         model.setOldDate(new Date());
@@ -40,6 +47,10 @@ public class Issue3361 extends TestCase {
         log.info("{}", model3);
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        JSON.DEFFAULT_DATE_FORMAT = ORIGIN_JSON_DEFAULT_DATE_FORMAT;
+    }
 
     @Getter
     @Setter

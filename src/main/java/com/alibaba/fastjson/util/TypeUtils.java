@@ -349,7 +349,7 @@ public class TypeUtils{
         }
         return new BigDecimal(strVal);
     }
-    
+
     public static BigInteger castToBigInteger(Object value) {
         if (value == null) {
             return null;
@@ -1777,7 +1777,7 @@ public class TypeUtils{
             }
 
             PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
-            if (jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+            if (jsonTypeNaming != PropertyNamingStrategy.NeverUseThisValueExceptDefaultValue) {
                 propertyNamingStrategy = jsonTypeNaming;
             }
 

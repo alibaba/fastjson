@@ -407,7 +407,7 @@ public class DefaultJSONParser implements Closeable {
                     return obj;
                 }
 
-                if (key == "$ref"
+                if ("$ref".equals(key)
                         && context != null
                         && (object == null || object.size() == 0)
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)) {

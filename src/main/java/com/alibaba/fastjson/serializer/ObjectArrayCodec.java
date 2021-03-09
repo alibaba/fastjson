@@ -75,7 +75,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         out.write(',');
                         serializer.println();
                     }
-                    serializer.write(array[i]);
+                    Object item = array[i];
+                    if (serializer.containsReference(item)) {
+                        serializer.writeReference(item);
+                    } else {
+                        serializer.writeWithFieldName(item, i);
+                    }
                 }
                 serializer.decrementIdent();
                 serializer.println();
@@ -94,14 +99,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                     } else {
                         Class<?> clazz = item.getClass();
 
-                        if (clazz == preClazz) {
-                            preWriter.write(serializer, item, i, null, 0);
-                        } else {
+                        if (clazz != preClazz) {
                             preClazz = clazz;
                             preWriter = serializer.getObjectWriter(clazz);
 
-                            preWriter.write(serializer, item, i, null, 0);
                         }
+                        preWriter.write(serializer, item, i, null, 0);
                     }
                     out.append(',');
                 }

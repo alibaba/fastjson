@@ -1181,7 +1181,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
             
-            JSONObject json = new JSONObject();
+            JSONObject json = new JSONObject(true);
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {

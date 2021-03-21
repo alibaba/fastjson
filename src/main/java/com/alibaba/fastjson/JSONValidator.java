@@ -64,6 +64,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 valiateResult = false;
                 return false;
             }
+            skipWhiteSpace();
 
             count++;
             if (eof) {

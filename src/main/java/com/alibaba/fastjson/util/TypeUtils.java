@@ -3327,4 +3327,32 @@ public class TypeUtils{
         }
         return class_JacksonCreator != null && method.isAnnotationPresent(class_JacksonCreator);
     }
+
+    private static Object OPTIONAL_EMPTY;
+    private static boolean OPTIONAL_ERROR = false;
+    public static Object optionalEmpty(Type type) {
+        if (OPTIONAL_ERROR) {
+            return null;
+        }
+
+        Class clazz = getClass(type);
+        if (clazz == null) {
+            return null;
+        }
+
+        String className = clazz.getName();
+
+        if ("java.util.Optional".equals(className)) {
+            if (OPTIONAL_EMPTY == null) {
+                try {
+                    Method empty = Class.forName(className).getMethod("empty");
+                    OPTIONAL_EMPTY = empty.invoke(null);
+                } catch (Throwable e) {
+                    OPTIONAL_ERROR = true;
+                }
+            }
+            return OPTIONAL_EMPTY;
+        }
+        return null;
+    }
 }

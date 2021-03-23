@@ -676,7 +676,8 @@ public class DefaultJSONParser implements Closeable {
         int token = lexer.token();
         if (token == JSONToken.NULL) {
             lexer.nextToken();
-            return null;
+
+            return (T) TypeUtils.optionalEmpty(type);
         }
 
         if (token == JSONToken.LITERAL_STRING) {

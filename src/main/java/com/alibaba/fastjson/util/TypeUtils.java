@@ -1611,6 +1611,7 @@ public class TypeUtils{
                 java.lang.VerifyError.class,
                 java.lang.StackTraceElement.class,
                 java.util.HashMap.class,
+                java.util.LinkedHashMap.class,
                 java.util.Hashtable.class,
                 java.util.TreeMap.class,
                 java.util.IdentityHashMap.class,

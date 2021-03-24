@@ -1392,9 +1392,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         && ((!fieldClass.isInstance(value))
                             || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
                 ) {
-                    String input = value instanceof String ? (String) value : JSON.toJSONString(value);
-                    DefaultJSONParser parser = new DefaultJSONParser(input);
-                    fieldDeser.parseField(parser, object, paramType, null);
+                    if (fieldInfo.isEnum) {
+                        value = TypeUtils.cast(value, paramType, config);
+                        fieldDeser.setValue(object, value);
+                    } else {
+                        String input = value instanceof String ? (String) value : JSON.toJSONString(value);
+                        DefaultJSONParser parser = new DefaultJSONParser(input);
+                        fieldDeser.parseField(parser, object, paramType, null);
+                    }
+
                     continue;
                 }
 

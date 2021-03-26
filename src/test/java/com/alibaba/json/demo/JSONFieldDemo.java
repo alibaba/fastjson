@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class JSONFeidDemo extends TestCase {
+public class JSONFieldDemo extends TestCase {
 
     public static class User {
 

@@ -1977,7 +1977,7 @@ public class TypeUtils{
                     continue;
                 }
                 ordinal = annotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
                 if(annotation.name().length() != 0){
                     String propertyName = annotation.name();
@@ -2065,7 +2065,7 @@ public class TypeUtils{
                             continue;
                         }
                         ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         if(fieldAnnotation.name().length() != 0){
                             fieldAnnotationAndNameExists = true;
@@ -2153,7 +2153,7 @@ public class TypeUtils{
                             continue;
                         }
                         ordinal = fieldAnnotation.ordinal();
-                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                        serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                         parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         if(fieldAnnotation.name().length() != 0){
                             propertyName = fieldAnnotation.name();
@@ -2241,7 +2241,7 @@ public class TypeUtils{
                     continue;
                 }
                 ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                 parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                 if(fieldAnnotation.name().length() != 0){
                     propertyName = fieldAnnotation.name();

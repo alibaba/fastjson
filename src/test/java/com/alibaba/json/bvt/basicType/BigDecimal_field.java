@@ -5,7 +5,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import static com.alibaba.fastjson.serializer.SerializerFeature.BrowserCompatible;
 
@@ -40,7 +39,7 @@ public class BigDecimal_field extends TestCase {
 
 
     public static class Model {
-        @JSONField(serialzeFeatures = BrowserCompatible)
+        @JSONField(serializeFeatures = BrowserCompatible)
         public BigDecimal value;
 
         public Model() {

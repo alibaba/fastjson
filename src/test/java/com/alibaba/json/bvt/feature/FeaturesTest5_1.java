@@ -29,7 +29,7 @@ public class FeaturesTest5_1 extends TestCase {
 
         private Boolean value;
 
-        @JSONField(serialzeFeatures = { SerializerFeature.WriteNullBooleanAsFalse })
+        @JSONField(serializeFeatures = { SerializerFeature.WriteNullBooleanAsFalse })
         public Boolean getValue() {
             return value;
         }

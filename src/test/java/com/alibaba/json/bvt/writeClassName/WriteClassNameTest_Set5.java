@@ -29,7 +29,7 @@ public class WriteClassNameTest_Set5 extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteClassName)
+        @JSONField(serializeFeatures = SerializerFeature.WriteClassName)
         private LinkedHashSet<? extends Table> tables;
 
         public LinkedHashSet<? extends Table> getTables() {

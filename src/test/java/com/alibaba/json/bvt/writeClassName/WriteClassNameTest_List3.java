@@ -6,9 +6,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class WriteClassNameTest_List3 extends TestCase {
 
@@ -27,7 +25,7 @@ public class WriteClassNameTest_List3 extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteClassName)
+        @JSONField(serializeFeatures = SerializerFeature.WriteClassName)
         private List<? extends Table> tables;
 
         public List<? extends Table> getTables() {

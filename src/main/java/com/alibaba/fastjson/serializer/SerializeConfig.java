@@ -153,7 +153,7 @@ public class SerializeConfig {
             }
 
             if (asm) {
-                final Class<? extends SerializeFilter>[] filterClasses = jsonType.serialzeFilters();
+                final Class<? extends SerializeFilter>[] filterClasses = jsonType.serializeFilters();
                 if (filterClasses.length != 0) {
                     asm = false;
                 }
@@ -225,7 +225,7 @@ public class SerializeConfig {
     				break;
     			}
 
-                for (SerializerFeature feature : annotation.serialzeFeatures()) {
+                for (SerializerFeature feature : annotation.serializeFeatures()) {
                     if (SerializerFeature.WriteNonStringValueAsString == feature //
                             || SerializerFeature.WriteEnumUsingToString == feature //
                             || SerializerFeature.NotWriteDefaultValue == feature

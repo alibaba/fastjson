@@ -1,9 +1,7 @@
 package com.alibaba.json.bvt.serializer;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import junit.framework.TestCase;
 
@@ -25,7 +23,7 @@ public class SerilaizeFilterTest extends TestCase {
         }
     }
 
-    @JSONType(serialzeFilters = MyValueFilter.class)
+    @JSONType(serializeFilters = MyValueFilter.class)
     public static class Model {
 
         public int id;

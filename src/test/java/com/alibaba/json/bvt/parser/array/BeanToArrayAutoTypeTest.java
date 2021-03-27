@@ -90,7 +90,7 @@ public class BeanToArrayAutoTypeTest extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = {SerializerFeature.BeanToArray, SerializerFeature.WriteClassName}
+        @JSONField(serializeFeatures = {SerializerFeature.BeanToArray, SerializerFeature.WriteClassName}
                 , parseFeatures = Feature.SupportArrayToBean)
         public A value;
     }

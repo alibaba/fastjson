@@ -59,7 +59,7 @@ public class MapTest extends TestCase {
     }
 
     class MapNullValue {
-        @JSONField(serialzeFeatures = {SerializerFeature.WriteMapNullValue})
+        @JSONField(serializeFeatures = {SerializerFeature.WriteMapNullValue})
         private Map map;
 
         public Map getMap() {

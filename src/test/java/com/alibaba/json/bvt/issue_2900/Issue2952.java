@@ -28,15 +28,15 @@ public class Issue2952 extends TestCase {
     }
 
     public static class Pojo {
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=0)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue, ordinal=0)
         public Object[] l;
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=1)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue, ordinal=1)
         public String s;
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=2)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue, ordinal=2)
         public Boolean b;
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=3)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue, ordinal=3)
         public Integer i;
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue, ordinal=4)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue, ordinal=4)
         public Object o;
     }
 

@@ -106,7 +106,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         if (beanInfo.jsonType != null) {
-            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serialzeFilters()) {
+            for (Class<? extends SerializeFilter> filterClass : beanInfo.jsonType.serializeFilters()) {
                 try {
                     SerializeFilter filter = filterClass.getConstructor().newInstance();
                     this.addFilter(filter);

@@ -19,7 +19,7 @@ public class Issue2355 extends TestCase {
 
     static class VO {
 
-        @JSONField(serialzeFeatures = {SerializerFeature.WriteBigDecimalAsPlain})
+        @JSONField(serializeFeatures = {SerializerFeature.WriteBigDecimalAsPlain})
         private BigDecimal num;
 
         public BigDecimal getNum() {

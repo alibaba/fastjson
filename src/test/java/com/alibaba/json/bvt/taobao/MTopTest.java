@@ -51,7 +51,7 @@ public class MTopTest extends TestCase {
 
     private static class P0 {
 
-        @JSONField(serialzeFeatures=SerializerFeature.WriteMapNullValue)
+        @JSONField(serializeFeatures = SerializerFeature.WriteMapNullValue)
         @UrlIdentify(schema = "xxxx")
         private Model model;
 

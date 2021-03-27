@@ -52,7 +52,7 @@ public class JSONFieldTest6 extends TestCase {
 
     class NonStringMap
     {
-        @JSONField( serialzeFeatures = {SerializerFeature.WriteNonStringKeyAsString} )
+        @JSONField( serializeFeatures = {SerializerFeature.WriteNonStringKeyAsString} )
         private Map map1;
 
         public Map getMap1()
@@ -65,7 +65,7 @@ public class JSONFieldTest6 extends TestCase {
             this.map1 = map1;
         }
 
-        @JSONField( serialzeFeatures = {SerializerFeature.WriteNonStringValueAsString} )
+        @JSONField( serializeFeatures = {SerializerFeature.WriteNonStringValueAsString} )
         private Map map2;
 
         public Map getMap2()
@@ -78,7 +78,7 @@ public class JSONFieldTest6 extends TestCase {
             this.map2 = map2;
         }
 
-        @JSONField( serialzeFeatures = {SerializerFeature.WriteNonStringKeyAsString, SerializerFeature.WriteNonStringValueAsString} )
+        @JSONField( serializeFeatures = {SerializerFeature.WriteNonStringKeyAsString, SerializerFeature.WriteNonStringValueAsString} )
         private Map map3;
 
         public Map getMap3()
@@ -91,7 +91,7 @@ public class JSONFieldTest6 extends TestCase {
             this.map3 = map3;
         }
 
-        @JSONField( serialzeFeatures = {SerializerFeature.WriteNonStringValueAsString} )
+        @JSONField( serializeFeatures = {SerializerFeature.WriteNonStringValueAsString} )
         private Bean person;
 
         public Bean getPerson()

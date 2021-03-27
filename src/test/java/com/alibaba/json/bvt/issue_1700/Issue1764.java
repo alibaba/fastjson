@@ -16,7 +16,7 @@ public class Issue1764 extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = BrowserCompatible)
+        @JSONField(serializeFeatures = BrowserCompatible)
         public long value;
     }
 }

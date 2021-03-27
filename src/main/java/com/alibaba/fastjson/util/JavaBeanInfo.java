@@ -361,7 +361,7 @@ public class JavaBeanInfo {
                         if (fieldAnnotation != null) {
                             field = TypeUtils.getField(clazz, fieldAnnotation.name(), declaredFields);
                             ordinal = fieldAnnotation.ordinal();
-                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                             parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                             fieldName = fieldAnnotation.name();
                         }
@@ -421,7 +421,7 @@ public class JavaBeanInfo {
                         if (fieldAnnotation != null) {
                             fieldName = fieldAnnotation.name();
                             ordinal = fieldAnnotation.ordinal();
-                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                             parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         }
 
@@ -559,7 +559,7 @@ public class JavaBeanInfo {
                                 paramName = nameAnnotated;
                             }
                             ordinal = fieldAnnotation.ordinal();
-                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                            serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                             parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
                         }
                         FieldInfo fieldInfo = new FieldInfo(paramName, clazz, fieldClass, fieldType, field,
@@ -615,7 +615,7 @@ public class JavaBeanInfo {
                     }
 
                     ordinal = annotation.ordinal();
-                    serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                    serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                     parserFeatures = Feature.of(annotation.parseFeatures());
 
                     if (annotation.name().length() != 0) {
@@ -749,7 +749,7 @@ public class JavaBeanInfo {
                 }
 
                 ordinal = annotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(annotation.serializeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
 
                 if (annotation.name().length() != 0) {
@@ -851,7 +851,7 @@ public class JavaBeanInfo {
                     }
 
                     ordinal = fieldAnnotation.ordinal();
-                    serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                    serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                     parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                     if (fieldAnnotation.name().length() != 0) {
@@ -996,7 +996,7 @@ public class JavaBeanInfo {
                 }
 
                 ordinal = fieldAnnotation.ordinal();
-                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serialzeFeatures());
+                serialzeFeatures = SerializerFeature.of(fieldAnnotation.serializeFeatures());
                 parserFeatures = Feature.of(fieldAnnotation.parseFeatures());
 
                 if (fieldAnnotation.name().length() != 0) {

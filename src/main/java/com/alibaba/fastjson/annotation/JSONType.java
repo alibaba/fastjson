@@ -70,7 +70,7 @@ public @interface JSONType {
     /**
      * @since 1.2.49
      */
-    Class<? extends SerializeFilter>[] serialzeFilters() default {};
+    Class<? extends SerializeFilter>[] serializeFilters() default {};
 
     /**
      * @since 1.2.71

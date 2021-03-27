@@ -1986,7 +1986,7 @@ public class ASMSerializerFactory implements Opcodes {
         JSONField annotation = fieldInfo.getAnnotation();
         int features = 0;
         if (annotation != null) {
-            features = SerializerFeature.of(annotation.serialzeFeatures());
+            features = SerializerFeature.of(annotation.serializeFeatures());
         }
         JSONType jsonType = context.beanInfo.jsonType;
         if (jsonType != null) {

@@ -31,7 +31,7 @@ public class Issue1903 extends TestCase {
 
     interface Issues1903{
         @Transient
-        @JSONField(serialzeFeatures = { SerializerFeature.SkipTransientField })
+        @JSONField(serializeFeatures = { SerializerFeature.SkipTransientField })
         public String getName();
         public void setName(String name);
 

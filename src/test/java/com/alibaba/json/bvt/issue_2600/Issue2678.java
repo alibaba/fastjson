@@ -24,7 +24,7 @@ public class Issue2678 extends TestCase {
 
     static class Person {
 
-        @JSONField(serialzeFeatures = SerializerFeature.UseSingleQuotes)
+        @JSONField(serializeFeatures = SerializerFeature.UseSingleQuotes)
         private String name;
 
         private int age;
@@ -56,7 +56,7 @@ public class Issue2678 extends TestCase {
 
         private int age;
 
-        @JSONField(serialzeFeatures = SerializerFeature.UseSingleQuotes)
+        @JSONField(serializeFeatures = SerializerFeature.UseSingleQuotes)
         public String getName()
         {
             return name;

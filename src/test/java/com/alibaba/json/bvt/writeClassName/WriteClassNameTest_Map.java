@@ -3,12 +3,9 @@ package com.alibaba.json.bvt.writeClassName;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
-import org.junit.Assert;
 
 import java.util.*;
 
@@ -32,7 +29,7 @@ public class WriteClassNameTest_Map extends TestCase {
     }
 
     public static class Model {
-        @JSONField(serialzeFeatures = SerializerFeature.WriteClassName)
+        @JSONField(serializeFeatures = SerializerFeature.WriteClassName)
         private Map<String, ? extends Table> tables;
 
         public Map<String, ? extends Table> getTables() {

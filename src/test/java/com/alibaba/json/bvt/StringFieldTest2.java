@@ -23,7 +23,7 @@ public class StringFieldTest2 extends TestCase {
 
     public static class V0 {
 
-        @JSONField(serialzeFeatures=SerializerFeature.WriteNullStringAsEmpty)
+        @JSONField(serializeFeatures = SerializerFeature.WriteNullStringAsEmpty)
         private String value;
 
         public String getValue() {

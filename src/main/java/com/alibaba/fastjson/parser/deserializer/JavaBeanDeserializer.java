@@ -3,6 +3,7 @@ package com.alibaba.fastjson.parser.deserializer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
@@ -1392,15 +1393,15 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         && ((!fieldClass.isInstance(value))
                             || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
                 ) {
-                    if (fieldInfo.isEnum) {
-                        value = TypeUtils.cast(value, paramType, config);
-                        fieldDeser.setValue(object, value);
+                    String input;
+                    if (value instanceof String && JSONValidator.fromUtf8(((String) value).getBytes()).validate()) {
+                        input = (String) value;
                     } else {
-                        String input = value instanceof String ? (String) value : JSON.toJSONString(value);
-                        DefaultJSONParser parser = new DefaultJSONParser(input);
-                        fieldDeser.parseField(parser, object, paramType, null);
+                        input = JSON.toJSONString(value);
                     }
 
+                    DefaultJSONParser parser = new DefaultJSONParser(input);
+                    fieldDeser.parseField(parser, object, paramType, null);
                     continue;
                 }
 

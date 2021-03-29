@@ -5,7 +5,7 @@ package com.alibaba.fastjson.deserializer.javabean;
  * @since 2021/3/24
  */
 
-public enum TestEnum {
+public enum ConvertEnum {
 
     A_A, BB_B;
 

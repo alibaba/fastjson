@@ -1404,7 +1404,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
                 ) {
                     String input;
-                    if (value instanceof String && JSONValidator.fromUtf8(((String) value).getBytes()).validate()) {
+                    if (value instanceof String
+                            && JSONValidator.from(((String) value))
+                                .validate())
+                    {
                         input = (String) value;
                     } else {
                         input = JSON.toJSONString(value);

@@ -1,27 +1,22 @@
 package com.alibaba.fastjson.parser.deserializer;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.parser.*;
+import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.JavaBeanInfo;
+import com.alibaba.fastjson.util.TypeUtils;
+
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.DefaultJSONParser.ResolveTask;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.JSONLexer;
-import com.alibaba.fastjson.parser.JSONLexerBase;
-import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.ParseContext;
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.JavaBeanInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
@@ -1408,7 +1403,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         && ((!fieldClass.isInstance(value))
                             || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
                 ) {
-                    DefaultJSONParser parser = new DefaultJSONParser(JSON.toJSONString(value));
+                    String input;
+                    if (value instanceof String && JSONValidator.fromUtf8(((String) value).getBytes()).validate()) {
+                        input = (String) value;
+                    } else {
+                        input = JSON.toJSONString(value);
+                    }
+
+                    DefaultJSONParser parser = new DefaultJSONParser(input);
                     fieldDeser.parseField(parser, object, paramType, null);
                     continue;
                 }

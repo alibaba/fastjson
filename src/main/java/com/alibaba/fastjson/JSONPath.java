@@ -18,6 +18,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -120,6 +121,28 @@ public class JSONPath implements JSONAware {
             currentObject = segment.eval(this, rootObject, currentObject);
         }
         return currentObject;
+    }
+    
+    /**
+     * @since 1.2.76
+     * @param rootObject
+     * @param clazz
+     * @param parserConfig
+     * @return
+     */
+    public <T> T eval(Object rootObject, Type clazz, ParserConfig parserConfig) {
+        Object obj = this.eval(rootObject);
+        return TypeUtils.cast(obj, clazz, parserConfig);
+    }
+    
+    /**
+     * @since 1.2.76
+     * @param rootObject
+     * @param clazz
+     * @return
+     */
+    public <T> T eval(Object rootObject, Type clazz) {
+        return this.eval(rootObject, clazz, ParserConfig.getGlobalInstance());
     }
 
     public Object extract(DefaultJSONParser parser) {
@@ -715,6 +738,29 @@ public class JSONPath implements JSONAware {
                 .eval(
                         JSON.parse(json)
                 );
+    }
+    
+    /**
+     * @since 1.2.76
+     * @param json
+     * @param path
+     * @param clazz
+     * @param parserConfig
+     * @return
+     */
+    public static <T> T read(String json, String path, Type clazz, ParserConfig parserConfig) {
+        return compile(path).eval(JSON.parse(json), clazz, parserConfig);
+    }
+    
+    /**
+     * @since 1.2.76
+     * @param json
+     * @param path
+     * @param clazz
+     * @return
+     */
+    public static <T> T read(String json, String path, Type clazz) {
+        return read(json, path, clazz, null);
     }
 
     /**

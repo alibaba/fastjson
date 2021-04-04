@@ -1,0 +1,6 @@
+{
+	"flowSampleRate":"5000",
+	"flowPort":"9999",
+	"flowIp":"1.1.1.1",
+	"routerDesc":"router1"
+}

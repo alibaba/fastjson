@@ -15,19 +15,7 @@
  */
 package com.alibaba.fastjson;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
@@ -36,6 +24,23 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
@@ -1188,8 +1193,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         ObjectSerializer serializer = config.getObjectWriter(clazz);
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
-            
-            JSONObject json = new JSONObject();
+
+            boolean ordered = isOrdered(clazz);
+            JSONObject json = new JSONObject(ordered);
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -1203,6 +1209,23 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         
         String text = JSON.toJSONString(javaObject, config);
         return JSON.parse(text);
+    }
+
+    /**
+     * 判断是否使用排序注解  @JSONField(ordinal = x), 有则使用LinkedHashMap，无则使用HashMap
+     * @param clazz
+     * @return
+     */
+    private static boolean isOrdered(Class<?> clazz) {
+        if( null == clazz) {
+            return false;
+        }
+        Field[] declaredFields = clazz.getDeclaredFields();
+        return Stream.of(declaredFields)
+                .anyMatch(field -> {
+                    JSONField declaredAnnotation = field.getDeclaredAnnotation(JSONField.class);
+                    return declaredAnnotation != null && declaredAnnotation.ordinal() != 0;
+                });
     }
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {

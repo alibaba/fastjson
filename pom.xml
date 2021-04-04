@@ -18,7 +18,7 @@
         <gpg.skip>true</gpg.skip>
         <javadoc.skip>true</javadoc.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jdk.version>1.5</jdk.version>
+        <jdk.version>1.8</jdk.version>
     </properties>
 
     <scm>
@@ -195,6 +195,13 @@
     </build>
 
     <dependencies>
+<!--    fix SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder"-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.13</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>

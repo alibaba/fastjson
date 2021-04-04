@@ -686,8 +686,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(object);
             String outString = out.toString();
-            if (".".equals(outString.substring(outString.length() - 1))) {
-                return outString.substring(0, outString.length() - 1);
+            int len = outString.length();
+            if (len > 0 && outString.charAt(len -1) == '.' && object instanceof Number) {
+                return outString.substring(0, len - 1);
             }
             return outString;
         } finally {

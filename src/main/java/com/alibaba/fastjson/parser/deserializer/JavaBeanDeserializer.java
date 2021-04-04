@@ -819,6 +819,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 }
 
                                 if (userType == null) {
+                                    if (typeName.equals("java.util.HashMap") || typeName.equals("java.util.LinkedHashMap")) {
+                                        if (lexer.token() == JSONToken.RBRACE) {
+                                            lexer.nextToken();
+                                            break;
+                                        }
+                                        continue;
+                                    }
+                                }
+
+                                if (userType == null) {
                                     userType = config.checkAutoType(typeName, expectClass, lexer.getFeatures());
                                 }
                                 deserializer = parser.getConfig().getDeserializer(userType);

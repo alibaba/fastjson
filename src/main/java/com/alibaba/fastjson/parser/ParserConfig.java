@@ -1214,10 +1214,10 @@ public class ParserConfig {
                 String fieldNameX = new String(chars);
                 field = fieldCacheMap.get(fieldNameX);
             }
-            
+
+            if (fieldName.length() > 2) {
                 char c1 = fieldName.charAt(1);
-                if (fieldName.length() > 2
-                        && c0 >= 'a' && c0 <= 'z'
+                if (c0 >= 'a' && c0 <= 'z'
                         && c1 >= 'A' && c1 <= 'Z') {
                     for (Map.Entry<String, Field> entry : fieldCacheMap.entrySet()) {
                         if (fieldName.equalsIgnoreCase(entry.getKey())) {
@@ -1227,6 +1227,7 @@ public class ParserConfig {
                     }
                 }
             }
+        }
 
         return field;
     }

@@ -166,7 +166,7 @@ public class ASMUtils {
                         if (annotations[j] instanceof JSONField) {
                             JSONField jsonField = (JSONField) annotations[j];
                             String fieldName = jsonField.name();
-                            if (fieldName != null && fieldName.length() > 0) {
+                            if (fieldName.length() > 0) {
                                 parameterNames[i] = fieldName;
                             }
                         }

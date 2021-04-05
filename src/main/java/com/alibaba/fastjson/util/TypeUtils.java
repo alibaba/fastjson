@@ -646,21 +646,27 @@ public class TypeUtils{
             longValue = ((Number) value).longValue();
         }
 
-        if(value instanceof String){
+        if (value instanceof String) {
             String strVal = (String) value;
-            if(strVal.length() == 0 //
-                    || "null".equalsIgnoreCase(strVal)){
+            if (strVal.length() == 0 //
+                    || "null".equalsIgnoreCase(strVal)) {
                 return null;
             }
-            if(isNumber(strVal)){
+
+            if (isNumber(strVal)) {
                 longValue = Long.parseLong(strVal);
-            } else{
+            } else {
+                if (strVal.length() == 8 && strVal.charAt(2) == ':' && strVal.charAt(5) == ':') {
+                    return java.sql.Time.valueOf(strVal);
+                }
+
                 JSONScanner scanner = new JSONScanner(strVal);
-                if(scanner.scanISO8601DateIfMatch(false)){
+                if (scanner.scanISO8601DateIfMatch(false)) {
                     longValue = scanner.getCalendar().getTime().getTime();
-                } else{
+                } else {
                     throw new JSONException("can not cast to Timestamp, value : " + strVal);
                 }
+
             }
         }
         if(longValue <= 0){

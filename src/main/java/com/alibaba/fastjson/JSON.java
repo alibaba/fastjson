@@ -15,10 +15,7 @@
  */
 package com.alibaba.fastjson;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
@@ -27,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.GZIPInputStream;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.*;
@@ -444,14 +442,31 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             charset = IOUtils.UTF8;
         }
 
-        String strVal;
+        String strVal = null;
         if (charset == IOUtils.UTF8) {
             char[] chars = allocateChars(bytes.length);
             int chars_len = IOUtils.decodeUTF8(bytes, offset, len, chars);
+
             if (chars_len < 0) {
+                InputStreamReader gzipReader = null;
+                try {
+                    gzipReader = new InputStreamReader(
+                            new GZIPInputStream(
+                                    new ByteArrayInputStream(bytes, offset, len)), "UTF-8");
+                    strVal = IOUtils.readAll(gzipReader);
+                } catch (Exception ex) {
+                    return null;
+                } finally {
+                    IOUtils.close(gzipReader);
+                }
+            }
+            if (strVal == null && chars_len < 0) {
                 return null;
             }
-            strVal = new String(chars, 0, chars_len);
+
+            if (strVal == null) {
+                strVal = new String(chars, 0, chars_len);
+            }
         } else {
             if (len < 0) {
                 return null;

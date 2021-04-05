@@ -28,6 +28,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
@@ -1188,8 +1189,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         ObjectSerializer serializer = config.getObjectWriter(clazz);
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
-            
-            JSONObject json = new JSONObject(true);
+
+            JSONType jsonType = javaBeanSerializer.getJSONType();
+            boolean ordered = false;
+            if (jsonType != null) {
+                for (SerializerFeature serializerFeature : jsonType.serialzeFeatures()) {
+                    if (serializerFeature == SerializerFeature.SortField
+                            || serializerFeature == SerializerFeature.MapSortField) {
+                        ordered = true;
+                    }
+                }
+            }
+
+            JSONObject json = new JSONObject(ordered);
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {

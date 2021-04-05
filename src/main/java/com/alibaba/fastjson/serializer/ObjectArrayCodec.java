@@ -75,7 +75,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         out.write(',');
                         serializer.println();
                     }
-                    serializer.write(array[i]);
+                    serializer.writeWithFieldName(array[i], Integer.valueOf(i));
                 }
                 serializer.decrementIdent();
                 serializer.println();

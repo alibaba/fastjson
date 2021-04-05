@@ -1194,7 +1194,7 @@ public class DefaultJSONParser implements Closeable {
         ParseContext context = this.context;
         this.setContext(array, fieldName);
         try {
-            for (int i = 0;; ++i) {
+            for (int i = 0; ; ++i) {
                 if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
@@ -1280,6 +1280,8 @@ public class DefaultJSONParser implements Closeable {
                     continue;
                 }
             }
+        } catch (ClassCastException e) {
+            throw new JSONException("unkown error", e);
         } finally {
             this.setContext(context);
         }

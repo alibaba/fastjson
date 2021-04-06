@@ -1,8 +1,9 @@
 package com.alibaba.json.bvt.issue_1100;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
 import junit.framework.TestCase;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public class Issue1189 extends TestCase {
         System.out.println(list.get("body"));
     }
 
+    @Data
+    @NoArgsConstructor
     public static class JsonBean {
         private Map<String, String> body;
         private int headertemplateno;
@@ -25,38 +28,6 @@ public class Issue1189 extends TestCase {
         private String headernotificationtype;
         private String notificationType;
 
-
-
-        public Map<String, String> getBody() {
-            return body;
-        }
-        public void setBody(Map<String, String> body) {
-            this.body = body;
-        }
-        public int getHeadertemplateno() {
-            return headertemplateno;
-        }
-        public void setHeadertemplateno(int headertemplateno) {
-            this.headertemplateno = headertemplateno;
-        }
-        public Map<String, String> getHeaderdestination() {
-            return headerdestination;
-        }
-        public void setHeaderdestination(Map<String, String> headerdestination) {
-            this.headerdestination = headerdestination;
-        }
-        public String getHeadernotificationtype() {
-            return headernotificationtype;
-        }
-        public void setHeadernotificationtype(String headernotificationtype) {
-            this.headernotificationtype = headernotificationtype;
-        }
-        public String getNotificationType() {
-            return notificationType;
-        }
-        public void setNotificationType(String notificationType) {
-            this.notificationType = notificationType;
-        }
         public JsonBean(Map<String, String> body, int headertemplateno,
                         Map<String, String> headerdestination,
                         String headernotificationtype, String notificationType) {
@@ -67,10 +38,5 @@ public class Issue1189 extends TestCase {
             this.headernotificationtype = headernotificationtype;
             this.notificationType = notificationType;
         }
-        public JsonBean() {
-            super();
-            // TODO Auto-generated constructor stub
-        }
-
     }
 }

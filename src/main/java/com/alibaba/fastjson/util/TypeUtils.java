@@ -1049,11 +1049,11 @@ public class TypeUtils{
                 return Boolean.FALSE;
             }
             if("Y".equalsIgnoreCase(strVal) //
-                    || "T".equals(strVal)){
+                    || "T".equalsIgnoreCase(strVal)){
                 return Boolean.TRUE;
             }
             if("F".equalsIgnoreCase(strVal) //
-                    || "N".equals(strVal)){
+                    || "N".equalsIgnoreCase(strVal)){
                 return Boolean.FALSE;
             }
         }

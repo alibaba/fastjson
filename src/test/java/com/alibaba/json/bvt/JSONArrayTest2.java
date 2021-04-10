@@ -38,7 +38,5 @@ public class JSONArrayTest2 extends TestCase {
         Assert.assertEquals(new java.sql.Timestamp(time), array2.getTimestamp(2));
         Assert.assertEquals(array2.size(), array2.size());
 
-        JSON.parseArray("//arplatform.alicdn.com/images/874/1504512065305.png");
-        JSON.parseArray("//arplatform.alicdn.com/images/874/1504512065305.png");
     }
 }

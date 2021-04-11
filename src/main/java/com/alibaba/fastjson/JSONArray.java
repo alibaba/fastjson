@@ -247,9 +247,9 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (JSONObject) value;
         }
 
-        if (value instanceof Map) {
-            return new JSONObject((Map) value);
-        }
+//        if (value instanceof Map) {
+//            return new JSONObject((Map) value);
+//        }
 
         return (JSONObject) toJSON(value);
     }
@@ -260,10 +260,9 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         if (value instanceof JSONArray) {
             return (JSONArray) value;
         }
-
-        if (value instanceof List) {
-            return new JSONArray((List) value);
-        }
+//        if (value instanceof List) {
+//            return new JSONArray((List) value);
+//        }
 
         return (JSONArray) toJSON(value);
     }

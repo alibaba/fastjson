@@ -24,6 +24,7 @@ public class JSONReader implements Closeable {
 
     private final DefaultJSONParser parser;
     private JSONStreamContext       context;
+    private transient JSONStreamContext lastContext;
 
     public JSONReader(Reader reader){
         this(reader, new Feature[0]);
@@ -69,7 +70,15 @@ public class JSONReader implements Closeable {
             context = new JSONStreamContext(null, JSONStreamContext.StartObject);
         } else {
             startStructure();
-            context = new JSONStreamContext(context, JSONStreamContext.StartObject);
+            if (lastContext != null
+                    && lastContext.parent == context) {
+                context = lastContext;
+                if (context.state != JSONStreamContext.StartObject) {
+                    context.state = JSONStreamContext.StartObject;
+                }
+            } else {
+                context = new JSONStreamContext(context, JSONStreamContext.StartObject);
+            }
         }
 
         this.parser.accept(JSONToken.LBRACE, JSONToken.IDENTIFIER);
@@ -115,6 +124,7 @@ public class JSONReader implements Closeable {
     }
 
     private void endStructure() {
+        lastContext = context;
         context = context.parent;
 
         if (context == null) {

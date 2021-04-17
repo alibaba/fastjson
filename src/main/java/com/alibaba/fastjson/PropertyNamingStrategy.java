@@ -4,11 +4,12 @@ package com.alibaba.fastjson;
  * @since 1.2.15
  */
 public enum PropertyNamingStrategy {
-                                    CamelCase, //
-                                    PascalCase, //
-                                    SnakeCase, //
-                                    KebabCase, //
-                                    NoChange;
+                                    CamelCase, // camelCase
+                                    PascalCase, // PascalCase
+                                    SnakeCase, // snake_case
+                                    KebabCase, // kebab-case
+                                    NoChange,  //
+                                    NeverUseThisValueExceptDefaultValue;
 
     public String translate(String propertyName) {
         switch (this) {
@@ -65,6 +66,7 @@ public enum PropertyNamingStrategy {
                 return propertyName;
             }
             case NoChange:
+            case NeverUseThisValueExceptDefaultValue:
             default:
                 return propertyName;
         }

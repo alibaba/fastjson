@@ -1217,8 +1217,7 @@ public class ParserConfig {
 
             if (fieldName.length() > 2) {
                 char c1 = fieldName.charAt(1);
-                if (fieldName.length() > 2
-                        && c0 >= 'a' && c0 <= 'z'
+                if (c0 >= 'a' && c0 <= 'z'
                         && c1 >= 'A' && c1 <= 'Z') {
                     for (Map.Entry<String, Field> entry : fieldCacheMap.entrySet()) {
                         if (fieldName.equalsIgnoreCase(entry.getKey())) {
@@ -1431,6 +1430,7 @@ public class ParserConfig {
         if (clazz != null) {
             if (expectClass != null
                     && clazz != java.util.HashMap.class
+                    && clazz != java.util.LinkedHashMap.class
                     && !expectClass.isAssignableFrom(clazz)) {
                 throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
             }

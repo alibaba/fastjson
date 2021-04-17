@@ -327,6 +327,10 @@ public class DefaultJSONParser implements Closeable {
                     if (object != null
                             && object.getClass().getName().equals(typeName)) {
                         clazz = object.getClass();
+                    } else if ("java.util.HashMap".equals(typeName)) {
+                        clazz = java.util.HashMap.class;
+                    } else if ("java.util.LinkedHashMap".equals(typeName)) {
+                        clazz = java.util.LinkedHashMap.class;
                     } else {
 
                         boolean allDigits = true;
@@ -674,7 +678,8 @@ public class DefaultJSONParser implements Closeable {
         int token = lexer.token();
         if (token == JSONToken.NULL) {
             lexer.nextToken();
-            return null;
+
+            return (T) TypeUtils.optionalEmpty(type);
         }
 
         if (token == JSONToken.LITERAL_STRING) {
@@ -733,7 +738,7 @@ public class DefaultJSONParser implements Closeable {
         }
 
         if (token != JSONToken.LBRACKET) {
-            throw new JSONException("expect '[', but " + JSONToken.name(token) + ", " + lexer.info());
+            throw new JSONException("field " + fieldName + " expect '[', but " + JSONToken.name(token) + ", " + lexer.info());
         }
 
         ObjectDeserializer deserializer = null;
@@ -1189,7 +1194,7 @@ public class DefaultJSONParser implements Closeable {
         ParseContext context = this.context;
         this.setContext(array, fieldName);
         try {
-            for (int i = 0;; ++i) {
+            for (int i = 0; ; ++i) {
                 if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
@@ -1275,6 +1280,8 @@ public class DefaultJSONParser implements Closeable {
                     continue;
                 }
             }
+        } catch (ClassCastException e) {
+            throw new JSONException("unkown error", e);
         } finally {
             this.setContext(context);
         }

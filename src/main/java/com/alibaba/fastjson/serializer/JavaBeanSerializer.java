@@ -35,6 +35,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.TypeUtils;
 
@@ -46,7 +47,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
     protected final FieldSerializer[] getters;
     protected final FieldSerializer[] sortedGetters;
     
-    protected SerializeBeanInfo       beanInfo;
+    protected final SerializeBeanInfo  beanInfo;
 
     private transient volatile long[] hashArray;
     private transient volatile short[] hashArrayMapping;
@@ -66,6 +67,10 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
         }
 
         return aliasMap;
+    }
+
+    public JSONType getJSONType() {
+        return beanInfo.jsonType;
     }
 
     /**

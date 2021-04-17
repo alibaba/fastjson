@@ -483,7 +483,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
                 return result;
             } else { /* Only got "-" */
-                throw new NumberFormatException(numberString());
+                throw new JSONException("illegal number format : " + numberString());
             }
         } else {
             result = -result;
@@ -5086,8 +5086,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
      * Append a character to sbuf.
      */
     protected final void putChar(char ch) {
-        if (sp == sbuf.length) {
-            char[] newsbuf = new char[sbuf.length * 2];
+        if (sp >= sbuf.length) {
+            int len = sbuf.length * 2;
+            if (len < sp) {
+                len = sp + 1;
+            }
+            char[] newsbuf = new char[len];
             System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
             sbuf = newsbuf;
         }

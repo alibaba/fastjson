@@ -12,6 +12,8 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class ThrowableDeserializer extends JavaBeanDeserializer {
 
@@ -146,6 +148,10 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
                     FieldDeserializer fieldDeserializer = exBeanDeser.getFieldDeserializer(key);
                     if (fieldDeserializer != null) {
+                        FieldInfo fieldInfo = fieldDeserializer.fieldInfo;
+                        if (!fieldInfo.fieldClass.isInstance(value)) {
+                            value = TypeUtils.cast(value, fieldInfo.fieldType, parser.getConfig());
+                        }
                         fieldDeserializer.setValue(ex, value);
                     }
                 }

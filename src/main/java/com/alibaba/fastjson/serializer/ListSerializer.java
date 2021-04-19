@@ -108,7 +108,7 @@ public final class ListSerializer implements ObjectSerializer {
                         long val = ((Long) item).longValue();
                         if (writeClassName) {
                             out.writeLong(val);
-                            out.write('L');
+                            out.write(SerializerFeatureWriteClassNameCharacter.LONG);
                         } else {
                             out.writeLong(val);
                         }

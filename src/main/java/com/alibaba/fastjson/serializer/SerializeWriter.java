@@ -672,7 +672,7 @@ public final class SerializeWriter extends Writer {
                     write(str, 0, str.length());
 
                     if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-                        write('F');
+                        write(SerializerFeatureWriteClassNameCharacter.FLOAT);
                     }
                     return;
                 }
@@ -682,7 +682,7 @@ public final class SerializeWriter extends Writer {
             count += len;
 
             if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-                write('F');
+                write(SerializerFeatureWriteClassNameCharacter.FLOAT);
             }
         }
     }
@@ -703,7 +703,7 @@ public final class SerializeWriter extends Writer {
                 write(str, 0, str.length());
 
                 if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-                    write('D');
+                    write(SerializerFeatureWriteClassNameCharacter.DOUBLE);
                 }
                 return;
             }
@@ -713,7 +713,7 @@ public final class SerializeWriter extends Writer {
         count += len;
 
         if (checkWriteClassName && isEnabled(SerializerFeature.WriteClassName)) {
-            write('D');
+            write(SerializerFeatureWriteClassNameCharacter.DOUBLE);
         }
     }
 

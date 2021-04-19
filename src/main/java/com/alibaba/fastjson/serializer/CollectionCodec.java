@@ -87,7 +87,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                     out.writeLong(((Long) item).longValue());
 
                     if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                        out.write('L');
+                        out.write(SerializerFeatureWriteClassNameCharacter.LONG);
                     }
                     continue;
                 }

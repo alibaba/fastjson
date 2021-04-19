@@ -17,6 +17,7 @@ package com.alibaba.fastjson.parser;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.serializer.SerializerFeatureWriteClassNameCharacter;
 import com.alibaba.fastjson.util.ASMUtils;
 import com.alibaba.fastjson.util.IOUtils;
 

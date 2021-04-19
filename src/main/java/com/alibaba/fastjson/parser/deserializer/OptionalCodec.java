@@ -30,7 +30,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
                 return (T) OptionalInt.of(value);
             }
         }
-        
+
         if (type == OptionalLong.class) {
             Object obj = parser.parseObject(Long.class);
             Long value = TypeUtils.castToLong(obj);
@@ -40,7 +40,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
                 return (T) OptionalLong.of(value);
             }
         }
-        
+
         if (type == OptionalDouble.class) {
             Object obj = parser.parseObject(Double.class);
             Double value = TypeUtils.castToDouble(obj);
@@ -50,14 +50,14 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
                 return (T) OptionalDouble.of(value);
             }
         }
-        
+
         type = TypeUtils.unwrapOptional(type);
         Object value = parser.parseObject(type);
         
         if (value == null) {
             return (T) Optional.empty();
         }
-        
+
         return (T) Optional.of(value);
     }
 
@@ -90,7 +90,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             }
             return;
         }
-        
+
         if (object instanceof OptionalInt) {
             OptionalInt optional = (OptionalInt) object;
             if (optional.isPresent()) {
@@ -101,7 +101,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             }
             return;
         }
-        
+
         if (object instanceof OptionalLong) {
             OptionalLong optional = (OptionalLong) object;
             if (optional.isPresent()) {
@@ -112,7 +112,7 @@ public class OptionalCodec implements ObjectSerializer, ObjectDeserializer {
             }
             return;
         }
-        
+
         throw new JSONException("not support optional : " + object.getClass());
     }
 

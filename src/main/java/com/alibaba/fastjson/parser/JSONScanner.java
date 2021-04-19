@@ -174,7 +174,7 @@ public final class JSONScanner extends JSONLexerBase {
         char chLocal = charAt(np + sp - 1);
 
         int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+        if (SerializerFeatureWriteClassNameCharacter.isNumberCharacter(chLocal)) {
             sp--;
         }
 
@@ -185,7 +185,7 @@ public final class JSONScanner extends JSONLexerBase {
         char chLocal = charAt(np + sp - 1);
 
         int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+        if (SerializerFeatureWriteClassNameCharacter.isNumberCharacter(chLocal)) {
             sp--;
         }
 

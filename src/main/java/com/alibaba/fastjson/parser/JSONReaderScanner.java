@@ -24,6 +24,7 @@ import java.math.MathContext;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.serializer.SerializerFeatureWriteClassNameCharacter;
 import com.alibaba.fastjson.util.IOUtils;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
@@ -277,7 +278,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         char chLocal = charAt(offset + sp - 1);
 
         int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+        if (SerializerFeatureWriteClassNameCharacter.isNumberCharacter(chLocal)) {
             sp--;
         }
 
@@ -293,7 +294,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         char chLocal = charAt(offset + sp - 1);
 
         int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
+        if (SerializerFeatureWriteClassNameCharacter.isNumberCharacter(chLocal)) {
             sp--;
         }
 

@@ -260,7 +260,7 @@ public class TypeUtils{
         }
 
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue() ? (byte) 1 : (byte) 0;
+            return (Boolean) value ? (byte) 1 : (byte) 0;
         }
 
         throw new JSONException("can not cast to byte, value : " + value);
@@ -411,7 +411,7 @@ public class TypeUtils{
         }
 
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue() ? 1F : 0F;
+            return (Boolean) value ? 1F : 0F;
         }
 
         throw new JSONException("can not cast to float, value : " + value);
@@ -438,7 +438,7 @@ public class TypeUtils{
         }
 
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue() ? 1D : 0D;
+            return (Boolean) value ? 1D : 0D;
         }
 
         throw new JSONException("can not cast to double, value : " + value);
@@ -897,7 +897,7 @@ public class TypeUtils{
         }
 
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue() ? 1L : 0L;
+            return (Boolean) value ? 1L : 0L;
         }
 
         throw new JSONException("can not cast to long, value : " + value);
@@ -1333,9 +1333,7 @@ public class TypeUtils{
                 List listObj = (List) obj;
                 List arrayList = new ArrayList(listObj.size());
 
-                for (int i = 0; i < listObj.size(); i++) {
-                    Object item = listObj.get(i);
-
+                for (Object item : listObj) {
                     Object itemValue;
                     if (itemType instanceof Class) {
                         if (item != null && item.getClass() == JSONObject.class) {
@@ -1368,9 +1366,7 @@ public class TypeUtils{
                 } else{
                     collection = new ArrayList();
                 }
-                for(Iterator it = ((Iterable) obj).iterator(); it.hasNext(); ){
-                    Object item = it.next();
-
+                for (Object item : (Iterable) obj) {
                     Object itemValue;
                     if (itemType instanceof Class) {
                         if (item != null && item.getClass() == JSONObject.class) {
@@ -1525,7 +1521,7 @@ public class TypeUtils{
 
             if (clazz == LinkedHashMap.class && map instanceof JSONObject) {
                 JSONObject jsonObject = (JSONObject) map;
-                Map innerMap = jsonObject.getInnerMap();
+                Map<String, Object> innerMap = jsonObject.getInnerMap();
                 if (innerMap instanceof LinkedHashMap) {
                     return (T) innerMap;
                 }
@@ -2206,11 +2202,10 @@ public class TypeUtils{
             orders = annotation.orders();
         }
         if(orders != null && orders.length > 0){
-            LinkedHashMap<String,FieldInfo> map = new LinkedHashMap<String,FieldInfo>(fieldInfoList.size());
+            LinkedHashMap<String,FieldInfo> map = new LinkedHashMap<String,FieldInfo>(fieldInfoMap.size());
             for(FieldInfo field : fieldInfoMap.values()){
                 map.put(field.name, field);
             }
-            int i = 0;
             for(String item : orders){
                 FieldInfo field = map.get(item);
                 if(field != null){
@@ -2355,16 +2350,16 @@ public class TypeUtils{
             // 不过，相信开发者应该都是严格按照大小写敏感的方式进行属性设置的
             String[] fields = jsonType.includes();
             if(fields.length > 0){
-                for(int i = 0; i < fields.length; i++){
-                    if(propertyName.equals(fields[i])){
+                for (String field : fields) {
+                    if (propertyName.equals(field)) {
                         return false;
                     }
                 }
                 return true;
             } else{
                 fields = jsonType.ignores();
-                for(int i = 0; i < fields.length; i++){
-                    if(propertyName.equals(fields[i])){
+                for (String field : fields) {
+                    if (propertyName.equals(field)) {
                         return true;
                     }
                 }
@@ -2630,7 +2625,16 @@ public class TypeUtils{
         }
         return Object.class;
     }
-
+    private static final Map primitiveTypeMap = new HashMap<Class,String>(8){{
+        put(boolean.class,"Z");
+        put(char.class,"C");
+        put(byte.class,"B");
+        put(short.class,"S");
+        put(int.class,"I");
+        put(long.class,"J");
+        put(float.class,"F");
+        put(double.class,"D");
+    }};
     public static Type checkPrimitiveArray(GenericArrayType genericArrayType) {
         Type clz = genericArrayType;
         Type genericComponentType  = genericArrayType.getGenericComponentType();
@@ -2646,24 +2650,11 @@ public class TypeUtils{
             Class<?> ck = (Class<?>) genericComponentType;
             if (ck.isPrimitive()) {
                 try {
-                    if (ck == boolean.class) {
-                        clz = Class.forName(prefix + "Z");
-                    } else if (ck == char.class) {
-                        clz = Class.forName(prefix + "C");
-                    } else if (ck == byte.class) {
-                        clz = Class.forName(prefix + "B");
-                    } else if (ck == short.class) {
-                        clz = Class.forName(prefix + "S");
-                    } else if (ck == int.class) {
-                        clz = Class.forName(prefix + "I");
-                    } else if (ck == long.class) {
-                        clz = Class.forName(prefix + "J");
-                    } else if (ck == float.class) {
-                        clz = Class.forName(prefix + "F");
-                    } else if (ck == double.class) {
-                        clz = Class.forName(prefix + "D");
+                    String postfix = (String) primitiveTypeMap.get(ck);
+                    if(postfix != null){
+                        clz = Class.forName(prefix+postfix);
                     }
-                } catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException ignored) {
                 }
             }
         }
@@ -2725,22 +2716,19 @@ public class TypeUtils{
         }
     }
 
+    private static final Set<String> isProxyClassNames = new HashSet<String>(6){{
+        add("net.sf.cglib.proxy.Factory");
+        add("org.springframework.cglib.proxy.Factory");
+        add("javassist.util.proxy.ProxyObject");
+        add("org.apache.ibatis.javassist.util.proxy.ProxyObject");
+        add("org.hibernate.proxy.HibernateProxy");
+        add("org.springframework.context.annotation.ConfigurationClassEnhancer$EnhancedConfiguration");
+    }};
     public static boolean isProxy(Class<?> clazz){
+
         for(Class<?> item : clazz.getInterfaces()){
             String interfaceName = item.getName();
-            if(interfaceName.equals("net.sf.cglib.proxy.Factory") //
-                    || interfaceName.equals("org.springframework.cglib.proxy.Factory")){
-                return true;
-            }
-            if(interfaceName.equals("javassist.util.proxy.ProxyObject") //
-                    || interfaceName.equals("org.apache.ibatis.javassist.util.proxy.ProxyObject")
-                    ){
-                return true;
-            }
-            if (interfaceName.equals("org.hibernate.proxy.HibernateProxy")) {
-                return true;
-            }
-            if (interfaceName.equals("org.springframework.context.annotation.ConfigurationClassEnhancer$EnhancedConfiguration")){
+            if (isProxyClassNames.contains(interfaceName)){
                 return true;
             }
         }
@@ -2817,7 +2805,7 @@ public class TypeUtils{
         if(method_HibernateIsInitialized != null){
             try{
                 Boolean initialized = (Boolean) method_HibernateIsInitialized.invoke(null, object);
-                return initialized.booleanValue();
+                return initialized;
             } catch(Throwable e){
                 // skip
             }
@@ -2950,9 +2938,11 @@ public class TypeUtils{
 
         return Float.parseFloat(str);
     }
+    public static final long fnv1a_64_magic_hashcode = 0xcbf29ce484222325L;
+    public static final long fnv1a_64_magic_prime = 0x100000001b3L;
 
     public static long fnv1a_64_extract(String key){
-        long hashCode = 0xcbf29ce484222325L;
+        long hashCode = fnv1a_64_magic_hashcode;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
             if(ch == '_' || ch == '-'){
@@ -2962,30 +2952,29 @@ public class TypeUtils{
                 ch = (char) (ch + 32);
             }
             hashCode ^= ch;
-            hashCode *= 0x100000001b3L;
+            hashCode *= fnv1a_64_magic_prime;
         }
         return hashCode;
     }
 
     public static long fnv1a_64_lower(String key){
-        long hashCode = 0xcbf29ce484222325L;
+        long hashCode = fnv1a_64_magic_hashcode;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
             if(ch >= 'A' && ch <= 'Z'){
                 ch = (char) (ch + 32);
             }
             hashCode ^= ch;
-            hashCode *= 0x100000001b3L;
+            hashCode *= fnv1a_64_magic_prime;
         }
         return hashCode;
     }
-
     public static long fnv1a_64(String key){
-        long hashCode = 0xcbf29ce484222325L;
+        long hashCode = fnv1a_64_magic_hashcode;
         for(int i = 0; i < key.length(); ++i){
             char ch = key.charAt(i);
             hashCode ^= ch;
-            hashCode *= 0x100000001b3L;
+            hashCode *= fnv1a_64_magic_prime;
         }
         return hashCode;
     }

@@ -18,6 +18,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
+
 public class JavaBeanDeserializer implements ObjectDeserializer {
 
     private final FieldDeserializer[]   fieldDeserializers;
@@ -1105,7 +1107,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         if (lexer.matchStat > 0) {
             Enum e = enumDeserializer.getEnumByHashCode(enumNameHashCode);
             if (e == null) {
-                if (enumNameHashCode == 0xcbf29ce484222325L) {
+                if (enumNameHashCode == fnv1a_64_magic_hashcode) {
                     return null;
                 }
 

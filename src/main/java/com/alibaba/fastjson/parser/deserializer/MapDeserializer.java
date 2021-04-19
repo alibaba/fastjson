@@ -171,7 +171,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY
+                if (key.equals(JSON.DEFAULT_TYPE_KEY)
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)
                         && !Feature.isEnabled(features, Feature.DisableSpecialKeyDetect)
                 ) {

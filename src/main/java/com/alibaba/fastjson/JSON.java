@@ -36,9 +36,11 @@ import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * This is the main class for using Fastjson. You usually call these two methods {@link #toJSONString(Object)} and {@link #parseObject(String, Class)}.
- * 
+ *
  * <p>Here is an example of how fastjson is used for a simple Class:
  *
  * <pre>
@@ -46,20 +48,20 @@ import com.alibaba.fastjson.util.TypeUtils;
  * String json = JSON.toJSONString(model); // serializes model to Json
  * Model model2 = JSON.parseObject(json, Model.class); // deserializes json into model2
  * </pre>
- * 
+ *
 * <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
  * (i.e. contains at least one type parameter and may be an array) then you must use the
  * {@link #toJSONString(Object)} or {@link #parseObject(String, Type, Feature[])} method.  Here is an
  * example for serializing and deserialing a {@code ParameterizedType}:
- * 
+ *
  * <pre>
  * String json = "[{},...]";
  * Type listType = new TypeReference&lt;List&lt;Model&gt;&gt;() {}.getType();
  * List&lt;Model&gt; modelList = JSON.parseObject(json, listType);
  * </pre>
- * 
+ *
  * @see com.alibaba.fastjson.TypeReference
- * 
+ *
  * @author wenshao[szujobs@hotmail.com]
  */
 public abstract class JSON implements JSONStreamAware, JSONAware {
@@ -72,7 +74,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static int              DEFAULT_GENERATE_FEATURE;
 
     private static final ConcurrentHashMap<Type, Type> mixInsMapper = new ConcurrentHashMap<Type, Type>(16);
-    
+
     static {
         int features = 0;
         features |= Feature.AutoCloseSource.getMask();
@@ -137,9 +139,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static void setDefaultTypeKey(String typeKey) {
         DEFAULT_TYPE_KEY = typeKey;
-        ParserConfig.global.symbolTable.addSymbol(typeKey, 
-                                                  0, 
-                                                  typeKey.length(), 
+        ParserConfig.global.symbolTable.addSymbol(typeKey,
+                                                  0,
+                                                  typeKey.length(),
                                                   typeKey.hashCode(), true);
     }
 
@@ -277,7 +279,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * 
+     *
      * This method deserializes the specified Json into an object of the specified class. It is not
      * suitable to use if the specified class is a generic type since it will not have the generic
      * type information because of the Type Erasure feature of Java. Therefore, this method should not
@@ -332,7 +334,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String input, Type clazz, int featureValues, Feature... features) {
-        if (input == null) {
+        if (input == null || input.length() == 0) {
             return null;
         }
 
@@ -452,7 +454,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 try {
                     gzipReader = new InputStreamReader(
                             new GZIPInputStream(
-                                    new ByteArrayInputStream(bytes, offset, len)), "UTF-8");
+                                    new ByteArrayInputStream(bytes, offset, len)), IOUtils.UTF8);
                     strVal = IOUtils.readAll(gzipReader);
                 } catch (Exception ex) {
                     return null;
@@ -566,7 +568,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             charset = IOUtils.UTF8;
         }
 
-        byte[] bytes = allocateBytes(1024 * 64);
+        byte[] bytes = allocateBytes(defaultAoolocateBytesLength);
         int offset = 0;
         for (;;) {
             int readCount = is.read(bytes, offset, bytes.length - offset);
@@ -599,19 +601,23 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         DefaultJSONParser parser = new DefaultJSONParser(text, parserConfig);
 
-        JSONArray array;
+        JSONArray array = null;
 
         JSONLexer lexer = parser.lexer;
-        if (lexer.token() == JSONToken.NULL) {
-            lexer.nextToken();
-            array = null;
-        } else if (lexer.token() == JSONToken.EOF) {
-            array = null;
-        } else {
-            array = new JSONArray();
-            parser.parseArray(array);
-
-            parser.handleResovleTask(array);
+        switch (lexer.token()) {
+            case JSONToken.EOF:{
+                break;
+            }
+            case JSONToken.NULL:{
+                lexer.nextToken();
+                break;
+            }
+            default:{
+                array = new JSONArray();
+                parser.parseArray(array);
+                parser.handleResovleTask(array);
+                break;
+            }
         }
 
         parser.close();
@@ -628,16 +634,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return null;
         }
 
-        List<T> list;
+        List<T> list = null;
 
         DefaultJSONParser parser = new DefaultJSONParser(text, config);
         JSONLexer lexer = parser.lexer;
         int token = lexer.token();
-        if (token == JSONToken.NULL) {
+        if (token == JSONToken.EOF && lexer.isBlankInput()) {
+        } else if (token == JSONToken.NULL){
             lexer.nextToken();
-            list = null;
-        } else if (token == JSONToken.EOF && lexer.isBlankInput()) {
-            list = null;
         } else {
             list = new ArrayList<T>();
             parser.parseArray(clazz, list);
@@ -740,7 +744,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * @since 1.2.11 
+     * @since 1.2.11
      */
     public static byte[] toJSONBytes(Object object, int defaultFeatures, SerializerFeature... features) {
         return toJSONBytes(object, SerializeConfig.globalInstance, defaultFeatures, features);
@@ -778,7 +782,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(out, config);
-            
+
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
@@ -829,7 +833,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter filter, SerializerFeature... features) {
         return toJSONBytes(object, config, new SerializeFilter[] {filter}, DEFAULT_GENERATE_FEATURE, features);
     }
-    
+
     /**
      * @since 1.2.42
      */
@@ -941,7 +945,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
-     * @since 1.2.11 
+     * @since 1.2.11
      */
     public static void writeJSONString(Writer writer, Object object, int defaultFeatures, SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(writer, defaultFeatures, features);
@@ -963,13 +967,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @throws IOException
      */
     public static final int writeJSONString(OutputStream os, // 
-                                             Object object, // 
+                                             Object object, //
                                              SerializerFeature... features) throws IOException {
         return writeJSONString(os, object, DEFAULT_GENERATE_FEATURE, features);
     }
 
     /**
-     * @since 1.2.11 
+     * @since 1.2.11
      */
     public static final int writeJSONString(OutputStream os, // 
                                             Object object, // 
@@ -980,14 +984,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                               object, //
                               SerializeConfig.globalInstance, //
                               null, //
-                              null, // 
+                              null, //
                               defaultFeatures, //
                               features);
     }
 
     public static final int writeJSONString(OutputStream os, // 
-                                             Charset charset, // 
-                                             Object object, // 
+                                             Charset charset, //
+                                             Object object, //
                                              SerializerFeature... features) throws IOException {
         return writeJSONString(os, //
                                charset, //
@@ -1000,8 +1004,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     public static final int writeJSONString(OutputStream os, // 
-                                             Charset charset, // 
-                                             Object object, // 
+                                             Charset charset, //
+                                             Object object, //
                                              SerializeConfig config, //
                                              SerializeFilter[] filters, //
                                              String dateFormat, //
@@ -1011,7 +1015,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         try {
             JSONSerializer serializer = new JSONSerializer(writer, config);
-            
+
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
@@ -1022,9 +1026,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                     serializer.addFilter(filter);
                 }
             }
-            
+
             serializer.write(object);
-            
+
             int len = writer.writeToEx(os, charset);
             return len;
         } finally {
@@ -1109,7 +1113,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
     /**
      * This method serializes the specified object into its equivalent representation as a tree of
-     * {@link JSONObject}s. 
+     * {@link JSONObject}s.
      *
      */
     public static Object toJSON(Object javaObject) {
@@ -1123,7 +1127,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return toJSON(javaObject, SerializeConfig.globalInstance);
     }
 
-    private static final Class UNMODIFIABLEMAP_CLASS = Collections.unmodifiableMap(new HashMap()).getClass();
+    private static final Class<? extends Map> UNMODIFIABLEMAP_CLASS = Collections.unmodifiableMap(new HashMap()).getClass();
 
     @SuppressWarnings("unchecked")
     public static Object toJSON(Object javaObject, SerializeConfig config) {
@@ -1208,13 +1212,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
 
-            JSONType jsonType = javaBeanSerializer.getJSONType();
+            final JSONType jsonType = javaBeanSerializer.getJSONType();
             boolean ordered = false;
             if (jsonType != null) {
                 for (SerializerFeature serializerFeature : jsonType.serialzeFeatures()) {
                     if (serializerFeature == SerializerFeature.SortField
                             || serializerFeature == SerializerFeature.MapSortField) {
                         ordered = true;
+                        break;
                     }
                 }
             }
@@ -1266,12 +1271,13 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     private final static ThreadLocal<byte[]> bytesLocal = new ThreadLocal<byte[]>();
+    private final static int defaultAoolocateBytesLength = 1024 * 64;
     private static byte[] allocateBytes(int length) {
         byte[] chars = bytesLocal.get();
 
         if (chars == null) {
-            if (length <= 1024 * 64) {
-                chars = new byte[1024 * 64];
+            if (length <= defaultAoolocateBytesLength) {
+                chars = new byte[defaultAoolocateBytesLength];
                 bytesLocal.set(chars);
             } else {
                 chars = new byte[length];
@@ -1288,8 +1294,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         char[] chars = charsLocal.get();
 
         if (chars == null) {
-            if (length <= 1024 * 64) {
-                chars = new char[1024 * 64];
+            if (length <= defaultAoolocateBytesLength) {
+                chars = new char[defaultAoolocateBytesLength];
                 charsLocal.set(chars);
             } else {
                 chars = new char[length];
@@ -1315,26 +1321,30 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             final int token = lexer.token();
             switch (token) {
-                case JSONToken.LBRACE:
+                case JSONToken.LBRACE: {
                     if (lexer.getCurrent() == JSONLexer.EOI) {
                         return false;
                     }
                     lexer.skipObject(true);
                     break;
-                case JSONToken.LBRACKET:
+                }
+                case JSONToken.LBRACKET: {
                     lexer.skipArray(true);
                     break;
+                }
                 case JSONToken.LITERAL_INT:
                 case JSONToken.LITERAL_STRING:
                 case JSONToken.LITERAL_FLOAT:
                 case JSONToken.LITERAL_ISO8601_DATE:
                 case JSONToken.NULL:
                 case JSONToken.TRUE:
-                case JSONToken.FALSE:
+                case JSONToken.FALSE: {
                     lexer.nextToken();
                     break;
-                default:
+                }
+                default:{
                     return false;
+                }
             }
 
             return lexer.token() == JSONToken.EOF;
@@ -1400,7 +1410,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static <T> void handleResovleTask(DefaultJSONParser parser, T value) {
         parser.handleResovleTask(value);
     }
-    
+
     public static void addMixInAnnotations(Type target, Type mixinSource) {
         if (target != null && mixinSource != null) {
             mixInsMapper.put(target, mixinSource);

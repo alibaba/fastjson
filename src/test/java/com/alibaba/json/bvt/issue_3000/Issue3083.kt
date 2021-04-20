@@ -16,7 +16,7 @@ class Issue3083 {
     private val s = "{'is_subscribe':1,'subscribe':2,'isHave':3, '_have':4, 'normal':5, 'Abnormal':6}"
     private val s2 = "{\"is_subscribe\":1,\"subscribe\":2,\"isHave\":3, \"_have\":4, \"normal\":5, \"Abnormal\":6}"
     // TODO
-    //@Test
+    @Test
     fun test_for_issue() {
         val b = JSON.parseObject(s2, TestBean::class.java)
         println("${b.is_subscribe}--${b.subscribe}--${b.isHave}--${b._have}--${b.normal}--${b.Abnormal}")

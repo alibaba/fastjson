@@ -7,7 +7,7 @@ import java.util.*
 
 class TestFJ {
 
-    //@Test
+    @Test
     fun test() {
         val str = """
             {"data": {"id": "1", "name":"n1"}}

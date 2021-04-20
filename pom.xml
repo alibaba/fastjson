@@ -147,7 +147,7 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <includes>
-                        <include>**/bvt/**/*.java</include>
+                        <include>**/bvt/**/*</include>
                     </includes>
                 </configuration>
             </plugin>

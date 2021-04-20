@@ -3037,7 +3037,7 @@ public class TypeUtils{
             return null;
         }
 
-        if (kotlin_kclass_getConstructors == null && !kotlin_class_klass_error) {
+        if (!kotlin_class_klass_error && kotlin_kclass_getConstructors == null) {
             try{
                 Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
                 kotlin_kclass_getConstructors = class_kotlin_kclass.getMethod("getConstructors");
@@ -3046,7 +3046,7 @@ public class TypeUtils{
             }
         }
 
-        if (kotlin_kfunction_getParameters == null && !kotlin_class_klass_error) {
+        if (!kotlin_class_klass_error && kotlin_kfunction_getParameters == null) {
             try{
                 Class class_kotlin_kfunction = Class.forName("kotlin.reflect.KFunction");
                 kotlin_kfunction_getParameters = class_kotlin_kfunction.getMethod("getParameters");
@@ -3055,7 +3055,7 @@ public class TypeUtils{
             }
         }
 
-        if (kotlin_kparameter_getName == null && !kotlin_class_klass_error) {
+        if (!kotlin_class_klass_error && kotlin_kparameter_getName == null) {
             try{
                 Class class_kotlinn_kparameter = Class.forName("kotlin.reflect.KParameter");
                 kotlin_kparameter_getName = class_kotlinn_kparameter.getMethod("getName");
@@ -3065,15 +3065,21 @@ public class TypeUtils{
         }
 
         if (kotlin_error){
+            kotlin_error = false;
             return null;
         }
 
         try{
+            Constructor[] constructors = clazz.getConstructors();
             Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
-            Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
-            for(Iterator iterator = it.iterator(); iterator.hasNext(); iterator.hasNext()){
-                Object item = iterator.next();
+            Iterable it = null;
+            if(constructors.length != 0){
+                it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
+            }else{
+                return null;
+            }
+            for (Object item : it) {
                 List parameters = (List) kotlin_kfunction_getParameters.invoke(item);
                 if (constructor != null && parameters.size() == 0) {
                     continue;
@@ -3084,11 +3090,11 @@ public class TypeUtils{
             if (constructor == null) {
                 return null;
             }
-
             List parameters = (List) kotlin_kfunction_getParameters.invoke(constructor);
             String[] names = new String[parameters.size()];
+            Iterator it2 = parameters.iterator();
             for(int i = 0; i < parameters.size(); i++){
-                Object param = parameters.get(i);
+                Object param = it2.next();
                 names[i] = (String) kotlin_kparameter_getName.invoke(param);
             }
             return names;

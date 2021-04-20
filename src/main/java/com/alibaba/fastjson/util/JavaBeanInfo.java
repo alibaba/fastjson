@@ -268,7 +268,7 @@ public class JavaBeanInfo {
             , boolean compatibleWithJavaBean
             , boolean jacksonCompatible
     ) {
-        JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
+        JSONType jsonType = TypeUtils.getAnnotation(clazz, JSONType.class);
         if (jsonType != null) {
             PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
             if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
@@ -474,7 +474,7 @@ public class JavaBeanInfo {
                                     && parameterTypes[2] == Collection.class) {
                                 creatorConstructor = constructor;
                                 creatorConstructor.setAccessible(true);
-                                paramNames = new String[] {"principal", "credentials", "authorities"};
+                                paramNames = new String[]{"principal", "credentials", "authorities"};
                                 break;
                             } else {
                                 continue;
@@ -485,7 +485,7 @@ public class JavaBeanInfo {
                             if (parameterTypes.length == 1
                                     && parameterTypes[0] == String.class) {
                                 creatorConstructor = constructor;
-                                paramNames = new String[] {"authority"};
+                                paramNames = new String[]{"authority"};
                                 break;
                             } else {
                                 continue;
@@ -631,7 +631,7 @@ public class JavaBeanInfo {
                 if (methodName.startsWith("set") && methodName.length() > 3) {
                     properNameBuilder = new StringBuilder(methodName.substring(3));
                 } else {
-                    if (withPrefix.length() == 0){
+                    if (withPrefix.length() == 0) {
                         properNameBuilder = new StringBuilder(methodName);
                     } else {
                         if (!methodName.startsWith(withPrefix)) {
@@ -641,7 +641,7 @@ public class JavaBeanInfo {
                         if (methodName.length() <= withPrefix.length()) {
                             continue;
                         }
-                        
+
                         properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                     }
                 }
@@ -696,7 +696,15 @@ public class JavaBeanInfo {
                 TypeUtils.setAccessible(buildMethod);
             }
         }
-
+        List<String> getMethodNameList = new ArrayList<String>();
+        List<Method> getMethodList = new ArrayList<Method>();
+        // 用于存储KotlinBean中所有的get方法, 方便后续判断
+        for (Method value : methods) {
+            if (value.getName().startsWith("get")) {
+                getMethodNameList.add(value.getName());
+                getMethodList.add(value);
+            }
+        }
         for (Method method : methods) { //
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
             String methodName = method.getName();
@@ -747,7 +755,6 @@ public class JavaBeanInfo {
                 if (!annotation.deserialize()) {
                     continue;
                 }
-
                 ordinal = annotation.ordinal();
                 serialzeFeatures = SerializerFeature.of(annotation.serialzeFeatures());
                 parserFeatures = Feature.of(annotation.parseFeatures());
@@ -768,21 +775,11 @@ public class JavaBeanInfo {
 
             String propertyName;
             Field field = null;
-            // 用于存储KotlinBean中所有的get方法, 方便后续判断
-            List<String> getMethodNameList = null;
 
-            if (kotlin) {
-                getMethodNameList = new ArrayList();
-                for (int i = 0; i < methods.length; i++) {
-                    if (methods[i].getName().startsWith("get")) {
-                        getMethodNameList.add(methods[i].getName());
-                    }
-                }
-            }
 
             if (Character.isUpperCase(c3) //
                     || c3 > 512 // for unicode method name
-                    ) {
+            ) {
                 // 这里本身的逻辑是通过setAbc这类方法名解析出成员变量名为abc或者Abc, 但是在kotlin中, isAbc, abc成员变量的set方法都是setAbc
                 // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, isAbc的get方法名为isAbc(), abc的get方法名为getAbc()
                 if (kotlin) {
@@ -819,7 +816,6 @@ public class JavaBeanInfo {
                         }
                     }
                 }
-
             } else if (c3 == 'f') {
                 propertyName = methodName.substring(3);
             } else if (methodName.length() >= 5 && Character.isUpperCase(methodName.charAt(4))) {
@@ -875,7 +871,7 @@ public class JavaBeanInfo {
         Field[] fields = clazz.getFields();
         computeFields(clazz, type, propertyNamingStrategy, fieldList, fields);
 
-        for (Method method : clazz.getMethods()) { // getter methods
+        for (Method method : getMethodList) { // getter methods
             String methodName = method.getName();
             if (methodName.length() < 4) {
                 continue;
@@ -885,7 +881,7 @@ public class JavaBeanInfo {
                 continue;
             }
 
-            if (builderClass == null && methodName.startsWith("get") && Character.isUpperCase(methodName.charAt(3))) {
+            if (builderClass == null && Character.isUpperCase(methodName.charAt(3))) {
                 if (method.getParameterTypes().length != 0) {
                     continue;
                 }
@@ -895,7 +891,7 @@ public class JavaBeanInfo {
                         || AtomicBoolean.class == method.getReturnType() //
                         || AtomicInteger.class == method.getReturnType() //
                         || AtomicLong.class == method.getReturnType() //
-                        ) {
+                ) {
                     String propertyName;
                     Field collectionField = null;
 
@@ -915,9 +911,8 @@ public class JavaBeanInfo {
                             if (fieldAnnotation != null && !fieldAnnotation.deserialize()) {
                                 continue;
                             }
-
                             if (Collection.class.isAssignableFrom(method.getReturnType())
-                                || Map.class.isAssignableFrom(method.getReturnType())) {
+                                    || Map.class.isAssignableFrom(method.getReturnType())) {
                                 collectionField = field;
                             }
                         }

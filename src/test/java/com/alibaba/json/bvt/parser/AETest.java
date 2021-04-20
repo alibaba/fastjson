@@ -38,7 +38,10 @@ public class AETest extends TestCase {
             "        }\n" +
             "    ]\n" +
             "}";
-
+    public void tearDown(){
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
     public void test_for_ae() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(Area.class, new ObjectDeserializer() {
             public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {

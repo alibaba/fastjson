@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.fastjson.parser.ParserConfig
 import com.alibaba.fastjson.serializer.SerializerFeature
+import org.junit.AfterClass
 import org.junit.Assert
+import org.junit.BeforeClass
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
@@ -17,15 +19,8 @@ import kotlin.properties.Delegates
 
 
 class Issue3223 {
-
     @Test
     fun test() {
-        val cfg = ParserConfig.getGlobalInstance()
-        cfg.addAccept("com.")
-        cfg.addAccept("net.")
-        cfg.addAccept("java.")
-        cfg.addAccept("kotlin.")
-        cfg.addAccept("org.")
         val n = NullableKotlin()
         //nullable
         n.nullableList = listOf("nullableList")
@@ -47,6 +42,25 @@ class Issue3223 {
         val d = JSON.parseObject(raw, NullableKotlin::class.java)
         Assert.assertTrue(n == d)
 
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun beforeClass() {
+            val cfg = ParserConfig.getGlobalInstance()
+            cfg.addAccept("com.")
+            cfg.addAccept("net.")
+            cfg.addAccept("java.")
+            cfg.addAccept("kotlin.")
+            cfg.addAccept("org.")
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterClass() {
+            ParserConfig.global = com.alibaba.fastjson.parser.ParserConfig();
+        }
     }
 
 }

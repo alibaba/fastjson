@@ -14,6 +14,11 @@ import java.util.List;
  * Created by wenshao on 30/05/2017.
  */
 public class Issue1233 extends TestCase {
+
+    public void tearDown(){
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
     public void test_for_issue() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(Area.class, new ObjectDeserializer() {
             public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {

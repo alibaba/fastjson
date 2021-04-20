@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-04-10 23:10:01
+ * @LastEditTime: 2021-04-20 14:14:32
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \fastjson\src\test\java\com\alibaba\json\ByteArrayTest2.java
+ */
 package com.alibaba.json;
 
 import com.alibaba.fastjson.JSON;
@@ -8,13 +16,24 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
+import static com.alibaba.fastjson.parser.ParserConfig.AUTO_SUPPORT;
 
-public class ByteArrayTest2  extends TestCase {
+
+public class ByteArrayTest2 extends TestCase {
+    public void setUp() {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+    }
+
+    public void tearDown() {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(AUTO_SUPPORT);
+
+    }
 
     public static class CertFile {
         public String name;
@@ -22,7 +41,6 @@ public class ByteArrayTest2  extends TestCase {
     }
 
     public void test_0() throws Exception {
-        ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
 
         CertFile file = new CertFile();
         file.name = "testname";
@@ -43,7 +61,7 @@ public class ByteArrayTest2  extends TestCase {
 
         byte[] data = bos.toByteArray();
         Charset charset = Charset.forName("UTF-8");
-        CertFile convertFile =  (CertFile)JSON.parse(data, 0, data.length, charset.newDecoder(), Feature.AllowArbitraryCommas,
+        CertFile convertFile = (CertFile) JSON.parse(data, 0, data.length, charset.newDecoder(), Feature.AllowArbitraryCommas,
                 Feature.IgnoreNotMatch, Feature.SortFeidFastMatch, Feature.DisableCircularReferenceDetect,
                 Feature.AutoCloseSource);
 

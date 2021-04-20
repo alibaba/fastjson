@@ -12,10 +12,19 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 import junit.framework.TestCase;
 
-public class Bug_for_Issue_603 extends TestCase {
+import static com.alibaba.fastjson.parser.ParserConfig.AUTO_SUPPORT;
 
-    public void test_for_issue() throws Exception {
+public class Bug_for_Issue_603 extends TestCase {
+    public void setUp() {
         ParserConfig.getGlobalInstance().putDeserializer(OrderActionEnum.class, new OrderActionEnumDeser());
+    }
+
+    public void tearDown() {
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
+    public void test_for_issue() throws Exception {
+
 
         {
             Msg msg = JSON.parseObject("{\"actionEnum\":1,\"body\":\"A\"}", Msg.class);

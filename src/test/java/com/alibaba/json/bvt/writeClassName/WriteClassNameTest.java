@@ -12,6 +12,10 @@ public class WriteClassNameTest extends TestCase {
         com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().addAccept(this.getClass().getName() + ".");
     }
 
+    public void tearDown() {
+        com.alibaba.fastjson.parser.ParserConfig.getGlobalInstance().clearDeserializers();
+        com.alibaba.fastjson.parser.ParserConfig.global = new com.alibaba.fastjson.parser.ParserConfig();
+    }
     public void test_list() throws Exception {
         A a = new A();
         a.setB(new B());

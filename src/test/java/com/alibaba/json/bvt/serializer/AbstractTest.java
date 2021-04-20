@@ -14,19 +14,24 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class AbstractTest extends TestCase {
+    public void setUp() {
+        ParserConfig.getGlobalInstance().putDeserializer(A.class, new ADeserializer());
+    }
+
+    public void tearDown() {
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
 
     public void test_0() throws Exception {
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, new ADeserializer());
         VO vo = JSON.parseObject("{\"a\":{\"num\":1,\"name\":\"bb\"}}", VO.class);
         Assert.assertTrue(vo.getA() instanceof B);
     }
     
     public void test_1() throws Exception {
-        ParserConfig.getGlobalInstance().putDeserializer(A.class, new ADeserializer());
         VO vo = JSON.parseObject("{\"a\":{\"num\":2,\"name\":\"bb\"}}", VO.class);
         Assert.assertTrue(vo.getA() instanceof C);
     }
-
 
     public static class ADeserializer implements ObjectDeserializer {
 

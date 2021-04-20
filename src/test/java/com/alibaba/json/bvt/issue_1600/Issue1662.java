@@ -15,9 +15,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class Issue1662 extends TestCase {
-    public void test_for_issue() throws Exception {
-
+    public void tearDown(){
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
+    public void setUp(){
         ParserConfig.getGlobalInstance().putDeserializer(Model.class, new ModelValueDeserializer());
+    }
+    public void test_for_issue() throws Exception {
         String json = "{\"value\":123}";
         Model model = JSON.parseObject(json, Model.class);
         assertEquals("{\"value\":\"12300元\"}",JSON.toJSONString(model));

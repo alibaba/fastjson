@@ -6,6 +6,14 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import junit.framework.TestCase;
 
 public class LomBokTest extends TestCase {
+    public void setUp() {
+        ParserConfig.getGlobalInstance().addAccept("com.alibaba.json.bvt.lombok.LomBokTest.DaysCycleExeDecision");
+    }
+
+    public void tearDown(){
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
+    }
     public void test_for_issue() throws Exception {
         String str = "{\n" +
                 "\t\"target\": 1,\n" +
@@ -24,7 +32,6 @@ public class LomBokTest extends TestCase {
                 "\t\t}\n" +
                 "\t}\n" +
                 "}";
-        ParserConfig.getGlobalInstance().addAccept("com.alibaba.json.bvt.lombok.LomBokTest.DaysCycleExeDecision");
         JSONObject obj = JSON.parseObject(str);
         IndicatorCycleRule cycleRule = obj.getObject("cycleRule", IndicatorCycleRule.class);
         System.out.println(((DaysCycleExeDecision) cycleRule.decision).days);

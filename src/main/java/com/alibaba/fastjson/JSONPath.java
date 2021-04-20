@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -3972,7 +3973,7 @@ public class JSONPath implements JSONAware {
         //throw new JSONPathException("jsonpath error, path " + path + ", segement " + propertyName);
     }
 
-    private static final Map<Long, Integer> integerToTimeHashMap = new HashMap<Long, Integer>(6) {
+    private static final Map<Long, Integer> integerToTimeHashMap = new TreeMap<Long, Integer>() {
         {
             put(0x7c64634977425edcL, Calendar.YEAR); //TypeUtils.fnv1a_64("year");
             put(0xf4bdc3936faf56a5L, Calendar.MONTH);//TypeUtils.fnv1a_64("month");

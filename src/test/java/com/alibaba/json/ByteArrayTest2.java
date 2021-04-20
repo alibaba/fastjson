@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-04-10 23:10:01
- * @LastEditTime: 2021-04-20 14:14:32
- * @LastEditors: your name
- * @Description: In User Settings Edit
- * @FilePath: \fastjson\src\test\java\com\alibaba\json\ByteArrayTest2.java
- */
 package com.alibaba.json;
 
 import com.alibaba.fastjson.JSON;

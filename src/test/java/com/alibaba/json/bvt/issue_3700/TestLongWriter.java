@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.serializer.issue3720;
+package com.alibaba.json.bvt.issue_3700;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;

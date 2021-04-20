@@ -16,9 +16,9 @@ import kotlin.properties.Delegates
  */
 
 
-class TestIssue3223 {
+class Issue3223 {
 
-    @Test
+    //@Test
     fun test() {
         val cfg = ParserConfig.getGlobalInstance()
         cfg.addAccept("com.")

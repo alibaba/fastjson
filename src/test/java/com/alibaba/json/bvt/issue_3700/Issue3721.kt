@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON
 import org.junit.Test
 
 class Issue3721 {
-    //@Test
+    @Test
     fun kotlinFunSerializeErrorTest() {
         val temp = fun() {};
         try {

@@ -91,11 +91,6 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                     } catch (IOException e) {
                         throw new JSONException(e.getMessage(), e);
                     }
-//                    out.writeLong(((Long) item).longValue());
-//
-//                    if (out.isEnabled(SerializerFeature.WriteClassName)) {
-//                        out.write('L');
-//                    }
                     continue;
                 }
 

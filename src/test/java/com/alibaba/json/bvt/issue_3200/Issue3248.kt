@@ -17,7 +17,7 @@ class Issue3248 {
 
     var isTest: Boolean = false
 
-    //@Test
+    @Test
     fun test() {
 
         val test = Issue3248().also {

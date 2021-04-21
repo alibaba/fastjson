@@ -74,4 +74,14 @@ public class OptionalTest extends TestCase {
         OptionalDouble val2 = JSON.parseObject(text, OptionalDouble.class);
         Assert.assertEquals(Double.toString(val.getAsDouble()), Double.toString(val2.getAsDouble()));
     }
+
+    public void test_optional_parseNull() throws Exception {
+        assertSame(Optional.empty()
+                , JSON.parseObject("null", Optional.class));
+    }
+
+    public void test_optional_parseNull_2() throws Exception {
+        assertSame(Optional.empty()
+                , JSON.parseObject("null", new TypeReference<Optional<Integer>>() {}));
+    }
 }

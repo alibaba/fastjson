@@ -68,37 +68,37 @@ public class Issue3672 {
     }
 
     @Data
-    private static class Issue3672Root {
+    private class Issue3672Root {
         private Issue3672A a;
     }
 
     @Data
-    private static class Issue3672Root2 {
+    private class Issue3672Root2 {
         private Issue3672A2 a;
     }
 
     @Data
-    private static class Issue3672A {
+    privateclass Issue3672A {
         private Object[] b;
     }
 
     @Data
-    private static class Issue3672A2 {
+    private class Issue3672A2 {
         private Issue3672B[] b;
     }
 
     @Data
-    private static class Issue3672B {
+    private class Issue3672B {
         private Issue3672C c;
     }
 
     @Data
-    private static class Issue3672C {
+    private class Issue3672C {
         private Issue3672D d;
     }
 
     @Data
-    private static class Issue3672D {
+    private class Issue3672D {
         private ArrayList<Issue3672C> e;
     }
 

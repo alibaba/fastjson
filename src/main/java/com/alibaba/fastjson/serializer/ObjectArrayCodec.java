@@ -108,6 +108,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                     }
                     out.append(',');
                 }
+              
             }
 
             Object item = array[end];

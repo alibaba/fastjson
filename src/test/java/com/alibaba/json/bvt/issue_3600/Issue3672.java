@@ -52,7 +52,7 @@ public class Issue3672 {
 
     @Test
     public void test_root2_with_Issue3672BArray() {
-        root = init_root();
+        root2 = init_root2();
         Assert.assertFalse(JSON.toJSONString(root2).contains("null"));
         Assert.assertFalse(JSON.toJSONString(root2, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).contains("null"));
     }

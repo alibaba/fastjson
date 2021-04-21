@@ -51,40 +51,40 @@ public class Issue3719 {
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue1() {
+    public void test_for_issue_wrong_case1() {
         JSON.parse(stringAfterDecode);
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue2() {
+    public void test_for_issue_wrong_case2() {
         JSON.parse(stringAfterDecode2);
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue3() {
+    public void test_for_issue_wrong_case3() {
         JSON.parse(stringAfterDecode3);
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue4() {
+    public void test_for_issue_wrong_case4() {
         JSON.parse(stringAfterDecode4);
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue5() {
+    public void test_for_issue_wrong_case5() {
         JSON.parse(stringAfterDecode5);
     }
 
     @Test(expected = JSONException.class)
-    public void test_for_issue6() {
+    public void test_for_issue_wrong_case6() {
         JSON.parse(stringAfterDecode6);
     }
     @Test(expected = JSONException.class)
-    public void test_for_issue7() {
+    public void test_for_issue_wrong_case7() {
         JSON.parse(stringAfterDecode7);
     }
     @Test(expected = JSONException.class)
-    public void test_for_issue8() {
+    public void test_for_issue_wrong_case8() {
         JSON.parse(stringAfterDecode8);
     }
 }

@@ -24,11 +24,35 @@ public class Issue3365 {
         layer1Ele.put("layer2Ele", layer2Ele);
         return layer1Ele;
     }
-
+    public JSONArray init_json_4_layer(){
+        JSONObject layer1 = init_json();
+        JSONArray will_return = new JSONArray();
+        will_return.add(layer1);
+        return will_return;
+    }
     @Test
-    public void test2() {
+    public void test_for_issue() {
         JSONObject iJson = init_json();
 
+        JSONArray jsonObject = iJson.getJSONArray("layer2Ele");
+        //1.2.46 遍历时iJarray存储的元素类型是 JSONObject
+        //1.2.68 遍历时iJarray存储的元素类型是 JSONArray
+        for (Object o : jsonObject) {
+            System.out.println(o instanceof JSONArray);
+            System.out.println(o instanceof JSONObject);
+            System.out.println(o.getClass().getName());
+            System.out.println(o);
+        }
+        for (Object ele : jsonObject) {
+            JSONObject ele_object = (JSONObject) ele;
+            System.out.println(ele_object.toString());
+        }
+    }
+    @Test
+    public void test_for_deeper_layer() {
+        // CS304 (manually written) Issue link: https://github.com/alibaba/fastjson/issues/3365
+        JSONArray layer0 = init_json_4_layer();
+        JSONObject iJson = (JSONObject) layer0.get(0);
         JSONArray jsonObject = iJson.getJSONArray("layer2Ele");
         //1.2.46 遍历时iJarray存储的元素类型是 JSONObject
         //1.2.68 遍历时iJarray存储的元素类型是 JSONArray

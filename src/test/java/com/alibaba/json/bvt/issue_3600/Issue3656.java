@@ -23,7 +23,7 @@ public class Issue3656 {
     }
 
     @Test(expected = JSONException.class)
-    public void test_issue_1() {
+    public void test_for_issue() {
         String jsonStr = "{\n" +
                 "    \"serviceType\":\"dubbo\",\n" +
                 "    \"types\":[\n" +
@@ -32,6 +32,27 @@ public class Issue3656 {
                 "            ],\n" +
                 "            \"typeBuilderName\":\"DefaultTypeBuilder\",\n" +
                 "            \"type\":\"int\",\n" +
+                "            \"items\":[\n" +
+                "            ],\n" +
+                "            \"properties\":{\n" +
+                "            }\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+        JSON.parseObject(jsonStr, issue3656_Metadata.class);
+    }
+    @Test(expected = JSONException.class)
+    public void test_for_ensure_no_other_things_can_be_parse() {
+        //CS304 (manually written) Issue link: https://github.com/alibaba/fastjson/issues/3656
+        String jsonStr = "{\n" +
+                "    \"serviceType\":\"dubbo\",\n" +
+                "    \"types\":[\n" +
+                "        {\n" +
+                "            \"enums\":[\n" +
+                "            ],\n" +
+                "            \"typeBuilderName\":\"DefaultTypeBuilder\",\n" +
+                "            \"type\":\"int\",\n" +
+                "            \"@type\":\"fastjson\",\n" +
                 "            \"items\":[\n" +
                 "            ],\n" +
                 "            \"properties\":{\n" +

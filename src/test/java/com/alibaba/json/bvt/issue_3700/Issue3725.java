@@ -61,7 +61,7 @@ public class Issue3725 {
     private static final String test_str_without_classname = "[\"xxxx\",1,1,1,1,1.0,1.0,\"S\",true]";
 
     @Test
-    public void test_for_issue_1() {
+    public void test_for_issue_1_with_classname_should_config_then_can_pass() {
         JSONValidator.setWriteClassName(true);
         String outputjsonWithClassName = JSON.toJSONString(list, SerializerFeature.WriteClassName);
         Assert.assertEquals(test_str_with_classname, outputjsonWithClassName);
@@ -79,7 +79,7 @@ public class Issue3725 {
     }
 
     @Test
-    public void test_for_issue_2() {
+    public void test_for_issue_2_withoutClassNameCanPass() {
         String outputjsonWithoutClassName = JSON.toJSONString(list);
         Assert.assertEquals(test_str_without_classname, outputjsonWithoutClassName);
         JSONValidator from = JSONValidator.from(test_str_without_classname);
@@ -96,7 +96,7 @@ public class Issue3725 {
     }
 
     @Test
-    public void test_for_issue_3() {
+    public void test_for_issue_3_no_config_can_not_pass() {
         String outputjsonWithClassName = JSON.toJSONString(list, SerializerFeature.WriteClassName);
         Assert.assertEquals(test_str_with_classname, outputjsonWithClassName);
         JSONValidator from = JSONValidator.from(test_str_with_classname);
@@ -109,7 +109,7 @@ public class Issue3725 {
     private static final String[] test_strs_with_wrong_className = new String[(2 * 26 - 5) * variables.length + 5];
 
     @Test
-    public void test_for_issue_4() {
+    public void test_for_issue_wrong_should_not_pass() {
         for (String str : test_strs_with_wrong_className) {
             JSONValidator from = JSONValidator.from(str);
             Assert.assertFalse(from.validate());

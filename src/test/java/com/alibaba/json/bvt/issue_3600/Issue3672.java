@@ -47,13 +47,13 @@ public class Issue3672 {
     }
 
     @Test
-    public void test1() {
+    public void test_root_withObjectArray() {
         Assert.assertFalse(JSON.toJSONString(root).contains("null"));
         Assert.assertFalse(JSON.toJSONString(root, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).contains("null"));
     }
 
     @Test
-    public void test2() {
+    public void test_root2_with_Issue3672BArray() {
         Assert.assertFalse(JSON.toJSONString(root2).contains("null"));
         Assert.assertFalse(JSON.toJSONString(root2, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue).contains("null"));
     }

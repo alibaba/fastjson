@@ -66,13 +66,13 @@ public class FastjsonBeanToArrayCodec implements Codec {
         return (T) JSON.parseObject(input, clazz, Feature.SupportArrayToBean, Feature.DisableCircularReferenceDetect);
     }
 
-    //@Override
+    @Override
     public byte[] encodeToBytes(Object object) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
 
-    //@Override
+    @Override
     public void encode(OutputStream out, Object object) throws Exception {
         out.write(encodeToBytes(object));        
     }

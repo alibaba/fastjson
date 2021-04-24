@@ -15,7 +15,7 @@ public class Issue3623 {
     private static final String str = "abcd";
 
     @Test
-    public void test1() {
+    public void test_for_issue_1() {
         Map<byte[], byte[]> map = new HashMap<byte[], byte[]>();
 
         map.put(str.getBytes(), str.getBytes());
@@ -31,7 +31,7 @@ public class Issue3623 {
     }
 
     @Test
-    public void test2() {
+    public void test_for_issue_2() {
         Pojo2 obj = new Pojo2();
         Map<byte[], byte[]> map = new HashMap<byte[], byte[]>();
         map.put(str.getBytes(), str.getBytes());

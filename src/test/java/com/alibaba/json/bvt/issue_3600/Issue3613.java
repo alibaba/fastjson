@@ -47,7 +47,7 @@ public class Issue3613 {
     @Test
     public void test_for_issue_1() {
         String result = JSONPath.extract(long_json_str1, json_path1).toString();
-        System.out.println(result);
+        Assert.assertEquals("[\"30.40.202.23\",\"美国 俄亥俄州哥伦布市国防部网络信息中心\"]", result);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class Issue3613 {
     @Test
     public void test_for_issue_4() {
         String result = JSONPath.extract(long_json_str1_key_without_quota, json_path1_without_quota).toString();
-        System.out.println(result);
+        Assert.assertEquals("[\"30.40.202.23\",\"美国 俄亥俄州哥伦布市国防部网络信息中心\"]", result);
     }
 
     private static final String short_json_str1 = "{\n" +
@@ -75,18 +75,18 @@ public class Issue3613 {
             "}";
     private static final String short_json_str1_key_without_quota = "{\n" +
             "   \"soap_Envelope\":{\n" +
-            "      \"xmlns,xsi\":{\n" +
+            "      \"-xmlns_xsi\":{\n" +
             "           \"a\":\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
             "       }\n" +
             "   }\n" +
             "}";
     private static final String json_path2 = "$.soap:Envelope.-xmlns:xsi.a";
-    private static final String json_path2_without_quota = "$.soap_Envelope.xmlns,xsi.a";
+    private static final String json_path2_without_quota = "$.soap_Envelope.-xmlns_xsi.a";
 
     @Test
     public void test_for_issue_5() {
         String result = JSONPath.extract(short_json_str1, json_path2).toString();
-        System.out.println(result);
+        Assert.assertEquals("http://www.w3.org/2001/XMLSchema-instance", result);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class Issue3613 {
     @Test
     public void test_for_issue_8() {
         String result = JSONPath.extract(short_json_str1_key_without_quota, json_path2_without_quota).toString();
-        System.out.println(result);
+        Assert.assertEquals("http://www.w3.org/2001/XMLSchema-instance", result);
     }
 }

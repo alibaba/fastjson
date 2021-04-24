@@ -1903,7 +1903,7 @@ public class JSONPath implements JSONAware {
         String readName() {
             skipWhitespace();
 
-            if (ch != '\\' && !Character.isJavaIdentifierStart(ch)) {
+            if (ch != '\\' && !(Character.isJavaIdentifierPart(ch) || ch == ':' || ch == ',')) {
                 throw new JSONPathException("illeal jsonpath syntax. " + path);
             }
 

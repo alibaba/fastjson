@@ -44,10 +44,20 @@ public class Issue3732 extends TestCase {
             }
             return roleIdList;
         }
+
+        @Override
+        public boolean equals(Object other){
+            if (other instanceof User) {
+                List<Integer> otherIdList = ((User) other).getRoleIdList();
+                return this.getRoleIdList().equals(otherIdList);
+            }
+            return false;
+        }
     }
 
     @Test
     public void test_for_issue(){
+        // (manually written) CS304 Issue link: https://github.com/alibaba/fastjson/issues/3732
         Role role1 = new Role(1);
         Role role2 = new Role(2);
         Role role3 = new Role(3);
@@ -57,11 +67,11 @@ public class Issue3732 extends TestCase {
         roleList.add(role3);
         User user = new User();
         user.roleList = roleList;
-//        List <int> roleIdList = user.getRoleIdList();
 
         String userString = JSON.toJSONString(user);
         System.out.println(userString);
 
         User parseUser = JSON.parseObject(userString,User.class);
+        assertEquals(user,parseUser);
     }
 }

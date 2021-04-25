@@ -571,8 +571,12 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
                     } else if (fieldClass == String.class) {
-                        fieldValue = lexer.scanFieldString(name_chars);
-                        
+                        if (fieldInfo.name.equals(typeKey)){
+                            //todo
+                        } else {
+                            fieldValue = lexer.scanFieldString(name_chars);
+                        }
+
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;
@@ -673,8 +677,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             }
                         }
                     } else if (fieldClass == int[].class) {
-                        fieldValue = lexer.scanFieldIntArray(name_chars);
-
                         if (lexer.matchStat > 0) {
                             matchField = true;
                             valueParsed = true;

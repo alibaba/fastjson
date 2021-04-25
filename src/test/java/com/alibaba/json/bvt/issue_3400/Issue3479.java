@@ -53,4 +53,35 @@ public class Issue3479 {
         Assert.assertNotNull(dog2);
         Assert.assertNotNull(cat2);
     }
+
+    @JSONType(seeAlso = {Dollar.class}, typeKey = "country")
+    public static abstract class Money{
+        private String country;
+
+        public String getCountry() {
+            return country;
+        }
+
+        public void setCountry(String country) {
+            this.country = country;
+        }
+    }
+
+    @JSONType(typeName = "America")
+    @Data
+    public static class Dollar extends Money{
+        public int value;
+    }
+
+    @Test
+    public void test2() {
+        Dollar dollar = new Dollar();
+        dollar.value = 12;
+        String text_dollar = JSON.toJSONString(dollar, SerializerFeature.WriteClassName);
+        System.out.println(text_dollar);
+        Dollar dollar1 = (Dollar) JSON.parseObject(text_dollar,Money.class);
+        Assert.assertNotNull(dollar1);
+        Assert.assertEquals(dollar.value,dollar1.value);
+
+    }
 }

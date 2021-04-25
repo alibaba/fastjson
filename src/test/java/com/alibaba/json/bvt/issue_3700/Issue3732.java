@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Issue3732 extends TestCase {
-    static class Role{
+    static class InnerClass {
         int id;
 
-        public Role() {}
+        public InnerClass() {}
 
-        public Role(int id) {
+        public InnerClass(int id) {
             this.id = id;
         }
 
@@ -23,25 +23,23 @@ public class Issue3732 extends TestCase {
             return id;
         }
     }
-    static class User{
 
-        List<Role> roleList;
+    static class OuterClass {
+        List<InnerClass> innerClassList;
 
-        public void setRoleList(List<Role> roleList) {
-            this.roleList = roleList;
+        public void setRoleList(List<InnerClass> innerClassList) {
+            this.innerClassList = innerClassList;
         }
 
-        public List<Role> getRoleList() {
-            return roleList;
+        public List<InnerClass> getRoleList() {
+            return innerClassList;
         }
-
-//        public void setRoleIdList(List<int> roleIdList){}
 
         public List<Integer> getRoleIdList(){
-            if (roleList == null) return null;
+            if (innerClassList == null) return null;
             List<Integer> roleIdList = new ArrayList<Integer>();
-            for (Role role : roleList) {
-                roleIdList.add(role.id);
+            for (InnerClass innerClass : innerClassList) {
+                roleIdList.add(innerClass.id);
             }
             return roleIdList;
         }
@@ -52,31 +50,62 @@ public class Issue3732 extends TestCase {
 
         @Override
         public boolean equals(Object other){
-            if (other instanceof User) {
-                List<Integer> otherIdList = ((User) other).getRoleIdList();
+            if (other instanceof OuterClass) {
+                List<Integer> otherIdList = ((OuterClass) other).getRoleIdList();
                 return this.getRoleIdList().equals(otherIdList);
             }
             return false;
         }
     }
 
+    static class SingleClass{
+        int value;
+
+        public SingleClass() {}
+
+        public SingleClass(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public int getValueValue(){
+            return value;
+        }
+    }
+
     @Test
-    public void test_for_issue(){
-        // (manually written) CS304 Issue link: https://github.com/alibaba/fastjson/issues/3732
-        Role role1 = new Role(1);
-        Role role2 = new Role(2);
-        Role role3 = new Role(3);
-        List<Role> roleList = new ArrayList<Role>();
-        roleList.add(role1);
-        roleList.add(role2);
-        roleList.add(role3);
-        User user = new User();
-        user.roleList = roleList;
+    public void test_for_nested_class(){
+        InnerClass innerClass1 = new InnerClass(1);
+        InnerClass innerClass2 = new InnerClass(2);
+        InnerClass innerClass3 = new InnerClass(3);
+        List<InnerClass> innerClassList = new ArrayList<InnerClass>();
+        innerClassList.add(innerClass1);
+        innerClassList.add(innerClass2);
+        innerClassList.add(innerClass3);
+        OuterClass outerClass = new OuterClass();
+        outerClass.innerClassList = innerClassList;
 
-        String userString = JSON.toJSONString(user);
-        System.out.println(userString);
+        String jsonString = JSON.toJSONString(outerClass);
+        System.out.println(jsonString);
 
-        User parseUser = JSON.parseObject(userString,User.class);
-        assertEquals(user,parseUser);
+        OuterClass parseOuterClass = JSON.parseObject(jsonString, OuterClass.class);
+        assertEquals(outerClass, parseOuterClass);
+    }
+
+    @Test
+    public void test_for_single_class(){
+        SingleClass singleClass = new SingleClass(100);
+        String jsonString = JSON.toJSONString(singleClass);
+        System.out.println(jsonString);
+
+        SingleClass parseSingleClass = JSON.parseObject(jsonString, SingleClass.class);
+        assertEquals(singleClass.value,parseSingleClass.value);
     }
 }

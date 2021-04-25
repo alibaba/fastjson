@@ -8,6 +8,7 @@ import com.alibaba.fastjson.util.FieldInfo;
 import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,6 +54,12 @@ public abstract class FieldDeserializer {
         setValue(object, (Object) value);
     }
 
+    private final static Map<Class<?>, Class<?>> fieldClassToValueClass = new HashMap<Class<?>, Class<?>>() {{
+        put(AtomicInteger.class, int.class);
+        put(AtomicLong.class, long.class);
+        put(AtomicBoolean.class, boolean.class);
+    }};
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void setValue(Object object, Object value) {
         if (value == null //
@@ -68,25 +75,12 @@ public abstract class FieldDeserializer {
             Method method = fieldInfo.method;
             if (method != null) {
                 if (fieldInfo.getOnly) {
-                    if (fieldInfo.fieldClass == AtomicInteger.class) {
-                        AtomicInteger atomic = (AtomicInteger) method.invoke(object);
-                        if (atomic != null) {
-                            atomic.set(((AtomicInteger) value).get());
-                        } else {
-                            degradeValueAssignment(fieldInfo.field, method, object, value);
-                        }
-                    } else if (fieldInfo.fieldClass == AtomicLong.class) {
-                        AtomicLong atomic = (AtomicLong) method.invoke(object);
-                        if (atomic != null) {
-                            atomic.set(((AtomicLong) value).get());
-                        } else {
-                            degradeValueAssignment(fieldInfo.field, method, object, value);
-                        }
-                    } else if (fieldInfo.fieldClass == AtomicBoolean.class) {
-                        AtomicBoolean atomic = (AtomicBoolean) method.invoke(object);
-                        if (atomic != null) {
-                            atomic.set(((AtomicBoolean) value).get());
-                        } else {
+                    if (fieldClassToValueClass.containsKey(fieldInfo.fieldClass)) {
+                        Object preKObject = method.invoke(object);
+                        Object kObject = setValueToFieldinfoClass(
+                                fieldInfo.fieldClass, fieldClassToValueClass.get(fieldInfo.fieldClass),
+                                preKObject, value);
+                        if (kObject == null) {
                             degradeValueAssignment(fieldInfo.field, method, object, value);
                         }
                     } else if (Map.class.isAssignableFrom(method.getReturnType())) {
@@ -115,7 +109,7 @@ public abstract class FieldDeserializer {
                                 return;
                             }
 
-                            if (map.getClass().getName().equals("kotlin.collections.EmptyMap")) {
+                            if (mapClassName.equals("kotlin.collections.EmptyMap")) {
                                 degradeValueAssignment(fieldInfo.field, method, object, value);
                                 return;
                             }
@@ -137,8 +131,8 @@ public abstract class FieldDeserializer {
 
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
-                                    || collectionClassName == "java.util.ImmutableCollections$ListN"
-                                    || collectionClassName == "java.util.ImmutableCollections$List12"
+                                    || collectionClassName.equals("java.util.ImmutableCollections$ListN")
+                                    || collectionClassName.equals("java.util.ImmutableCollections$List12")
                                     || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;
@@ -218,6 +212,17 @@ public abstract class FieldDeserializer {
         }
     }
 
+    public static <K, V> K setValueToFieldinfoClass(Class<K> clazz, Class<V> clazzv,
+                                                    Object preKObject, Object value
+    ) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        K kObject = (K) preKObject;
+        Method set = kObject.getClass().getDeclaredMethod("set", clazzv);
+        Method get = value.getClass().getDeclaredMethod("get");
+        V getValue = (V) get.invoke((K) value);
+        set.invoke(kObject, getValue);
+        return kObject;
+    }
+
     /**
      * kotlin代理类property的get方法会抛未初始化异常，用set方法直接赋值
      */
@@ -225,8 +230,12 @@ public abstract class FieldDeserializer {
         if (setFieldValue(field, object, value)) {
             return;
         }
-        Method setMethod = object.getClass().getDeclaredMethod("set" + getMethod.getName().substring(3), getMethod.getReturnType());
-        setMethod.invoke(object, value);
+        try {
+            Method setMethod = object.getClass().getDeclaredMethod("set" + getMethod.getName().substring(3), getMethod.getReturnType());
+            setMethod.invoke(object, value);
+        } catch (NoSuchMethodException name) {
+            // skip
+        }
     }
 
     private static boolean setFieldValue(Field field, Object object, Object value) throws IllegalAccessException {

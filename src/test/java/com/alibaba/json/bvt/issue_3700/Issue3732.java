@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public class Issue3732 extends TestCase {
     static class Role{
@@ -35,9 +34,9 @@ public class Issue3732 extends TestCase {
             return roleList;
         }
 
-//        public void setRoleIdList(List<Integer> roleIdList){}
+//        public void setRoleIdList(List<int> roleIdList){}
 
-        public List<Integer> getRoleIdList(){ //去掉public则不报错
+        public List<Integer> getRoleIdList(){
             if (roleList == null) return null;
             List<Integer> roleIdList = new ArrayList<Integer>();
             for (Role role : roleList) {
@@ -58,7 +57,7 @@ public class Issue3732 extends TestCase {
         roleList.add(role3);
         User user = new User();
         user.roleList = roleList;
-//        List <Integer> roleIdList = user.getRoleIdList();
+//        List <int> roleIdList = user.getRoleIdList();
 
         String userString = JSON.toJSONString(user);
         System.out.println(userString);

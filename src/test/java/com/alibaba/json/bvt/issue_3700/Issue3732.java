@@ -24,6 +24,7 @@ public class Issue3732 extends TestCase {
         }
     }
     static class User{
+
         List<Role> roleList;
 
         public void setRoleList(List<Role> roleList) {
@@ -43,6 +44,10 @@ public class Issue3732 extends TestCase {
                 roleIdList.add(role.id);
             }
             return roleIdList;
+        }
+
+        public int getTest(){
+            return 0;
         }
 
         @Override

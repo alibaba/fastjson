@@ -36,7 +36,7 @@ public class Issue3479 {
     }
 
     @Test
-    public void test1() {
+    public void test_to_compare_different_field() {
         issue3479_Dog dog = new issue3479_Dog();
         issue3479_Cat cat = new issue3479_Cat();
         dog.dogName = "dog3479";

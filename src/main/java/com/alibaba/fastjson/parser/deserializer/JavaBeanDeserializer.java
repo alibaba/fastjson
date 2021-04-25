@@ -392,6 +392,16 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         throw new JSONException("illegal enum. " + lexer.info());
     }
 
+    private static final Map<Class<?>,?> classToZeroMap = new HashMap<Class<?>,Object>(){{
+        put(byte.class,(byte)0);
+        put(short.class,(short)0);
+        put(int.class,(int)0);
+        put(long.class,0L);
+        put(float.class,0F);
+        put(double.class,0D);
+        put(boolean.class,Boolean.FALSE);
+    }};
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected <T> T deserialze(DefaultJSONParser parser, // 
                                Type type, // 
@@ -571,8 +581,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             continue;
                         }
                     } else if (fieldClass == String.class) {
+                        //系统会先匹配上field而不是type，导致报错
                         if (fieldInfo.name.equals(typeKey)){
-                            //todo
+                            lexer.matchStat=JSONLexer.NOT_MATCH_NAME;
                         } else {
                             fieldValue = lexer.scanFieldString(name_chars);
                         }
@@ -727,7 +738,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                     }
 
-                    if ("$ref" == key && context != null) {
+                    if ("$ref".equals(key) && context != null) {
                         lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                         token = lexer.token();
                         if (token == JSONToken.LITERAL_STRING) {
@@ -790,7 +801,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     }
 
                     if ((typeKey != null && typeKey.equals(key))
-                            || JSON.DEFAULT_TYPE_KEY == key) {
+                            || JSON.DEFAULT_TYPE_KEY.equals(key)) {
                         lexer.nextTokenWithColon(JSONToken.LITERAL_STRING);
                         if (lexer.token() == JSONToken.LITERAL_STRING) {
                             String typeName = lexer.stringVal();
@@ -945,20 +956,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         if (param == null) {
                             Type fieldType = beanInfo.creatorConstructorParameterTypes[i];
                             FieldInfo fieldInfo = beanInfo.fields[i];
-                            if (fieldType == byte.class) {
-                                param = (byte) 0;
-                            } else if (fieldType == short.class) {
-                                param = (short) 0;
-                            } else if (fieldType == int.class) {
-                                param = 0;
-                            } else if (fieldType == long.class) {
-                                param = 0L;
-                            } else if (fieldType == float.class) {
-                                param = 0F;
-                            } else if (fieldType == double.class) {
-                                param = 0D;
-                            } else if (fieldType == boolean.class) {
-                                param = Boolean.FALSE;
+                            if(classToZeroMap.containsKey(fieldType)){
+                                param=classToZeroMap.get(fieldType);
                             } else if (fieldType == String.class
                                     && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
                                 param = "";
@@ -993,20 +992,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         Object param = fieldValues.get(fieldInfo.name);
                         if (param == null) {
                             Type fieldType = fieldInfo.fieldType;
-                            if (fieldType == byte.class) {
-                                param = (byte) 0;
-                            } else if (fieldType == short.class) {
-                                param = (short) 0;
-                            } else if (fieldType == int.class) {
-                                param = 0;
-                            } else if (fieldType == long.class) {
-                                param = 0L;
-                            } else if (fieldType == float.class) {
-                                param = 0F;
-                            } else if (fieldType == double.class) {
-                                param = 0D;
-                            } else if (fieldType == boolean.class) {
-                                param = Boolean.FALSE;
+                            if(classToZeroMap.containsKey(fieldType)){
+                                param=classToZeroMap.get(fieldType);
                             } else if (fieldType == String.class
                                     && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
                                 param = "";

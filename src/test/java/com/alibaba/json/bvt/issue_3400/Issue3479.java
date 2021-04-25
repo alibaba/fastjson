@@ -74,7 +74,7 @@ public class Issue3479 {
     }
 
     @Test
-    public void test2() {
+    public void test_for_same_name_in_field_and_typeKey() {
         Dollar dollar = new Dollar();
         dollar.value = 12;
         String text_dollar = JSON.toJSONString(dollar, SerializerFeature.WriteClassName);

@@ -538,7 +538,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>4.2.3.RELEASE</version>
+            <version>5.2.10.RELEASE</version>
             <scope>test</scope>
         </dependency>
 

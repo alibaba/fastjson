@@ -576,7 +576,7 @@ public class SerializeConfig {
                     || XMLGregorianCalendar.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = CalendarCodec.instance);
             } else if (TypeUtils.isClob(clazz)) {
-                put(clazz, writer = ClobSeriliazer.instance);
+                put(clazz, writer = ClobSerializer.instance);
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, writer = ToStringSerializer.instance);
             } else if (Iterator.class.isAssignableFrom(clazz)) {

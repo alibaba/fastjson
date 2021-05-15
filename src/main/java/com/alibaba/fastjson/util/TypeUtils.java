@@ -349,7 +349,7 @@ public class TypeUtils{
         }
         return new BigDecimal(strVal);
     }
-    
+
     public static BigInteger castToBigInteger(Object value) {
         if (value == null) {
             return null;
@@ -646,21 +646,27 @@ public class TypeUtils{
             longValue = ((Number) value).longValue();
         }
 
-        if(value instanceof String){
+        if (value instanceof String) {
             String strVal = (String) value;
-            if(strVal.length() == 0 //
-                    || "null".equalsIgnoreCase(strVal)){
+            if (strVal.length() == 0 //
+                    || "null".equalsIgnoreCase(strVal)) {
                 return null;
             }
-            if(isNumber(strVal)){
+
+            if (isNumber(strVal)) {
                 longValue = Long.parseLong(strVal);
-            } else{
+            } else {
+                if (strVal.length() == 8 && strVal.charAt(2) == ':' && strVal.charAt(5) == ':') {
+                    return java.sql.Time.valueOf(strVal);
+                }
+
                 JSONScanner scanner = new JSONScanner(strVal);
-                if(scanner.scanISO8601DateIfMatch(false)){
+                if (scanner.scanISO8601DateIfMatch(false)) {
                     longValue = scanner.getCalendar().getTime().getTime();
-                } else{
+                } else {
                     throw new JSONException("can not cast to Timestamp, value : " + strVal);
                 }
+
             }
         }
         if(longValue <= 0){
@@ -1611,6 +1617,7 @@ public class TypeUtils{
                 java.lang.VerifyError.class,
                 java.lang.StackTraceElement.class,
                 java.util.HashMap.class,
+                java.util.LinkedHashMap.class,
                 java.util.Hashtable.class,
                 java.util.TreeMap.class,
                 java.util.IdentityHashMap.class,
@@ -1777,7 +1784,7 @@ public class TypeUtils{
             }
 
             PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
-            if (jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+            if (jsonTypeNaming != PropertyNamingStrategy.NeverUseThisValueExceptDefaultValue) {
                 propertyNamingStrategy = jsonTypeNaming;
             }
 
@@ -3326,5 +3333,33 @@ public class TypeUtils{
             }
         }
         return class_JacksonCreator != null && method.isAnnotationPresent(class_JacksonCreator);
+    }
+
+    private static Object OPTIONAL_EMPTY;
+    private static boolean OPTIONAL_ERROR = false;
+    public static Object optionalEmpty(Type type) {
+        if (OPTIONAL_ERROR) {
+            return null;
+        }
+
+        Class clazz = getClass(type);
+        if (clazz == null) {
+            return null;
+        }
+
+        String className = clazz.getName();
+
+        if ("java.util.Optional".equals(className)) {
+            if (OPTIONAL_EMPTY == null) {
+                try {
+                    Method empty = Class.forName(className).getMethod("empty");
+                    OPTIONAL_EMPTY = empty.invoke(null);
+                } catch (Throwable e) {
+                    OPTIONAL_ERROR = true;
+                }
+            }
+            return OPTIONAL_EMPTY;
+        }
+        return null;
     }
 }

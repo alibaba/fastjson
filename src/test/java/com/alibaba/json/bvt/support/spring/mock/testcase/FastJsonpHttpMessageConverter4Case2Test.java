@@ -26,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import java.util.List;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -96,8 +97,10 @@ public class FastJsonpHttpMessageConverter4Case2Test {
         ResultActions actions = mockMvc.perform((post("/fastjson/test1?callback=fnUpdateSome").characterEncoding(
                 "UTF-8").content(json.toJSONString()).contentType(MediaType.APPLICATION_JSON)));
         actions.andDo(print());
-        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("/**/fnUpdateSome({\"name\":\"哈哈哈\",\"id\":123})"));
+        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT));
+        String content = actions.andReturn().getResponse().getContentAsString();
+        assertTrue(content.equals("/**/fnUpdateSome({\"name\":\"哈哈哈\",\"id\":123})")
+                || content.equals("/**/fnUpdateSome({\"id\":123,\"name\":\"哈哈哈\"})"));
     }
 
     @Test
@@ -118,8 +121,10 @@ public class FastJsonpHttpMessageConverter4Case2Test {
         ResultActions actions = mockMvc.perform((post("/fastjson/test2?jsonp=fnUpdateSome").characterEncoding("UTF-8")
                 .content(jsonStr).contentType(MediaType.APPLICATION_JSON)));
         actions.andDo(print());
-        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT))
-                .andExpect(content().string("/**/fnUpdateSome({\"p1\":1,\"p2\":2})"));
+        actions.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JAVASCRIPT));
+        String content = actions.andReturn().getResponse().getContentAsString();
+        assertTrue(content.equals("/**/fnUpdateSome({\"p1\":1,\"p2\":2})")
+                || content.equals("/**/fnUpdateSome({\"p2\":2,\"p1\":1})"));
     }
 
     @Test

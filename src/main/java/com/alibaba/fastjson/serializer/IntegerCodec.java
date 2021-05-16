@@ -39,18 +39,18 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         Number value = (Number) object;
-        
+
         if (value == null) {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
-        
+
         if (object instanceof Long) {
             out.writeLong(value.longValue());
         } else {
             out.writeInt(value.intValue());
         }
-        
+
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
@@ -60,7 +60,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -94,18 +94,20 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
                 }
             }
         } catch (Exception ex) {
-            String message = "parseInt error";
+            StringBuilder errorMessageBuilder = new StringBuilder();
+            errorMessageBuilder.append("parseInt error");
             if (fieldName != null) {
-                message += (", field : " + fieldName);
+                errorMessageBuilder.append(", field : ");
+                errorMessageBuilder.append(fieldName);
             }
-            throw new JSONException(message, ex);
+            throw new JSONException(errorMessageBuilder.toString(), ex);
         }
 
-        
+
         if (clazz == AtomicInteger.class) {
             return (T) new AtomicInteger(intObj.intValue());
         }
-        
+
         return (T) intObj;
     }
 

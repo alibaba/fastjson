@@ -22,6 +22,7 @@ import com.alibaba.fastjson.serializer.IntegerCodec;
 import com.alibaba.fastjson.serializer.LongCodec;
 import com.alibaba.fastjson.serializer.StringCodec;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.sun.org.apache.xpath.internal.operations.String;
 
 import java.io.Closeable;
 import java.lang.reflect.ParameterizedType;
@@ -1681,13 +1682,15 @@ public class DefaultJSONParser implements Closeable {
 
     public Object parse(PropertyProcessable object, Object fieldName) {
         if (lexer.token() != JSONToken.LBRACE) {
-            String msg = "syntax error, expect {, actual " + lexer.tokenName();
+            StringBuilder messageBuilder = new StringBuilder();
+            messageBuilder.append("syntax error, expect {, actual ");
+            messageBuilder.append(lexer.tokenName());
             if (fieldName instanceof String) {
-                msg += ", fieldName ";
-                msg += fieldName;
+                messageBuilder.append(", fieldName ");
+                messageBuilder.append(fieldName);
             }
-            msg += ", ";
-            msg += lexer.info();
+            messageBuilder.append(", ");
+            messageBuilder.append(lexer.info());
 
             JSONArray array = new JSONArray();
             parseArray(array, fieldName);
@@ -1699,7 +1702,7 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
 
-            throw new JSONException(msg);
+            throw new JSONException(messageBuilder.toString());
         }
 
         ParseContext context = this.context;

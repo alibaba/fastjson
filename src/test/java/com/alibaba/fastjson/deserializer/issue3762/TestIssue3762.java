@@ -19,8 +19,10 @@ public class TestIssue3762 {
         // SubInfo{id=1, name='a'}
         Demo.SubInfo readValue = new ObjectMapper().readValue(jsonString, Demo.SubInfo.class);
         Assert.assertEquals( parseValue, readValue );
+    }
 
-
+    @Test
+    public void testCase2() throws JsonProcessingException {
         Demo.A b = new Demo.B().setId( "1" );
         String jsonString2 = JSON.toJSONString( b );
         // B{id='1'}

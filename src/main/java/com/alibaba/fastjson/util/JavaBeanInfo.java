@@ -1155,7 +1155,7 @@ public class JavaBeanInfo {
         return builderClass;
     }
     
-     public static boolean isValidType( Class<?> clazz , Type returnType){
+     static boolean isValidType( Class<?> clazz , Type returnType){
         if ( returnType.equals(clazz)) return true;
         if ( clazz == Object.class || clazz == null ) return false;
         Class<?> clz;

@@ -271,7 +271,7 @@ public class JavaBeanInfo {
         JSONType jsonType = TypeUtils.getAnnotation(clazz,JSONType.class);
         if (jsonType != null) {
             PropertyNamingStrategy jsonTypeNaming = jsonType.naming();
-            if (jsonTypeNaming != null && jsonTypeNaming != PropertyNamingStrategy.CamelCase) {
+            if ( jsonTypeNaming != PropertyNamingStrategy.CamelCase ) {
                 propertyNamingStrategy = jsonTypeNaming;
             }
         }
@@ -504,8 +504,7 @@ public class JavaBeanInfo {
                             continue;
                         }
 
-                        if (creatorConstructor != null
-                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
+                        if ( creatorConstructor != null && lookupParameterNames.length <= paramNames.length ) {
                             continue;
                         }
 
@@ -659,42 +658,40 @@ public class JavaBeanInfo {
                         annotation, null, null, genericInfo));
             }
 
-            if (builderClass != null) {
-                JSONPOJOBuilder builderAnnotation = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
+            JSONPOJOBuilder builderAnnotation = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
 
-                String buildMethodName = null;
-                if (builderAnnotation != null) {
-                    buildMethodName = builderAnnotation.buildMethod();
-                }
+            String buildMethodName = null;
+            if (builderAnnotation != null) {
+                buildMethodName = builderAnnotation.buildMethod();
+            }
 
-                if (buildMethodName == null || buildMethodName.length() == 0) {
-                    buildMethodName = "build";
-                }
+            if (buildMethodName == null || buildMethodName.length() == 0) {
+                buildMethodName = "build";
+            }
 
+            try {
+                buildMethod = builderClass.getMethod(buildMethodName);
+            } catch (NoSuchMethodException e) {
+                // skip
+            } catch (SecurityException e) {
+                // skip
+            }
+
+            if (buildMethod == null) {
                 try {
-                    buildMethod = builderClass.getMethod(buildMethodName);
+                    buildMethod = builderClass.getMethod("create");
                 } catch (NoSuchMethodException e) {
                     // skip
                 } catch (SecurityException e) {
                     // skip
                 }
-
-                if (buildMethod == null) {
-                    try {
-                        buildMethod = builderClass.getMethod("create");
-                    } catch (NoSuchMethodException e) {
-                        // skip
-                    } catch (SecurityException e) {
-                        // skip
-                    }
-                }
-
-                if (buildMethod == null) {
-                    throw new JSONException("buildMethod not found.");
-                }
-
-                TypeUtils.setAccessible(buildMethod);
             }
+
+            if (buildMethod == null) {
+                throw new JSONException("buildMethod not found.");
+            }
+
+            TypeUtils.setAccessible(buildMethod);
         }
 
         for (Method method : methods) { //
@@ -707,9 +704,10 @@ public class JavaBeanInfo {
 
             // support builder set
             Class<?> returnType = method.getReturnType();
-            if (!(returnType.equals(Void.TYPE) || returnType.equals(method.getDeclaringClass()))) {
+            if (!(returnType.equals(Void.TYPE) || isValidType( method.getDeclaringClass(), returnType))) {
                 continue;
             }
+
 
             if (method.getDeclaringClass() == Object.class) {
                 continue;
@@ -772,10 +770,10 @@ public class JavaBeanInfo {
             List<String> getMethodNameList = null;
 
             if (kotlin) {
-                getMethodNameList = new ArrayList();
-                for (int i = 0; i < methods.length; i++) {
-                    if (methods[i].getName().startsWith("get")) {
-                        getMethodNameList.add(methods[i].getName());
+                getMethodNameList = new ArrayList<String>();
+                for (Method value : methods) {
+                    if ( value.getName( ).startsWith( "get" ) ) {
+                        getMethodNameList.add( value.getName( ) );
                     }
                 }
             }
@@ -1156,4 +1154,21 @@ public class JavaBeanInfo {
 
         return builderClass;
     }
+    
+     public static boolean isValidType( Class<?> clazz , Type returnType){
+        if ( returnType.equals(clazz)) return true;
+        if ( clazz == Object.class || clazz == null ) return false;
+        Class<?> clz;
+        try {
+            String superTypeString = clazz.getGenericSuperclass().toString();
+            if ( superTypeString.split( " " )[0].equals( "class" )){
+                clz = Class.forName( clazz.getGenericSuperclass().toString().split( " " )[1] );
+            }else{
+                clz = Class.forName( clazz.getGenericSuperclass().toString().split( " " )[0] );
+            }
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
+        return isValidType( clz, returnType );
+     }
 }

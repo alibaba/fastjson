@@ -87,15 +87,17 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
                                 fieldInfo.format,
                                 fieldInfo.parserFeatures);
             } else {
-                if (fieldInfo.field.getType().isInterface()) {
-                    // If an instance of this interface already exists, use it directly.
-                    Type itemType = TypeUtils.getCollectionItemType(fieldType);
+                //If the field is an interface, is a collection, and an instance has
+                //already existed. Then use the instance directly.
+                if (fieldInfo.field != null && object != null && fieldInfo.field.getType().isInterface()) {
                     try {
                         fieldInfo.field.setAccessible(true);
                         value = fieldInfo.field.get(object);
-                        if (value instanceof Collection<?>) {
+                        if ( value instanceof Collection<?> &&
+                                !value.getClass().getName().matches(".*((Empty)|(Unmodifiable)).*")) {
+                            Type itemType = TypeUtils.getCollectionItemType(fieldType);
                             parser.parseArray(itemType, (Collection<?>) value, fieldInfo.name);
-                        }else{
+                        } else {
                             value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
                         }
                     } catch (IllegalAccessException e) {

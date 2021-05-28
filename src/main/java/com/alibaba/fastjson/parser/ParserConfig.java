@@ -633,185 +633,39 @@ public class ParserConfig {
         if (deserializer != null) {
             return deserializer;
         }
-
-        {
-            JSONType annotation = TypeUtils.getAnnotation(clazz,JSONType.class);
-            if (annotation != null) {
-                Class<?> mappingTo = annotation.mappingTo();
-                if (mappingTo != Void.class) {
-                    return getDeserializer(mappingTo, mappingTo);
-                }
-            }
+        if ((deserializer = getJSONTypeDeserializer(clazz)) != null){
+            return deserializer;
         }
-
         if (type instanceof WildcardType || type instanceof TypeVariable || type instanceof ParameterizedType) {
             deserializer = get(clazz);
         }
-
         if (deserializer != null) {
             return deserializer;
         }
-
-        for (Module module : modules) {
-            deserializer = module.createDeserializer(this, clazz);
-            if (deserializer != null) {
-                putDeserializer(type, deserializer);
-                return deserializer;
-            }
+        if ((deserializer = createDeserializerFromModule(clazz, type)) != null){
+            return deserializer;
         }
 
         String className = clazz.getName();
         className = className.replace('$', '.');
 
-        if (className.startsWith("java.awt.") //
-            && AwtCodec.support(clazz)) {
-            if (!awtError) {
-                String[] names = new String[] {
-                        "java.awt.Point",
-                        "java.awt.Font",
-                        "java.awt.Rectangle",
-                        "java.awt.Color"
-                };
-
-                try {
-                    for (String name : names) {
-                        if (name.equals(className)) {
-                            putDeserializer(Class.forName(name), deserializer = AwtCodec.instance);
-                            return deserializer;
-                        }
-                    }
-                } catch (Throwable e) {
-                    // skip
-                    awtError = true;
-                }
-
-                deserializer = AwtCodec.instance;
-            }
+        if ((deserializer = getSpecificAwtDeserializer(clazz, className)) != null){
+            return deserializer;
         }
-
-        if (!jdk8Error) {
-            try {
-                if (className.startsWith("java.time.")) {
-                    String[] names = new String[] {
-                            "java.time.LocalDateTime",
-                            "java.time.LocalDate",
-                            "java.time.LocalTime",
-                            "java.time.ZonedDateTime",
-                            "java.time.OffsetDateTime",
-                            "java.time.OffsetTime",
-                            "java.time.ZoneOffset",
-                            "java.time.ZoneRegion",
-                            "java.time.ZoneId",
-                            "java.time.Period",
-                            "java.time.Duration",
-                            "java.time.Instant"
-                    };
-
-                    for (String name : names) {
-                        if (name.equals(className)) {
-                            putDeserializer(Class.forName(name), deserializer = Jdk8DateCodec.instance);
-                            return deserializer;
-                        }
-                    }
-                } else if (className.startsWith("java.util.Optional")) {
-                    String[] names = new String[] {
-                            "java.util.Optional",
-                            "java.util.OptionalDouble",
-                            "java.util.OptionalInt",
-                            "java.util.OptionalLong"
-                    };
-                    for (String name : names) {
-                        if (name.equals(className)) {
-                            putDeserializer(Class.forName(name), deserializer = OptionalCodec.instance);
-                            return deserializer;
-                        }
-                    }
-                }
-            } catch (Throwable e) {
-                // skip
-                jdk8Error = true;
-            }
+        if ((deserializer = getSpecificJdk8Deserializer(className)) != null){
+            return deserializer;
         }
-
-        if (!jodaError) {
-            try {
-                if (className.startsWith("org.joda.time.")) {
-                    String[] names = new String[] {
-                            "org.joda.time.DateTime",
-                            "org.joda.time.LocalDate",
-                            "org.joda.time.LocalDateTime",
-                            "org.joda.time.LocalTime",
-                            "org.joda.time.Instant",
-                            "org.joda.time.Period",
-                            "org.joda.time.Duration",
-                            "org.joda.time.DateTimeZone",
-                            "org.joda.time.format.DateTimeFormatter"
-                    };
-
-                    for (String name : names) {
-                        if (name.equals(className)) {
-                            putDeserializer(Class.forName(name), deserializer = JodaCodec.instance);
-                            return deserializer;
-                        }
-                    }
-                }
-            } catch (Throwable e) {
-                // skip
-                jodaError = true;
-            }
+        if ((deserializer = getSpecificJodaDeserializer(className)) != null){
+            return deserializer;
         }
-
-        if ((!guavaError) //
-                && className.startsWith("com.google.common.collect.")) {
-            try {
-                String[] names = new String[] {
-                        "com.google.common.collect.HashMultimap",
-                        "com.google.common.collect.LinkedListMultimap",
-                        "com.google.common.collect.LinkedHashMultimap",
-                        "com.google.common.collect.ArrayListMultimap",
-                        "com.google.common.collect.TreeMultimap"
-                };
-
-                for (String name : names) {
-                    if (name.equals(className)) {
-                        putDeserializer(Class.forName(name), deserializer = GuavaCodec.instance);
-                        return deserializer;
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                // skip
-                guavaError = true;
-            }
+        if ((deserializer = getSpecificGuavaDeserializer(className)) != null){
+            return deserializer;
         }
-
-        if (className.equals("java.nio.ByteBuffer")) {
-            putDeserializer(clazz, deserializer = ByteBufferCodec.instance);
+        //这里和原写法稍有差异，原写法这里不会直接返回，而是从后面返回
+        if ((deserializer = getOtherSpecificDeserializer(clazz, className)) != null){
+            return deserializer;
         }
-
-        if (className.equals("java.nio.file.Path")) {
-            putDeserializer(clazz, deserializer = MiscCodec.instance);
-        }
-
-        if (clazz == Map.Entry.class) {
-            putDeserializer(clazz, deserializer = MiscCodec.instance);
-        }
-
-        if (className.equals("org.javamoney.moneta.Money")) {
-            putDeserializer(clazz, deserializer = MonetaCodec.instance);
-        }
-
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
-                                                                            classLoader)) {
-                for (Type forType : autowired.getAutowiredFor()) {
-                    putDeserializer(forType, autowired);
-                }
-            }
-        } catch (Exception ex) {
-            // skip
-        }
-
+        loadAutowiredDeserializerFromSpecifyClassLoader(Thread.currentThread().getContextClassLoader());
         if (deserializer == null) {
             deserializer = get(type);
         }
@@ -821,54 +675,9 @@ public class ParserConfig {
         }
 
         if (clazz.isEnum()) {
-            if (jacksonCompatible) {
-                Method[] methods = clazz.getMethods();
-                for (Method method : methods) {
-                    if (TypeUtils.isJacksonCreator(method)) {
-                        deserializer = createJavaBeanDeserializer(clazz, type);
-                        putDeserializer(type, deserializer);
-                        return deserializer;
-                    }
-                }
-            }
-
-            Class mixInType = (Class) JSON.getMixInAnnotations(clazz);
-
-            Class<?> deserClass = null;
-            JSONType jsonType = TypeUtils.getAnnotation(mixInType != null ? mixInType : clazz, JSONType.class);
-
-            if (jsonType != null) {
-                deserClass = jsonType.deserializer();
-                try {
-                    deserializer = (ObjectDeserializer) deserClass.newInstance();
-                    putDeserializer(clazz, deserializer);
-                    return deserializer;
-                } catch (Throwable error) {
-                    // skip
-                }
-            }
-
-            Method jsonCreatorMethod = null;
-            if (mixInType != null) {
-                Method mixedCreator = getEnumCreator(mixInType, clazz);
-                if (mixedCreator != null) {
-                    try {
-                        jsonCreatorMethod = clazz.getMethod(mixedCreator.getName(), mixedCreator.getParameterTypes());
-                    } catch (Exception e) {
-                        // skip
-                    }
-                }
-            } else {
-                jsonCreatorMethod = getEnumCreator(clazz, clazz);
-            }
-
-            if (jsonCreatorMethod != null) {
-                deserializer = new EnumCreatorDeserializer(jsonCreatorMethod);
-                putDeserializer(clazz, deserializer);
+            if ((deserializer = getEnumDeserializer(clazz, type)) != null){
                 return deserializer;
             }
-
-            deserializer = getEnumDeserializer(clazz);
         } else if (clazz.isArray()) {
             deserializer = ObjectArrayCodec.instance;
         } else if (clazz == Set.class || clazz == HashSet.class || clazz == Collection.class || clazz == List.class
@@ -1574,4 +1383,299 @@ public class ParserConfig {
     public interface AutoTypeCheckHandler {
         Class<?> handler(String typeName, Class<?> expectClass, int features);
     }
+
+    /**
+     * 获取JSONType类型的ObjectDeserializer
+     * @param clazz
+     * @return
+     */
+    private ObjectDeserializer getJSONTypeDeserializer(Class<?> clazz) {
+        JSONType annotation = TypeUtils.getAnnotation(clazz, JSONType.class);
+        if (annotation != null) {
+            Class<?> mappingTo = annotation.mappingTo();
+            if (mappingTo != Void.class) {
+                return getDeserializer(mappingTo, mappingTo);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取一些Awt相关的特定ObjectDeserializer
+     * @param clazz
+     * @param className
+     * @return
+     */
+    private ObjectDeserializer getSpecificAwtDeserializer(Class<?> clazz, String className) {
+        ObjectDeserializer deserializer = null;
+        if (className.startsWith("java.awt.") //
+                && AwtCodec.support(clazz)) {
+            if (!awtError) {
+                String[] names = new String[]{
+                        "java.awt.Point",
+                        "java.awt.Font",
+                        "java.awt.Rectangle",
+                        "java.awt.Color"
+                };
+
+                try {
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            putDeserializer(Class.forName(name), deserializer = AwtCodec.instance);
+                            return deserializer;
+                        }
+                    }
+                } catch (Throwable e) {
+                    // skip
+                    awtError = true;
+                }
+
+                deserializer = AwtCodec.instance;
+            }
+        }
+        return deserializer;
+    }
+
+    /**
+     * 基于Module创建clazz对应的ObjectDeserializer
+     * @param clazz
+     * @param type
+     * @return
+     */
+    private ObjectDeserializer createDeserializerFromModule(Class<?> clazz, Type type) {
+        ObjectDeserializer deserializer = null;
+        for (Module module : modules) {
+            deserializer = module.createDeserializer(this, clazz);
+            if (deserializer != null) {
+                putDeserializer(type, deserializer);
+                return deserializer;
+            }
+        }
+        return deserializer;
+    }
+
+    /**
+     * 获取一些Jdk8相关类型的ObjectDeserializer
+     * @param className
+     * @return
+     */
+    private ObjectDeserializer getSpecificJdk8Deserializer(String className) {
+        ObjectDeserializer deserializer = null;
+        if (!jdk8Error) {
+            try {
+                if (className.startsWith("java.time.")) {
+                    String[] names = new String[]{
+                            "java.time.LocalDateTime",
+                            "java.time.LocalDate",
+                            "java.time.LocalTime",
+                            "java.time.ZonedDateTime",
+                            "java.time.OffsetDateTime",
+                            "java.time.OffsetTime",
+                            "java.time.ZoneOffset",
+                            "java.time.ZoneRegion",
+                            "java.time.ZoneId",
+                            "java.time.Period",
+                            "java.time.Duration",
+                            "java.time.Instant"
+                    };
+
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            putDeserializer(Class.forName(name), deserializer = Jdk8DateCodec.instance);
+                            return deserializer;
+                        }
+                    }
+                } else if (className.startsWith("java.util.Optional")) {
+                    String[] names = new String[]{
+                            "java.util.Optional",
+                            "java.util.OptionalDouble",
+                            "java.util.OptionalInt",
+                            "java.util.OptionalLong"
+                    };
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            putDeserializer(Class.forName(name), deserializer = OptionalCodec.instance);
+                            return deserializer;
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                // skip
+                jdk8Error = true;
+            }
+        }
+        return deserializer;
+    }
+
+    /**
+     * 获取一些Joda相关类型的ObjectDeserializer
+     * @param className
+     * @return
+     */
+    private ObjectDeserializer getSpecificJodaDeserializer(String className) {
+        ObjectDeserializer deserializer = null;
+        if (!jodaError) {
+            try {
+                if (className.startsWith("org.joda.time.")) {
+                    String[] names = new String[]{
+                            "org.joda.time.DateTime",
+                            "org.joda.time.LocalDate",
+                            "org.joda.time.LocalDateTime",
+                            "org.joda.time.LocalTime",
+                            "org.joda.time.Instant",
+                            "org.joda.time.Period",
+                            "org.joda.time.Duration",
+                            "org.joda.time.DateTimeZone",
+                            "org.joda.time.format.DateTimeFormatter"
+                    };
+
+                    for (String name : names) {
+                        if (name.equals(className)) {
+                            putDeserializer(Class.forName(name), deserializer = JodaCodec.instance);
+                            return deserializer;
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                // skip
+                jodaError = true;
+            }
+        }
+        return deserializer;
+    }
+
+    /**
+     * 获取一些Guava相关类型的ObjectDeserializer
+     * @param className
+     * @return
+     */
+    private ObjectDeserializer getSpecificGuavaDeserializer(String className) {
+        ObjectDeserializer deserializer = null;
+        if ((!guavaError) //
+                && className.startsWith("com.google.common.collect.")) {
+            try {
+                String[] names = new String[]{
+                        "com.google.common.collect.HashMultimap",
+                        "com.google.common.collect.LinkedListMultimap",
+                        "com.google.common.collect.LinkedHashMultimap",
+                        "com.google.common.collect.ArrayListMultimap",
+                        "com.google.common.collect.TreeMultimap"
+                };
+
+                for (String name : names) {
+                    if (name.equals(className)) {
+                        putDeserializer(Class.forName(name), deserializer = GuavaCodec.instance);
+                        return deserializer;
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                // skip
+                guavaError = true;
+            }
+        }
+        return deserializer;
+    }
+
+    /**
+     * 获取一些其他特定的ObjectDeserializer
+     * @param clazz
+     * @param className
+     * @return
+     */
+    private ObjectDeserializer getOtherSpecificDeserializer(Class<?> clazz, String className) {
+        ObjectDeserializer deserializer = null;
+        if (className.equals("java.nio.ByteBuffer")) {
+            putDeserializer(clazz, deserializer = ByteBufferCodec.instance);
+        }
+
+        if (className.equals("java.nio.file.Path")) {
+            putDeserializer(clazz, deserializer = MiscCodec.instance);
+        }
+
+        if (clazz == Map.Entry.class) {
+            putDeserializer(clazz, deserializer = MiscCodec.instance);
+        }
+
+        if (className.equals("org.javamoney.moneta.Money")) {
+            putDeserializer(clazz, deserializer = MonetaCodec.instance);
+        }
+        return deserializer;
+    }
+
+    /**
+     * 获取Enum类型的ObjectDeserializer
+     * @param clazz
+     * @param type
+     * @return
+     */
+    private ObjectDeserializer getEnumDeserializer(Class<?> clazz, Type type) {
+        ObjectDeserializer deserializer = null;
+        if (jacksonCompatible) {
+            Method[] methods = clazz.getMethods();
+            for (Method method : methods) {
+                if (TypeUtils.isJacksonCreator(method)) {
+                    deserializer = createJavaBeanDeserializer(clazz, type);
+                    putDeserializer(type, deserializer);
+                    return deserializer;
+                }
+            }
+        }
+
+        Class mixInType = (Class) JSON.getMixInAnnotations(clazz);
+
+        Class<?> deserClass = null;
+        JSONType jsonType = TypeUtils.getAnnotation(mixInType != null ? mixInType : clazz, JSONType.class);
+
+        if (jsonType != null) {
+            deserClass = jsonType.deserializer();
+            try {
+                deserializer = (ObjectDeserializer) deserClass.newInstance();
+                putDeserializer(clazz, deserializer);
+                return deserializer;
+            } catch (Throwable error) {
+                // skip
+            }
+        }
+
+        Method jsonCreatorMethod = null;
+        if (mixInType != null) {
+            Method mixedCreator = getEnumCreator(mixInType, clazz);
+            if (mixedCreator != null) {
+                try {
+                    jsonCreatorMethod = clazz.getMethod(mixedCreator.getName(), mixedCreator.getParameterTypes());
+                } catch (Exception e) {
+                    // skip
+                }
+            }
+        } else {
+            jsonCreatorMethod = getEnumCreator(clazz, clazz);
+        }
+
+        if (jsonCreatorMethod != null) {
+            deserializer = new EnumCreatorDeserializer(jsonCreatorMethod);
+            putDeserializer(clazz, deserializer);
+            return deserializer;
+        }
+
+        deserializer = getEnumDeserializer(clazz);
+        return deserializer;
+    }
+
+    /**
+     * 基于classLoader加载配置的AutowiredObjectDeserializer
+     * @param classLoader
+     */
+    private void loadAutowiredDeserializerFromSpecifyClassLoader(final ClassLoader classLoader) {
+        try {
+            for (AutowiredObjectDeserializer autowired : ServiceLoader.load(AutowiredObjectDeserializer.class,
+                    classLoader)) {
+                for (Type forType : autowired.getAutowiredFor()) {
+                    putDeserializer(forType, autowired);
+                }
+            }
+        } catch (Exception ex) {
+            // skip
+        }
+    }
+    
 }

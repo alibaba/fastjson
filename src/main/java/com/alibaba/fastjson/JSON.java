@@ -287,6 +287,34 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return (T) parseObject(json, (Type) clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
     }
 
+    /**
+     * This method allow you to enable or unable features based on the DEFAULT_PARSER_FEATURE.
+     *
+     * @param json             the string from which the object is to be deserialized
+     * @param clazz            the class of T
+     * @param isFeaturesEnable whether enable or unable those features, it will be ignored when no input features.
+     * @param features         parser features
+     * @return an object of type T from the string
+     * classOfT
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T parseObject(String json, Class<T> clazz, boolean isFeaturesEnable, Feature... features) {
+        if (features != null) {
+            if (isFeaturesEnable) {
+                return (T) parseObject(json, (Type) clazz, ParserConfig.global, null, DEFAULT_PARSER_FEATURE, features);
+            }
+
+            int featureValues = DEFAULT_PARSER_FEATURE;
+            for (Feature feature : features) {
+                featureValues &= ~feature.mask;
+            }
+
+            return parseObject(json, clazz, featureValues, new Feature[0]);
+        }
+
+        return (T) parseObject(json, clazz);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, Class<T> clazz, ParseProcess processor, Feature... features) {
         return (T) parseObject(text, (Type) clazz, ParserConfig.global, processor, DEFAULT_PARSER_FEATURE,

@@ -5,7 +5,12 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.JSONPathException;
+import com.alibaba.fastjson.parser.Feature;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -78,5 +83,32 @@ public class JSONTest2 extends TestCase {
     
     public void test_7() throws Exception {
         Assert.assertNull(JSON.parseObject(null, new TypeReference<Integer>() {}.getType(), 0));
+    }
+
+    public void test_8() {
+        String val = "{\"a\":1,,,\"b\":2}";
+        Map<String, Integer> map = JSON.parseObject(val, Map.class);
+        Assert.assertEquals(2, map.size());
+        Assert.assertEquals(Integer.valueOf(1), map.get("a"));
+        Assert.assertEquals(Integer.valueOf(2), map.get("b"));
+    }
+
+    public void test_9() {
+        String val = "{\"a\":1,,,\"b\":2}";
+        Map<String, Integer> map = JSON.parseObject(val, Map.class, false);
+        Assert.assertEquals(2, map.size());
+        Assert.assertEquals(Integer.valueOf(1), map.get("a"));
+        Assert.assertEquals(Integer.valueOf(2), map.get("b"));
+    }
+
+    public void test_10() {
+        String val = "{\"a\":1,,,\"b\":2}";
+        Exception error = null;
+        try {
+            JSON.parseObject(val, Map.class, false, Feature.AllowArbitraryCommas);
+        } catch (JSONException ex) {
+            error = ex;
+        }
+        assertNotNull(error);
     }
 }

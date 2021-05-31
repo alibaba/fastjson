@@ -306,9 +306,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
             int featureValues = DEFAULT_PARSER_FEATURE;
             for (Feature feature : features) {
-                if (feature.mask < featureValues) {
-                    featureValues &= ~feature.mask;
-                }
+                featureValues &= ~feature.mask;
             }
 
             return parseObject(json, clazz, featureValues, new Feature[0]);

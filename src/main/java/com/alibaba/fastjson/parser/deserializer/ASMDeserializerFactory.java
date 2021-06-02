@@ -699,7 +699,12 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitVarInsn(ALOAD, context.var("lexer"));
         mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
         mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.END);
-        mw.visitJumpInsn(IF_ICMPEQ, return_);
+        //mw.visitJumpInsn(IF_ICMPEQ, return_);
+
+        Label continue_3 = new Label();
+        mw.visitJumpInsn(IF_ICMPNE, continue_3);
+        mw.visitJumpInsn(GOTO_W, return_);
+        mw.visitLabel(continue_3);
 
         mw.visitInsn(ICONST_0); // UNKOWN
         mw.visitIntInsn(ISTORE, context.var("matchStat"));

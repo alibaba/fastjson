@@ -62,12 +62,7 @@ public class ASMClassLoader extends ClassLoader {
     private static Map<String, Class<?>> classMapping = new HashMap<String, Class<?>>();
 
     static {
-        DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
-            public Object run() {
-                return ASMClassLoader.class.getProtectionDomain();
-            }
-        });
+        DOMAIN = (java.security.ProtectionDomain) java.security.AccessController.doPrivileged((PrivilegedAction<Object>) ASMClassLoader.class::getProtectionDomain);
         
         Class<?>[] jsonClasses = new Class<?>[] {JSON.class,
             JSONObject.class,

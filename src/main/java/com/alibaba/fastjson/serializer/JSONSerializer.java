@@ -203,10 +203,7 @@ public class JSONSerializer extends SerializeFilterable {
         }
 
         SerialContext rootContext = context;
-        for (;;) {
-            if (rootContext.parent == null) {
-                break;
-            }
+        while (rootContext.parent != null) {
             rootContext = rootContext.parent;
         }
 

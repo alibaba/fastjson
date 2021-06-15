@@ -272,8 +272,7 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                 }
 
-                if (beanInfo.typeKey != null
-                        && fieldInfoName.equals(beanInfo.typeKey)
+                if (fieldInfoName.equals(beanInfo.typeKey)
                         && serializer.isWriteClassName(fieldType, object)) {
                     continue;
                 }

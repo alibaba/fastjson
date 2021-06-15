@@ -181,18 +181,15 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             } else {
                 if (second == 0 && minute == 0 && hour == 0) {
                     buf = "0000-00-00".toCharArray();
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 } else {
                     buf = "0000-00-00T00:00:00".toCharArray();
                     IOUtils.getChars(second, 19, buf);
                     IOUtils.getChars(minute, 16, buf);
                     IOUtils.getChars(hour, 13, buf);
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 }
+                IOUtils.getChars(day, 10, buf);
+                IOUtils.getChars(month, 7, buf);
+                IOUtils.getChars(year, 4, buf);
             }
 
 

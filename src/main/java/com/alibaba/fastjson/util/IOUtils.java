@@ -86,14 +86,12 @@ public class IOUtils {
     }
     
     public static void loadPropertiesFromFile(){
-        InputStream imputStream = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-            public InputStream run() {
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                if (cl != null) {
-                    return cl.getResourceAsStream(FASTJSON_PROPERTIES);
-                } else {
-                    return ClassLoader.getSystemResourceAsStream(FASTJSON_PROPERTIES);
-                }
+        InputStream imputStream = AccessController.doPrivileged((PrivilegedAction<InputStream>) () -> {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            if (cl != null) {
+                return cl.getResourceAsStream(FASTJSON_PROPERTIES);
+            } else {
+                return ClassLoader.getSystemResourceAsStream(FASTJSON_PROPERTIES);
             }
         });
         

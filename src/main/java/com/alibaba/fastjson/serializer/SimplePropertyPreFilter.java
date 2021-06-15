@@ -90,11 +90,7 @@ public class SimplePropertyPreFilter implements PropertyPreFilter {
             }
         }
 
-        if (includes.size() == 0 || includes.contains(name)) {
-            return true;
-        }
-        
-        return false;
+        return includes.size() == 0 || includes.contains(name);
     }
 
 }

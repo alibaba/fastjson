@@ -136,7 +136,7 @@ public class SerializeConfig {
                 }
 	        }
 	        
-	        if (jsonType.asm() == false) {
+	        if (!jsonType.asm()) {
 	            asm = false;
 	        }
 

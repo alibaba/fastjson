@@ -1,7 +1,5 @@
 package com.alibaba.json.test;
 
-import com.alibaba.LocalDateTimeTest;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import lombok.Data;
@@ -14,9 +12,7 @@ import org.springframework.http.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * @project fastjson
@@ -43,7 +39,6 @@ public class Issue3805 {
 
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
         converter.setFastJsonConfig(config);
-//        converter.setDateFormat("不论填写什么值都一样,哪怕就是这几个汉字");
 
         converter.canRead(TestModel.class, MediaType.APPLICATION_JSON_UTF8);
         converter.canWrite(TestModel.class, MediaType.APPLICATION_JSON_UTF8);

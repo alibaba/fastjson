@@ -5,7 +5,8 @@ import org.junit.Test;
 public class TestIssue3804 {
     @Test
     public void testIssue3804() {
-        String textResponse="{\"error\":false,\"code\":0}";
+        //String textResponse="{\"error\":false,\"code\":0}";
+        String textResponse="{\"error\":false,\"code";
         JSONValidator validator = JSONValidator.from(textResponse);
         if (validator.validate() && validator.getType() == JSONValidator.Type.Object) {
             System.out.println("Yes, it is Object");

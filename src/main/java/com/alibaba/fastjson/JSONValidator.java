@@ -539,7 +539,9 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                     next();
                     break;
                 }
-                else {
+                else if(eof){
+                    break;
+                }else {
                     next();
                 }
             }

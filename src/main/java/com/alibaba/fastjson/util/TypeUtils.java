@@ -1883,6 +1883,7 @@ public class TypeUtils{
         String[] paramNames = null;
         short[] paramNameMapping = null;
         Method[] methods = clazz.getMethods();
+        Arrays.sort(methods, new MethodInheritanceComparator());
         for(Method method : methods){
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;
@@ -3361,5 +3362,21 @@ public class TypeUtils{
             return OPTIONAL_EMPTY;
         }
         return null;
+    }
+    public static class MethodInheritanceComparator implements Comparator<Method> {
+        public int compare(Method m1, Method m2) {
+            Class<?> class1 = m1.getReturnType();
+            Class<?> class2 = m2.getReturnType();
+            if (class1.equals(class2)) {
+                return 0;
+            }
+            if (class1.isAssignableFrom(class2)) {
+                return -1;
+            }
+            if (class2.isAssignableFrom(class1)) {
+                return 1;
+            }
+            return 0;
+        }
     }
 }

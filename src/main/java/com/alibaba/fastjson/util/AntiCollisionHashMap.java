@@ -651,8 +651,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             if (k1 == k2 || (k1 != null && k1.equals(k2))) {
                 Object v1 = getValue();
                 Object v2 = e.getValue();
-                if (v1 == v2 || (v1 != null && v1.equals(v2)))
-                    return true;
+                return (v1 == v2 || (v1 != null && v1.equals(v2)));
             }
             return false;
         }

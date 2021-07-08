@@ -183,14 +183,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         }
 
         int flagIndex = i / 32;
-        int bitIndex = i % 32;
-        if (flagIndex < setFlags.length) {
-            if ((setFlags[flagIndex] & (1 << bitIndex)) != 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return flagIndex < setFlags.length
+                && (setFlags[flagIndex] & (1 << i % 32)) != 0;
     }
     
     public Object createInstance(DefaultJSONParser parser, Type type) {

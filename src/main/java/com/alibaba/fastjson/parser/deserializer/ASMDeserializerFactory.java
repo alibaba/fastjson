@@ -1169,8 +1169,6 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(DUP);
 
             mw.visitMethodInsn(INVOKESPECIAL, type(defaultConstructor.getDeclaringClass()), "<init>", "()V");
-
-            mw.visitVarInsn(ASTORE, context.var("instance"));
         } else {
             mw.visitVarInsn(ALOAD, 0);
             mw.visitVarInsn(ALOAD, 1);
@@ -1179,8 +1177,9 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitMethodInsn(INVOKESPECIAL, type(JavaBeanDeserializer.class), "createInstance",
                                "(L" + DefaultJSONParser + ";Ljava/lang/reflect/Type;)Ljava/lang/Object;");
             mw.visitTypeInsn(CHECKCAST, type(context.getInstClass())); // cast
-            mw.visitVarInsn(ASTORE, context.var("instance"));
         }
+
+        mw.visitVarInsn(ASTORE, context.var("instance"));
     }
 
     private void _batchSet(Context context, MethodVisitor mw) {

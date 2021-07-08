@@ -268,8 +268,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * </pre>
      * @param text json string
      * @param type type refernce
-     * @param features
-     * @return
+     * @param features parser features
+     * @return an object of type T from the string
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
@@ -517,7 +517,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return (T) value;
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -527,7 +527,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     Feature... features) throws IOException {
         return (T) parseObject(is, IOUtils.UTF8, type, features);
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -605,7 +605,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             array = null;
-        } else if (lexer.token() == JSONToken.EOF) {
+        } else if (lexer.token() == JSONToken.EOF && lexer.isBlankInput()) {
             array = null;
         } else {
             array = new JSONArray();
@@ -691,7 +691,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String toJSONString(Object object, SerializerFeature... features) {
         return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -763,7 +763,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                       SerializerFeature... features) {
         return toJSONString(object, config, filters, null, DEFAULT_GENERATE_FEATURE, features);
     }
-    
+
     /**
      * @since 1.2.9
      * @return
@@ -920,7 +920,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
     }
-    
+
     /**
      * @deprecated use writeJSONString
      */
@@ -953,7 +953,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     /**
      * write object as json to OutputStream
      * @param os output stream
@@ -983,7 +983,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                               null, // 
                               defaultFeatures, //
                               features);
-   }
+    }
     
     public static final int writeJSONString(OutputStream os, // 
                                              Charset charset, // 
@@ -1279,7 +1279,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return chars;
     }
-    
+
     private final static ThreadLocal<char[]> charsLocal = new ThreadLocal<char[]>();
     private static char[] allocateChars(int length) {
         char[] chars = charsLocal.get();

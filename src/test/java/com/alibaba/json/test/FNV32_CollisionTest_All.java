@@ -10,6 +10,9 @@ import java.text.NumberFormat;
 import java.util.BitSet;
 import java.util.Random;
 
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+
 /**
  * Created by wenshao on 08/01/2017.
  */
@@ -60,14 +63,14 @@ public class FNV32_CollisionTest_All extends TestCase {
             long n = (long) Math.pow(digLetters.length, chars.length);
 
             for (; v < n; ++v) {
-                long hash = 0xcbf29ce484222325L;
+                long hash = fnv1a_64_magic_hashcode;
                 for (int i = 0; i < chars.length; ++i) {
                     int power = powers[chars.length - i - 1];
                     int d = (int) ((v / power) % digLetters.length);
                     char c = digLetters[d];
 
                     hash ^= c;
-                    hash *= 0x100000001b3L;
+                    hash *= fnv1a_64_magic_prime;
                 }
                 b[7] = (byte) (hash       );
                 b[6] = (byte) (hash >>>  8);
@@ -103,11 +106,11 @@ public class FNV32_CollisionTest_All extends TestCase {
     }
 
     static long fnv_hash(char[] chars) {
-        long hash = 0xcbf29ce484222325L;
+        long hash = fnv1a_64_magic_hashcode;
         for (int i = 0; i < chars.length; ++i) {
             char c = chars[i];
             hash ^= c;
-            hash *= 0x100000001b3L;
+            hash *= fnv1a_64_magic_prime;
         }
         return hash;
     }

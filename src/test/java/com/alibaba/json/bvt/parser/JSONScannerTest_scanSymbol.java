@@ -8,6 +8,9 @@ import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.SymbolTable;
 
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+
 /**
  * 测试字符':'的处理
  * 
@@ -97,11 +100,11 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     }
 
     static long fnv_hash(String text) {
-        long hash = 0xcbf29ce484222325L;
+        long hash = fnv1a_64_magic_hashcode;
         for (int i = 0; i < text.length(); ++i) {
             char c = text.charAt(i);
             hash ^= c;
-            hash *= 0x100000001b3L;
+            hash *= fnv1a_64_magic_prime;
         }
         return hash;
     }

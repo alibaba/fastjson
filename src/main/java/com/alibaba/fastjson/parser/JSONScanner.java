@@ -24,6 +24,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
 
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
 /**
@@ -1223,7 +1226,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        long hash = 0xcbf29ce484222325L;
+        long hash = fnv1a_64_magic_hashcode;
         for (;;) {
             ch = charAt(index++);
             if (ch == '\"') {
@@ -1236,7 +1239,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             hash ^= ch;
-            hash *= 0x100000001b3L;
+            hash *= fnv1a_64_magic_prime;
         }
 
         for (;;) {
@@ -2590,7 +2593,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash;
             if (ch == '"') {
-                hash = 0xcbf29ce484222325L;
+                hash = fnv1a_64_magic_hashcode;
 
                 for (int i = bp + 1; i < text.length(); ++i) {
                     char c = text.charAt(i);
@@ -2611,7 +2614,7 @@ public final class JSONScanner extends JSONLexerBase {
                     }
 
                     hash ^= c;
-                    hash *= 0x100000001b3L;
+                    hash *= fnv1a_64_magic_prime;
                 }
             } else {
                 throw new UnsupportedOperationException();
@@ -2852,7 +2855,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash;
             if (ch == '"') {
-                hash = 0xcbf29ce484222325L;
+                hash = fnv1a_64_magic_hashcode;
 
                 for (int i = bp + 1; i < text.length(); ++i) {
                     char c = text.charAt(i);
@@ -2873,7 +2876,7 @@ public final class JSONScanner extends JSONLexerBase {
                     }
 
                     hash ^= c;
-                    hash *= 0x100000001b3L;
+                    hash *= fnv1a_64_magic_prime;
                 }
             } else {
                 throw new UnsupportedOperationException();

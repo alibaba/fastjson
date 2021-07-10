@@ -15,7 +15,7 @@ import org.junit.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class ClobSeriliazerTest extends TestCase {
+public class ClobSerializerTest extends TestCase {
 	public void test_clob() throws Exception {
 		Assert.assertEquals("\"abcdefg中国\"",
 				JSON.toJSONString(new MockClob("abcdefg中国")));

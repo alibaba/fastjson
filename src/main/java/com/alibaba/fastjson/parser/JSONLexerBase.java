@@ -26,6 +26,8 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
+import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -483,7 +485,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 }
                 return result;
             } else { /* Only got "-" */
-                throw new NumberFormatException(numberString());
+                throw new JSONException("illegal number format : " + numberString());
             }
         } else {
             result = -result;
@@ -1441,7 +1443,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        long hash = 0xcbf29ce484222325L;
+        long hash = fnv1a_64_magic_hashcode;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
@@ -1450,7 +1452,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             hash ^= chLocal;
-            hash *= 0x100000001b3L;
+            hash *= fnv1a_64_magic_prime;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;
@@ -1512,7 +1514,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        long hash = 0xcbf29ce484222325L;
+        long hash = fnv1a_64_magic_hashcode;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
@@ -1521,7 +1523,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             hash ^= ((chLocal >= 'A' && chLocal <= 'Z') ? (chLocal + 32) : chLocal);
-            hash *= 0x100000001b3L;
+            hash *= fnv1a_64_magic_prime;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;
@@ -5086,8 +5088,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
      * Append a character to sbuf.
      */
     protected final void putChar(char ch) {
-        if (sp == sbuf.length) {
-            char[] newsbuf = new char[sbuf.length * 2];
+        if (sp >= sbuf.length) {
+            int len = sbuf.length * 2;
+            if (len < sp) {
+                len = sp + 1;
+            }
+            char[] newsbuf = new char[len];
             System.arraycopy(sbuf, 0, newsbuf, 0, sbuf.length);
             sbuf = newsbuf;
         }

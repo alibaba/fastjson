@@ -15,10 +15,7 @@
  */
 package com.alibaba.fastjson;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
@@ -27,7 +24,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.GZIPInputStream;
 
+import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.*;
 import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
 import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
@@ -269,8 +268,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * </pre>
      * @param text json string
      * @param type type refernce
-     * @param features
-     * @return
+     * @param features parser features
+     * @return an object of type T from the string
      */
     @SuppressWarnings("unchecked")
     public static <T> T parseObject(String text, TypeReference<T> type, Feature... features) {
@@ -443,14 +442,31 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             charset = IOUtils.UTF8;
         }
 
-        String strVal;
+        String strVal = null;
         if (charset == IOUtils.UTF8) {
             char[] chars = allocateChars(bytes.length);
             int chars_len = IOUtils.decodeUTF8(bytes, offset, len, chars);
+
             if (chars_len < 0) {
+                InputStreamReader gzipReader = null;
+                try {
+                    gzipReader = new InputStreamReader(
+                            new GZIPInputStream(
+                                    new ByteArrayInputStream(bytes, offset, len)), "UTF-8");
+                    strVal = IOUtils.readAll(gzipReader);
+                } catch (Exception ex) {
+                    return null;
+                } finally {
+                    IOUtils.close(gzipReader);
+                }
+            }
+            if (strVal == null && chars_len < 0) {
                 return null;
             }
-            strVal = new String(chars, 0, chars_len);
+
+            if (strVal == null) {
+                strVal = new String(chars, 0, chars_len);
+            }
         } else {
             if (len < 0) {
                 return null;
@@ -501,7 +517,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return (T) value;
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -511,7 +527,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     Feature... features) throws IOException {
         return (T) parseObject(is, IOUtils.UTF8, type, features);
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -589,7 +605,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             array = null;
-        } else if (lexer.token() == JSONToken.EOF) {
+        } else if (lexer.token() == JSONToken.EOF && lexer.isBlankInput()) {
             array = null;
         } else {
             array = new JSONArray();
@@ -675,7 +691,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static String toJSONString(Object object, SerializerFeature... features) {
         return toJSONString(object, DEFAULT_GENERATE_FEATURE, features);
     }
-    
+
     /**
      * @since 1.2.11
      */
@@ -685,7 +701,15 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         try {
             JSONSerializer serializer = new JSONSerializer(out);
             serializer.write(object);
-            return out.toString();
+            String outString = out.toString();
+            int len = outString.length();
+            if (len > 0
+                    && outString.charAt(len -1) == '.'
+                    && object instanceof Number
+                    && !out.isEnabled(SerializerFeature.WriteClassName)) {
+                return outString.substring(0, len - 1);
+            }
+            return outString;
         } finally {
             out.close();
         }
@@ -739,7 +763,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                       SerializerFeature... features) {
         return toJSONString(object, config, filters, null, DEFAULT_GENERATE_FEATURE, features);
     }
-    
+
     /**
      * @since 1.2.9
      * @return
@@ -896,7 +920,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
     }
-    
+
     /**
      * @deprecated use writeJSONString
      */
@@ -929,7 +953,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             out.close();
         }
     }
-    
+
     /**
      * write object as json to OutputStream
      * @param os output stream
@@ -959,7 +983,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                               null, // 
                               defaultFeatures, //
                               features);
-   }
+    }
     
     public static final int writeJSONString(OutputStream os, // 
                                              Charset charset, // 
@@ -1180,8 +1204,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         ObjectSerializer serializer = config.getObjectWriter(clazz);
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
-            
-            JSONObject json = new JSONObject();
+
+            JSONType jsonType = javaBeanSerializer.getJSONType();
+            boolean ordered = false;
+            if (jsonType != null) {
+                for (SerializerFeature serializerFeature : jsonType.serialzeFeatures()) {
+                    if (serializerFeature == SerializerFeature.SortField
+                            || serializerFeature == SerializerFeature.MapSortField) {
+                        ordered = true;
+                    }
+                }
+            }
+
+            JSONObject json = new JSONObject(ordered);
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -1244,7 +1279,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         return chars;
     }
-    
+
     private final static ThreadLocal<char[]> charsLocal = new ThreadLocal<char[]>();
     private static char[] allocateChars(int length) {
         char[] chars = charsLocal.get();

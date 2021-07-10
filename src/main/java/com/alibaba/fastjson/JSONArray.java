@@ -317,7 +317,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0;
         }
 
-        return byteVal.byteValue();
+        return byteVal;
     }
 
     public Short getShort(int index) {
@@ -334,7 +334,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0;
         }
 
-        return shortVal.shortValue();
+        return shortVal;
     }
 
     public Integer getInteger(int index) {
@@ -351,7 +351,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0;
         }
 
-        return intVal.intValue();
+        return intVal;
     }
 
     public Long getLong(int index) {
@@ -368,7 +368,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0L;
         }
 
-        return longVal.longValue();
+        return longVal;
     }
 
     public Float getFloat(int index) {
@@ -385,7 +385,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0F;
         }
 
-        return floatValue.floatValue();
+        return floatValue;
     }
 
     public Double getDouble(int index) {
@@ -402,7 +402,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return 0D;
         }
 
-        return doubleValue.doubleValue();
+        return doubleValue;
     }
 
     public BigDecimal getBigDecimal(int index) {

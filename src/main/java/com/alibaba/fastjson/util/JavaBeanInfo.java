@@ -1091,10 +1091,6 @@ public class JavaBeanInfo {
             }
         }
 
-        if (creatorConstructor != null) {
-            return creatorConstructor;
-        }
-
         return creatorConstructor;
     }
 

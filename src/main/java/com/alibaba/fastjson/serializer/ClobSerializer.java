@@ -8,9 +8,9 @@ import java.sql.SQLException;
 
 import com.alibaba.fastjson.JSONException;
 
-public class ClobSeriliazer implements ObjectSerializer {
+public class ClobSerializer implements ObjectSerializer {
 
-    public final static ClobSeriliazer instance = new ClobSeriliazer();
+    public final static ClobSerializer instance = new ClobSerializer();
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         try {

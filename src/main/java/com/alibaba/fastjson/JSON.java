@@ -1122,7 +1122,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static Object toJSON(Object javaObject, ParserConfig parserConfig) {
         return toJSON(javaObject, SerializeConfig.globalInstance);
     }
-    
+    private static final Class<? extends Map> UNMODIFIABLEMAP_CLASS = Collections.unmodifiableMap(new HashMap()).getClass();
     @SuppressWarnings("unchecked")
     public static Object toJSON(Object javaObject, SerializeConfig config) {
         if (javaObject == null) {
@@ -1133,12 +1133,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             return javaObject;
         }
 
+        Class<?> clazz = javaObject.getClass();
         if (javaObject instanceof Map) {
+            if (UNMODIFIABLEMAP_CLASS.equals(clazz)) {
+                return new JSONObject((Map) javaObject);
+            }
             Map<Object, Object> map = (Map<Object, Object>) javaObject;
-
             int size = map.size();
-
-            Map innerMap;
+            if (size == 0) {
+                return new JSONObject((Map) javaObject);
+            }
+            Map<String, Object> innerMap;
             if (map instanceof LinkedHashMap) {
                 innerMap = new LinkedHashMap(size);
             } else if (map instanceof TreeMap) {
@@ -1146,19 +1151,18 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             } else {
                 innerMap = new HashMap(size);
             }
-
-            JSONObject json = new JSONObject(innerMap);
-
+            //JSONObject json = new JSONObject(innerMap);
             for (Map.Entry<Object, Object> entry : map.entrySet()) {
                 Object key = entry.getKey();
                 String jsonKey = TypeUtils.castToString(key);
                 Object jsonValue = toJSON(entry.getValue(), config);
-                json.put(jsonKey, jsonValue);
+                innerMap.put(jsonKey, jsonValue);
             }
-
+            map.clear();
+            map.putAll(innerMap);
+            JSONObject json = new JSONObject((Map) javaObject);
             return json;
         }
-
         if (javaObject instanceof Collection) {
             Collection<Object> collection = (Collection<Object>) javaObject;
 
@@ -1176,8 +1180,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             String json = JSON.toJSONString(javaObject);
             return JSON.parse(json);
         }
-
-        Class<?> clazz = javaObject.getClass();
 
         if (clazz.isEnum()) {
             return ((Enum<?>) javaObject).name();

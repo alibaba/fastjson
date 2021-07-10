@@ -1033,10 +1033,9 @@ public class JSONPath implements JSONAware {
         }
 
         public final void skipWhitespace() {
-            for (;;) {
+            for (;!isEOF();) {
                 if (ch <= ' ' && (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\f' || ch == '\b')) {
                     next();
-                    continue;
                 } else {
                     break;
                 }

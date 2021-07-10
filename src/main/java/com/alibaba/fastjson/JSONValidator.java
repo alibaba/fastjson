@@ -126,15 +126,17 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                         return false;
                     }
 
+                    // kv 结束时，只能是 "," 或 "}"
                     skipWhiteSpace();
                     if (ch == ',') {
                         next();
                         skipWhiteSpace();
-                        continue;
                     } else if (ch == '}') {
                         next();
                         type = Type.Object;
                         return true;
+                    } else {
+                        return false;
                     }
                 }
             case '[':

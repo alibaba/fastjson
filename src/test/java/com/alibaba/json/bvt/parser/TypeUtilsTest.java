@@ -298,7 +298,7 @@ public class TypeUtilsTest extends TestCase {
         Assert.assertEquals(new java.sql.Timestamp(millis), json.getObject("date", java.sql.Timestamp.class));
     }
 
-    public void test_cast_to_Timestamp_error() throws Exception {
+    public void test_cast_to_Timestamp_not_error() throws Exception {
         JSONObject json = new JSONObject();
         json.put("date", -1);
 
@@ -308,7 +308,8 @@ public class TypeUtilsTest extends TestCase {
         } catch (JSONException e) {
             error = e;
         }
-        Assert.assertNotNull(error);
+        Assert.assertNull(error);
+        Assert.assertEquals(new Timestamp(-1L), (java.sql.Timestamp) json.getObject("date", java.sql.Timestamp.class));
     }
 
     public void test_cast_ab() throws Exception {
@@ -382,7 +383,7 @@ public class TypeUtilsTest extends TestCase {
 
     public static class User {
 
-        private long   id;
+        private long id;
         private String name;
 
         public long getId() {

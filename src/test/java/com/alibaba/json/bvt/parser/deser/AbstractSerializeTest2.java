@@ -17,8 +17,9 @@ public class AbstractSerializeTest2 extends TestCase {
 
     protected void tearDown() throws Exception {
         ParserConfig.getGlobalInstance().putDeserializer(A.class, null);
+        ParserConfig.getGlobalInstance().clearDeserializers();
+        ParserConfig.global = new ParserConfig();
     }
-
     public void test_mapping_0() throws Exception {
         String text = "{\"@type\":\"com.alibaba.json.bvt.parser.deser.AbstractSerializeTest2$A\"}";
 

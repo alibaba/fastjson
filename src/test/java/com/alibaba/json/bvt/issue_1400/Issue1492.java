@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.issue_1400;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
@@ -17,10 +18,10 @@ public class Issue1492 extends TestCase {
         obj.put("key2","value2");
         resp.setData(obj);
 
-        String str = JSON.toJSONString(resp);
+        String str = JSON.toJSONString(resp, SerializerFeature.MapSortField);
         System.out.println(str);
         DubboResponse resp1 = JSON.parseObject(str, DubboResponse.class);
-        assertEquals(str, JSON.toJSONString(resp1));
+        assertEquals(str, JSON.toJSONString(resp1, SerializerFeature.MapSortField));
 
         // test for JSONArray
         JSONArray arr = new JSONArray();
@@ -28,10 +29,10 @@ public class Issue1492 extends TestCase {
         arr.add("key2");
         resp.setData(arr);
 
-        String str2 = JSON.toJSONString(resp);
+        String str2 = JSON.toJSONString(resp, SerializerFeature.MapSortField);
         System.out.println(str2);
         DubboResponse resp2 = JSON.parseObject(str2, DubboResponse.class);
-        assertEquals(str2, JSON.toJSONString(resp2));
+        assertEquals(str2, JSON.toJSONString(resp2, SerializerFeature.MapSortField));
 
     }
 

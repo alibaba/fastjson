@@ -1928,7 +1928,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
-                    return 0;
+                    throw new JSONException("error, casting decimal to int");
+//                    return 0;
                 } else {
                     break;
                 }
@@ -2019,6 +2020,10 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     int value = chLocal - '0';
                     for (; ; ) {
                         chLocal = charAt(bp + (offset++));
+                        
+                        if (chLocal == '.'){
+                            throw new JSONException("error, casting decimal to int");
+                        }
 
                         if (chLocal >= '0' && chLocal <= '9') {
                             value = value * 10 + (chLocal - '0');
@@ -2354,7 +2359,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     value = value * 10 + (chLocal - '0');
                 } else if (chLocal == '.') {
                     matchStat = NOT_MATCH;
-                    return 0;
+                    throw new JSONException("error, casting decimal to long");
+//                    return 0;
                 } else {
                     break;
                 }

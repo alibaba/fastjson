@@ -28,7 +28,7 @@ public class TestJson {
         this.test2 = test2;
     }
 
-    class TestJson2 {
+    static class TestJson2 {
         private String test1;
         private String test2;
 

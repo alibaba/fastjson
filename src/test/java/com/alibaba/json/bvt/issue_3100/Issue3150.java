@@ -18,6 +18,8 @@ public class Issue3150 extends TestCase {
 
 //        System.out.println(JSON.toJSONString(items));
         System.out.println(JSON.toJSONString(items, refAfterFilterTest));
+        //
+        System.out.println(JSON.toJSONString(items,refAfterFilterTest,SerializerFeature.DisableCircularReferenceDetect));
 
     }
 

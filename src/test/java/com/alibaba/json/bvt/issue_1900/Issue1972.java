@@ -3,6 +3,7 @@ package com.alibaba.json.bvt.issue_1900;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.alibaba.json.bvt.asm.SortFieldTest;
 import junit.framework.TestCase;
 
 public class Issue1972 extends TestCase {
@@ -20,6 +21,6 @@ public class Issue1972 extends TestCase {
         jsonObject.put("a", a);
         JSONPath.arrayAdd(jsonObject,"$.a.b[c = '2018-04'].d", obj);
 
-        assertEquals("{\"a\":{\"b\":{\"c\":\"2018-04\",\"d\":[123]}}}", jsonObject.toString());
+        SortFieldTest.assertJSONEqual("{\"a\":{\"b\":{\"c\":\"2018-04\",\"d\":[123]}}}", jsonObject.toString());
     }
 }

@@ -1,5 +1,7 @@
 package com.alibaba.json.bvt.asm;
 
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.json.JSONException;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -23,7 +25,10 @@ public class SortFieldTest extends TestCase {
         Assert.assertEquals("{'f0':0,'f1':0,'f10':0,'f11':0,'f12':0,'f13':0,'f14':0,'f2':0,'f3':0,'f4':0,'f5':0,'f6':0,'f7':0,'f8':0,'f9':0}", text);
 
     }
-    
+
+    public static void assertJSONEqual(String s1, String s2) throws JSONException{
+        JSONAssert.assertEquals(s1, s2, false);
+    }
 public void test_1() throws Exception {
     V1 entity = new V1();
 
@@ -32,11 +37,11 @@ public void test_1() throws Exception {
 
     // 按字段顺序输出
     // {"f1":0,"f2":0,"f3":0,"f4":0,"f5":0} 
-    Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
+    assertJSONEqual("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
 
     JSONObject object = JSON.parseObject(text);
     text = JSON.toJSONString(object, SerializerFeature.SortField);
-    Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
+    assertJSONEqual("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
 
 }
 

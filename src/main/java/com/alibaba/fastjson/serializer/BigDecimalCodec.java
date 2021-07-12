@@ -28,6 +28,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
+ * @author dingqianwen[761945125@qq.com]
  */
 public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
     final static BigDecimal LOW = BigDecimal.valueOf(-9007199254740991L);
@@ -65,9 +66,6 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
 
             out.write(outText);
 
-            if (out.isEnabled(SerializerFeature.WriteClassName) && fieldType != BigDecimal.class && val.scale() == 0) {
-                out.write('.');
-            }
         }
     }
 

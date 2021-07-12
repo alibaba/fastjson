@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.bug;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -15,10 +16,8 @@ public class Bug_for_yangzhou extends TestCase {
         System.out.println(test);
         CabinetAuthCodeParam cabinetAuthCodeParam = JSONObject.toJavaObject(JSON.parseObject(test), CabinetAuthCodeParam.class);
         System.out.println(JSON.toJSONString(cabinetAuthCodeParam));
-        final String jsonString = JSON.toJSONString(cabinetAuthCodeParam);
-        assertEquals("{\"distinct\":false,\"oredCriteria\":[{\"allCriteria\":[{\"listValue\":false,\"noValue\":false,\"condition\":\"area_id =\",\"betweenValue\":false,\"singleValue\":true,\"value\":917477670000000000},{\"listValue\":false,\"noValue\":false,\"condition\":\"cabinet_id =\",\"betweenValue\":false,\"singleValue\":true,\"value\":500036},{\"listValue\":false,\"noValue\":false,\"condition\":\"status =\",\"betweenValue\":false,\"singleValue\":true,\"value\":0}],\"criteria\":[{\"$ref\":\"$.oredCriteria[0].allCriteria[0]\"},{\"$ref\":\"$.oredCriteria[0].allCriteria[1]\"},{\"$ref\":\"$.oredCriteria[0].allCriteria[2]\"}],\"valid\":true}],\"page\":true,\"pageIndex\":0,\"pageSize\":1,\"pageStart\":1}", jsonString);
-//        CabinetAuthCodeRecordParam cabinetAuthCodeRecordParam = JSONObject.toJavaObject(JSON.parseObject(jsonString), CabinetAuthCodeRecordParam.class);
-//        System.out.println(JSON.toJSONString(cabinetAuthCodeRecordParam));
+        final String jsonString = JSON.toJSONString(cabinetAuthCodeParam, SerializerFeature.MapSortField);
+        assertEquals("{\"distinct\":false,\"oredCriteria\":[{\"allCriteria\":[{\"betweenValue\":false,\"condition\":\"area_id =\",\"listValue\":false,\"noValue\":false,\"singleValue\":true,\"value\":917477670000000000},{\"betweenValue\":false,\"condition\":\"cabinet_id =\",\"listValue\":false,\"noValue\":false,\"singleValue\":true,\"value\":500036},{\"betweenValue\":false,\"condition\":\"status =\",\"listValue\":false,\"noValue\":false,\"singleValue\":true,\"value\":0}],\"criteria\":[{\"$ref\":\"$.oredCriteria[0].allCriteria[0]\"},{\"$ref\":\"$.oredCriteria[0].allCriteria[1]\"},{\"$ref\":\"$.oredCriteria[0].allCriteria[2]\"}],\"valid\":true}],\"page\":true,\"pageIndex\":0,\"pageSize\":1,\"pageStart\":1}", jsonString);
     }
 
     public static class CabinetAuthCodeParam {

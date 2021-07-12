@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.*;
@@ -99,18 +98,6 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
             }
             msg += ", ";
             msg += lexer.info();
-
-            if (token != JSONToken.LITERAL_STRING) {
-                JSONArray array = new JSONArray();
-                parser.parseArray(array, fieldName);
-
-                if (array.size() == 1) {
-                    Object first = array.get(0);
-                    if (first instanceof JSONObject) {
-                        return (JSONObject) first;
-                    }
-                }
-            }
 
             throw new JSONException(msg);
         }

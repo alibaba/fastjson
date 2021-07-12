@@ -28,14 +28,13 @@ public void test_1() throws Exception {
     V1 entity = new V1();
 
     String text = JSON.toJSONString(entity, SerializerFeature.SortField);
-    System.out.println(text);
 
     // 按字段顺序输出
     // {"f1":0,"f2":0,"f3":0,"f4":0,"f5":0} 
     Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
 
     JSONObject object = JSON.parseObject(text);
-    text = JSON.toJSONString(object, SerializerFeature.SortField);
+    text = JSON.toJSONString(object, SerializerFeature.MapSortField);
     Assert.assertEquals("{\"f1\":0,\"f2\":0,\"f3\":0,\"f4\":0,\"f5\":0}", text);
 
 }

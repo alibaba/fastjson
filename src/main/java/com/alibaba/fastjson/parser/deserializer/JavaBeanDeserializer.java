@@ -936,7 +936,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         String paramName = paramNames[i];
 
                         Object param = fieldValues.remove(paramName);
-                        if (param == null) {
+                        if (param == null || TypeUtils.isJSONTypeIgnore(clazz, paramName)) {
                             Type fieldType = beanInfo.creatorConstructorParameterTypes[i];
                             FieldInfo fieldInfo = beanInfo.fields[i];
                             if (fieldType == byte.class) {
@@ -956,6 +956,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             } else if (fieldType == String.class
                                     && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
                                 param = "";
+                            } else {
+                                param = null;
                             }
                         } else {
                             if (beanInfo.creatorConstructorParameterTypes != null && i < beanInfo.creatorConstructorParameterTypes.length) {
@@ -985,7 +987,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     for (int i = 0; i < size; ++i) {
                         FieldInfo fieldInfo = fieldInfoList[i];
                         Object param = fieldValues.get(fieldInfo.name);
-                        if (param == null) {
+                        if (param == null || TypeUtils.isJSONTypeIgnore(clazz, fieldInfo.name)) {
                             Type fieldType = fieldInfo.fieldType;
                             if (fieldType == byte.class) {
                                 param = (byte) 0;
@@ -1004,6 +1006,8 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             } else if (fieldType == String.class
                                     && (fieldInfo.parserFeatures & Feature.InitStringFieldAsEmpty.mask) != 0) {
                                 param = "";
+                            } else {
+                                param = null;
                             }
                         }
                         params[i] = param;

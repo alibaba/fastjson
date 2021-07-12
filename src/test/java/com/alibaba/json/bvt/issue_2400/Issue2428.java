@@ -25,12 +25,12 @@ public class Issue2428 extends TestCase {
         Issue2428 demoBean = new Issue2428();
         demoBean.setMyName("test name");
         demoBean.setNestedBean(new NestedBean("test id"));
-        String text = JSON.toJSONString(JSON.toJSON(demoBean), SerializerFeature.SortField);
-        assertEquals("{\"nestedBean\":{\"myId\":\"test id\"},\"myName\":\"test name\"}", text);
+        String text = JSON.toJSONString(JSON.toJSON(demoBean), SerializerFeature.MapSortField);
+        assertEquals("{\"myName\":\"test name\",\"nestedBean\":{\"myId\":\"test id\"}}", text);
 
         SerializeConfig serializeConfig = new SerializeConfig();
         serializeConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
-        text = JSON.toJSONString(JSON.toJSON(demoBean, serializeConfig), SerializerFeature.SortField);
+        text = JSON.toJSONString(JSON.toJSON(demoBean, serializeConfig), SerializerFeature.MapSortField);
         assertEquals("{\"my_name\":\"test name\",\"nested_bean\":{\"my_id\":\"test id\"}}", text);
     }
 }

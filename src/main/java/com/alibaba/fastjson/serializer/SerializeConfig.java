@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  */
 public class SerializeConfig {
 
-    public final static SerializeConfig                   globalInstance  = new SerializeConfig();
+    public static SerializeConfig                         globalInstance  = new SerializeConfig();
 
     private static boolean                                awtError        = false;
     private static boolean                                jdk8Error       = false;

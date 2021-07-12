@@ -1,7 +1,9 @@
 package com.alibaba.json.bvt.issue_1100;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 /**
@@ -15,7 +17,7 @@ public class Issue1177_1 extends TestCase {
         String jsonpath = "$..x";
         String value="y2";
         JSONPath.set(jsonObject, jsonpath, value);
-        assertEquals("{\"a\":{\"x\":\"y2\"},\"b\":{\"x\":\"y2\"}}", jsonObject.toString());
+        assertEquals("{\"a\":{\"x\":\"y2\"},\"b\":{\"x\":\"y2\"}}", JSON.toJSONString(jsonObject, SerializerFeature.MapSortField));
 
     }
 }

@@ -30,6 +30,13 @@ public class Issue3631 extends TestCase {
             // skip
         }
     }
+    public void test_issue_4() throws Exception {
+        try {
+            JSON.parse(btoa("IltbezU6W3s2Ojg2Ojg4LDU6W3s2OgAAAA17eycAAAAAAAAAAAAAAAAAAAAAAAAAAA17eyd7e3t7//97UERGLTIgQm8aNDU6W3s2Ojg4LDU6W3s2OgAAAA17NgEAAHt7//97UERGLTIgQm8aNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA17eyd7ewFF//97UERGLTIgQmpkAAAAAAAADXt7J3t7AUX//3tQREYtMiBCbxo0UERGLTIgQm8aNFBERi0yIEJvGjRwZW5qZAAAAAAAAAAAAAAAAAAAAAANe3sne3sBRf//e1BERi0yIEJvGjQAAAAADXt7J3t7AUX//3tQREYtMiBCbxo0amQAAA17eyd7ewFF//97UERGLTIgQm8aNAAADXt7J3t7AUX//3tQREYtMiBCbxo0AAAAAA17eyd7////T/97UERGLTIgQm8aNFBERi0yIEJvGjRwZW5qZAAAAAAAAAAAAAAAAAAAAAANe3sne3sBRf//e1BERi0yIEJvGjQAAAAADXt7J3t7AUX//3tQREYtMiBCbxo0UERGLTIgQm8aNFBERi0yIEJvGjRwZW5qZAAAAAAAAAAAAAAAAAAAAAANe3sne3sBRf//e1BERi0yIEJvGjQAAAAADXt7J3t7AUX//3tQREYtMiBCbxo0"));
+        } catch (JSONException unused) {
+            // skip
+        }
+    }
 
     public static String btoa(String base64) {
         return new String(Base64.getDecoder().decode(base64));

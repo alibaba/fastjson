@@ -99,7 +99,7 @@ public class ListSerializerTest extends TestCase {
         list.add(1453964515792017682L);
         listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
-        Assert.assertEquals("[1L,1453964515792017682L]", out.toString());
+        Assert.assertEquals("[1L,1453964515792017682]", out.toString());
     }
 
     public void test_8_s() throws Exception {
@@ -111,6 +111,6 @@ public class ListSerializerTest extends TestCase {
         list.add(1453964515792017682L);
         listSerializer.write(new JSONSerializer(out), list, null, null, 0);
 
-        Assert.assertEquals("[1L,1453964515792017682L]", out.toString());
+        Assert.assertEquals("[1L,1453964515792017682]", out.toString());
     }
 }

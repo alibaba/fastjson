@@ -15,6 +15,7 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.IOException;
@@ -105,12 +106,11 @@ public final class ListSerializer implements ObjectSerializer {
                     if (clazz == Integer.class) {
                         out.writeInt(((Integer) item).intValue());
                     } else if (clazz == Long.class) {
-                        long val = ((Long) item).longValue();
-                        if (writeClassName) {
-                            out.writeLong(val);
-                            out.write('L');
-                        } else {
-                            out.writeLong(val);
+                        ObjectSerializer writer = serializer.config.getObjectWriter(clazz);
+                        try {
+                            writer.write(serializer, item, null, null, 0);
+                        } catch (IOException e) {
+                            throw new JSONException(e.getMessage(), e);
                         }
                     } else {
                         if ((SerializerFeature.DisableCircularReferenceDetect.mask & features) != 0){

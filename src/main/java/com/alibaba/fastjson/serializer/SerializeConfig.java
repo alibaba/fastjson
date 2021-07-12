@@ -111,10 +111,6 @@ public class SerializeConfig {
         }
 
 	    SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy, fieldBased);
-	    if (beanInfo.fields.length == 0 && Iterable.class.isAssignableFrom(clazz)) {
-	        return MiscCodec.instance;
-	    }
-
 	    return createJavaBeanSerializer(beanInfo);
 	}
 	
@@ -579,6 +575,8 @@ public class SerializeConfig {
                 put(clazz, writer = ClobSerializer.instance);
             } else if (TypeUtils.isPath(clazz)) {
                 put(clazz, writer = ToStringSerializer.instance);
+            } else if (Iterable.class.isAssignableFrom(clazz)) {
+                put(clazz, writer = IterableCodec.instance);
             } else if (Iterator.class.isAssignableFrom(clazz)) {
                 put(clazz, writer = MiscCodec.instance);
             } else if (org.w3c.dom.Node.class.isAssignableFrom(clazz)) {

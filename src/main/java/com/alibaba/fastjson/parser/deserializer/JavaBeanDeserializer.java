@@ -523,7 +523,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                     fieldInfo = fieldDeserializer.fieldInfo;
                     fieldClass = fieldInfo.fieldClass;
                     fieldAnnotation = fieldInfo.getAnnotation();
-                    if (fieldAnnotation != null && fieldDeserializer instanceof DefaultFieldDeserializer) {
+                    if (fieldDeserializer != null && fieldDeserializer instanceof DefaultFieldDeserializer) {
                         customDeserializer = ((DefaultFieldDeserializer) fieldDeserializer).customDeserilizer;
                     }
                 }

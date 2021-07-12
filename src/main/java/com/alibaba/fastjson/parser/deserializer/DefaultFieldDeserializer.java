@@ -29,6 +29,10 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             Class<?> deserializeUsing = annotation.deserializeUsing();
             customDeserilizer = deserializeUsing != null && deserializeUsing != Void.class;
         }
+
+        if (!customDeserilizer) {
+            customDeserilizer = config.isCustomDeserializer(fieldInfo.fieldClass);
+        }
     }
 
     public ObjectDeserializer getFieldValueDeserilizer(ParserConfig config) {

@@ -1255,35 +1255,59 @@ public class TypeUtils{
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping){
-        try{
+        if (obj == null || (obj instanceof String && ((String) obj).length() == 0)) {
+            return null;
+        }
+
+        if (mapping == null) {
+            mapping = ParserConfig.getGlobalInstance();
+        }
+
+        // 不管是字符串还是数字, 只要注册了Deserializer, 就使用Deserializer, zhaohuihua, 20200729
+        ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
+        // EnumDeserializer其实不算ObjectDeserializer
+        // -- 只处理了getEnumByHashCode(), 而不是deserialze()
+        // -- 等于只支持根据name查找, 所以在后面的obj instanceof String分支中处理
+        if (deserializer != null && !(deserializer instanceof EnumDeserializer)) {
+            try {
+                // 注册的是普通的ObjectDeserializer
+                // ParserConfig.getGlobalInstance().putDeserializer(XxxState.class, new XxxStateDeserializer());
+                String string = JSON.toJSONString(castToEnumString(obj, clazz));
+                DefaultJSONParser parser = new DefaultJSONParser(string, mapping);
+                return (T) deserializer.deserialze(parser, clazz, null);
+            } catch(JSONException ex){
+                throw ex;
+            } catch(Exception ex){
+                throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
+            }
+        }
+
+        try {
             if(obj instanceof String){
                 String name = (String) obj;
-                if(name.length() == 0){
-                    return null;
+                if (isDigitString(name)) {
+                    // 数字型文本, 根据ordinal查找, TypeUtils.castToEnum("1", XxxState.class, null)
+                    int ordinal = Long.valueOf(name).intValue();
+                    Object[] values = clazz.getEnumConstants();
+                    if(ordinal < values.length){
+                        return (T) values[ordinal];
+                    }
+                } else {
+                    // 非数字文本, 根据name查找
+                    if (deserializer instanceof EnumDeserializer) {
+                        EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
+                        return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
+                    } else {
+                        return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
+                    }
                 }
-
-                if (mapping == null) {
-                    mapping = ParserConfig.getGlobalInstance();
-                }
-
-                ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
-                if (deserializer instanceof EnumDeserializer) {
-                    EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
-                    return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
-                }
-
-                return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
-            }
-
-            if(obj instanceof BigDecimal){
+            } else if(obj instanceof BigDecimal){
                 int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
                 if(ordinal < values.length){
                     return (T) values[ordinal];
                 }
-            }
-
-            if(obj instanceof Number){
+            } else if(obj instanceof Number){
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
                 if(ordinal < values.length){
@@ -1291,9 +1315,37 @@ public class TypeUtils{
                 }
             }
         } catch(Exception ex){
-            throw new JSONException("can not cast to : " + clazz.getName(), ex);
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
         }
-        throw new JSONException("can not cast to : " + clazz.getName());
+        throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
+    }
+    
+    private static String castToEnumString(Object obj, Class<?> clazz) {
+        if (obj instanceof String) {
+            return (String) obj;
+        } else if (obj instanceof BigDecimal) {
+            // 避免出现科学计数符号
+            return ((BigDecimal)obj).toPlainString();
+        } else if (obj instanceof Number) {
+            return String.valueOf(((Number) obj).intValue());
+        } else if (obj instanceof Boolean) {
+            return String.valueOf(obj);
+        } else {
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
+        }
+    }
+    
+    private static boolean isDigitString(String string) {
+        if (string == null || string.length() == 0) {
+            return false;
+        }
+        for (int i = 0, z = string.length(); i < z; i++) {
+            char c = string.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")

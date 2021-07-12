@@ -284,7 +284,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 }
             }
 
-            String dateFomartPattern = parser.getDateFomartPattern();
+            String dateFomartPattern = parser.getDateFormatPattern();
             boolean formatMatch = strVal.length() == dateFomartPattern.length()
                     || (strVal.length() == 22 && dateFomartPattern.equals("yyyyMMddHHmmssSSSZ"))
                     || (strVal.indexOf('T') != -1 && dateFomartPattern.contains("'T'") && strVal.length() + 2 == dateFomartPattern.length())

@@ -66,7 +66,7 @@ public class DefaultJSONParserTest_date extends TestCase {
         format.setTimeZone(JSON.defaultTimeZone);
         
         parser.setDateFormat(format);
-        parser.getDateFomartPattern();
+        parser.getDateFormatPattern();
         parser.getDateFormat();
         parser.parse();
         parser.close();

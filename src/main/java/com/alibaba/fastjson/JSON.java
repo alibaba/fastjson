@@ -1122,9 +1122,24 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static Object toJSON(Object javaObject, ParserConfig parserConfig) {
         return toJSON(javaObject, SerializeConfig.globalInstance);
     }
-    
+
+    /**
+     * This method serializes the specified object into its equivalent representation as a tree of
+     * {@link JSONObject}s.
+     */
     @SuppressWarnings("unchecked")
     public static Object toJSON(Object javaObject, SerializeConfig config) {
+        return toJSON(javaObject, config, null);
+    }
+
+    /**
+     * This method serializes the specified object into its equivalent representation as a tree of
+     * {@link JSONObject}s.
+     * @param data this remember all the node in the map which want to change the format to the JSONObject.
+     *
+     */
+    @SuppressWarnings("unchecked")
+    public static Object toJSON(Object javaObject, SerializeConfig config, Map<String, Object> data) {
         if (javaObject == null) {
             return null;
         }
@@ -1165,7 +1180,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONArray array = new JSONArray(collection.size());
 
             for (Object item : collection) {
-                Object jsonValue = toJSON(item, config);
+                Object jsonValue = toJSON(item, config, data);
                 array.add(jsonValue);
             }
 
@@ -1219,18 +1234,27 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             JSONObject json = new JSONObject(ordered);
             try {
                 Map<String, Object> values = javaBeanSerializer.getFieldValuesMap(javaObject);
+                if (data == null) {
+                    data = new HashMap<String, Object>();
+                }
                 for (Map.Entry<String, Object> entry : values.entrySet()) {
-                    json.put(entry.getKey(), toJSON(entry.getValue(), config));
+                    if (data.containsKey(entry.getKey())) {
+                        json.put(entry.getKey(),entry.getValue());
+                        return json;
+                    } else
+                        data.put(entry.getKey(),entry.getValue());
+                    json.put(entry.getKey(), toJSON(entry.getValue(), config, data));
                 }
             } catch (Exception e) {
                 throw new JSONException("toJSON error", e);
             }
             return json;
         }
-        
+
         String text = JSON.toJSONString(javaObject, config);
         return JSON.parse(text);
     }
+
 
     public static <T> T toJavaObject(JSON json, Class<T> clazz) {
         return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());

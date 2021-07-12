@@ -364,9 +364,8 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private void putAllForCreate(Map<? extends K, ? extends V> m) {
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m
-                .entrySet().iterator(); i.hasNext();) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m
+                .entrySet()) {
             putForCreate(e.getKey(), e.getValue());
         }
     }
@@ -455,9 +454,8 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                 resize(newCapacity);
         }
 
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m
-                .entrySet().iterator(); i.hasNext();) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m
+                .entrySet()) {
             put(e.getKey(), e.getValue());
         }
     }
@@ -570,8 +568,8 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             return containsNullValue();
 
         Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
+        for (Entry entry : tab)
+            for (Entry e = entry; e != null; e = e.next)
                 if (value.equals(e.value))
                     return true;
         return false;
@@ -582,8 +580,8 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     private boolean containsNullValue() {
         Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
+        for (Entry entry : tab)
+            for (Entry e = entry; e != null; e = e.next)
                 if (e.value == null)
                     return true;
         return false;

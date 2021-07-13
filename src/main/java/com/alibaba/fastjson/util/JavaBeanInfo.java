@@ -496,9 +496,6 @@ public class JavaBeanInfo {
 
 
                         boolean is_public = (constructor.getModifiers() & Modifier.PUBLIC) != 0;
-//                        if (!is_public) {
-//                            continue;
-//                        }
                         String[] lookupParameterNames = ASMUtils.lookupParameterNames(constructor);
                         if (lookupParameterNames == null || lookupParameterNames.length == 0) {
                             continue;

@@ -1036,7 +1036,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 }
                             }
                         } else {
-                            object = beanInfo.creatorConstructor.newInstance(params);
+                            Constructor<?> creatorConstructor = beanInfo.creatorConstructor;
+                            creatorConstructor.setAccessible(true);
+                            object = creatorConstructor.newInstance(params);
                         }
                     } catch (Exception e) {
                         throw new JSONException("create instance error, " + paramNames + ", "
@@ -1590,7 +1592,9 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 }
             } else {
                 try {
-                    object = beanInfo.creatorConstructor.newInstance(params);
+                    Constructor<?> creatorConstructor = beanInfo.creatorConstructor;
+                    creatorConstructor.setAccessible(true);
+                    object = creatorConstructor.newInstance(params);
                 } catch (Exception e) {
                     throw new JSONException("create instance error, "
                             + beanInfo.creatorConstructor.toGenericString(), e);

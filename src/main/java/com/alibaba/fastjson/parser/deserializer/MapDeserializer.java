@@ -184,8 +184,15 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
                         clazz = java.util.HashMap.class;
                     } else if (typeName.equals("java.util.LinkedHashMap")) {
                         clazz = java.util.LinkedHashMap.class;
+                    } else if (config.isSafeMode()) {
+                        clazz = java.util.HashMap.class;
                     } else {
-                        clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+                        try {
+                            clazz = config.checkAutoType(typeName, null, lexer.getFeatures());
+                        } catch (JSONException ex) {
+                            // skip
+                            clazz = java.util.HashMap.class;
+                        }
                     }
 
                     if (Map.class.isAssignableFrom(clazz) ) {

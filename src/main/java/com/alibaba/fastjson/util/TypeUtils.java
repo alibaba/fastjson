@@ -1877,7 +1877,12 @@ public class TypeUtils{
         String[] paramNames = null;
         short[] paramNameMapping = null;
         Method[] methods = clazz.getMethods();
-        Arrays.sort(methods, new MethodInheritanceComparator());
+        Map<Boolean, List<Method>> list = Arrays.stream(methods).collect(Collectors.groupingBy(s -> s.getReturnType().isPrimitive()));
+        List<Method> list1 = list.get(true);
+        List<Method> list2 = list.get(false);
+        Collections.sort(list2, new MethodInheritanceComparator());
+        list2.addAll(list1);
+        methods = list2.toArray(new Method[0]);
         for(Method method : methods){
             String methodName = method.getName();
             int ordinal = 0, serialzeFeatures = 0, parserFeatures = 0;

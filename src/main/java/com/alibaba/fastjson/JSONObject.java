@@ -407,6 +407,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof JSONObject) {
+            return this.map.equals(((JSONObject) obj).map);
+        }
+
         return this.map.equals(obj);
     }
 

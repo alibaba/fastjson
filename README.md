@@ -1,7 +1,7 @@
 
 # fastjson
 
-[![Build Status](https://travis-ci.org/alibaba/fastjson.svg?branch=master)](https://travis-ci.org/alibaba/fastjson)
+[![Java CI](https://github.com/alibaba/fastjson/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/alibaba/fastjson/actions/workflows/ci.yaml)
 [![Codecov](https://codecov.io/gh/alibaba/fastjson/branch/master/graph/badge.svg)](https://codecov.io/gh/alibaba/fastjson/branch/master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.alibaba/fastjson/)
 [![GitHub release](https://img.shields.io/github/release/alibaba/fastjson.svg)](https://github.com/alibaba/fastjson/releases)

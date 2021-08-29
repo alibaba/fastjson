@@ -31,6 +31,7 @@ import java.nio.charset.Charset;
 import java.security.AccessControlException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -410,12 +411,18 @@ public class ParserConfig {
 
     }
 
+    private final Callable<Void> initDeserializersWithJavaSql = new Callable<Void>() {
+        public Void call() {
+            deserializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
+            deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
+            deserializers.put(java.sql.Time.class, TimeDeserializer.instance);
+            deserializers.put(java.util.Date.class, DateCodec.instance);
+            return null;
+        }
+    };
+
     private void initDeserializers() {
         deserializers.put(SimpleDateFormat.class, MiscCodec.instance);
-        deserializers.put(java.sql.Timestamp.class, SqlDateDeserializer.instance_timestamp);
-        deserializers.put(java.sql.Date.class, SqlDateDeserializer.instance);
-        deserializers.put(java.sql.Time.class, TimeDeserializer.instance);
-        deserializers.put(java.util.Date.class, DateCodec.instance);
         deserializers.put(Calendar.class, CalendarCodec.instance);
         deserializers.put(XMLGregorianCalendar.class, CalendarCodec.instance);
 
@@ -491,6 +498,7 @@ public class ParserConfig {
         deserializers.put(Closeable.class, JavaObjectDeserializer.instance);
 
         deserializers.put(JSONPObject.class, new JSONPDeserializer());
+        ModuleUtil.callWhenHasJavaSql(initDeserializersWithJavaSql);
     }
 
     private static String[] splitItemsFormProperty(final String property ){
@@ -1164,28 +1172,37 @@ public class ParserConfig {
         return isPrimitive2(clazz);
     }
 
+    private static Function<Class<?>, Boolean> isPrimitiveFuncation = new Function<Class<?>, Boolean>() {
+        public Boolean apply(Class<?> clazz) {
+            return clazz == java.sql.Date.class //
+                    || clazz == java.sql.Time.class //
+                    || clazz == java.sql.Timestamp.class;
+        }
+    };
+
     /**
      * @deprecated  internal method, dont call
      */
-    public static boolean isPrimitive2(Class<?> clazz) {
-        return clazz.isPrimitive() //
-               || clazz == Boolean.class //
-               || clazz == Character.class //
-               || clazz == Byte.class //
-               || clazz == Short.class //
-               || clazz == Integer.class //
-               || clazz == Long.class //
-               || clazz == Float.class //
-               || clazz == Double.class //
-               || clazz == BigInteger.class //
-               || clazz == BigDecimal.class //
-               || clazz == String.class //
-               || clazz == java.util.Date.class //
-               || clazz == java.sql.Date.class //
-               || clazz == java.sql.Time.class //
-               || clazz == java.sql.Timestamp.class //
-               || clazz.isEnum() //
-        ;
+    public static boolean isPrimitive2(final Class<?> clazz) {
+        Boolean primitive = clazz.isPrimitive() //
+                || clazz == Boolean.class //
+                || clazz == Character.class //
+                || clazz == Byte.class //
+                || clazz == Short.class //
+                || clazz == Integer.class //
+                || clazz == Long.class //
+                || clazz == Float.class //
+                || clazz == Double.class //
+                || clazz == BigInteger.class //
+                || clazz == BigDecimal.class //
+                || clazz == String.class //
+                || clazz == java.util.Date.class //
+                || clazz.isEnum() //
+                ;
+        if (!primitive) {
+            primitive = ModuleUtil.callWhenHasJavaSql(isPrimitiveFuncation, clazz);
+        }
+        return primitive != null ? primitive : false;
     }
 
     /**

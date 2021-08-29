@@ -429,13 +429,13 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         return castToDate(value);
     }
 
-    public java.sql.Date getSqlDate(int index) {
+    public Object getSqlDate(int index) {
         Object value = get(index);
 
         return castToSqlDate(value);
     }
 
-    public java.sql.Timestamp getTimestamp(int index) {
+    public Object getTimestamp(int index) {
         Object value = get(index);
 
         return castToTimestamp(value);

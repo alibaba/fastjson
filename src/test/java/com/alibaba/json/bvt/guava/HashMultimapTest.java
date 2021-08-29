@@ -16,6 +16,6 @@ public class HashMultimapTest extends TestCase {
         map.put("name", "b");
 
         String json = JSON.toJSONString(map);
-        assertEquals("{\"name\":[\"a\",\"b\"]}", json);
+        assertTrue(json.equals("{\"name\":[\"a\",\"b\"]}") || json.equals("{\"name\":[\"b\",\"a\"]}"));
     }
 }

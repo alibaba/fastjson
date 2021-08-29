@@ -20,8 +20,14 @@ public class Issue1584 extends TestCase {
 
         {
             Map.Entry entry = JSON.parseObject(json, Map.Entry.class, config);
-            assertEquals("v", entry.getKey());
-            assertEquals("A", entry.getValue());
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            assertTrue(key.equals("v") || key.equals("k"));
+            if (key.equals("v")) {
+                assertEquals("A", value);
+            } else {
+                assertEquals(1, value);
+            }
         }
 
         config.putDeserializer(Map.Entry.class, new ObjectDeserializer() {

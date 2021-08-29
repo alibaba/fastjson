@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.issue_3000;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Type;
@@ -26,6 +27,6 @@ public class Issue3082 extends TestCase {
         HashSet<Map.Entry<String, Map.Entry<String, String>>> deserializedNestedSet;
         Type type = new TypeReference<HashSet<Map.Entry<String, Map.Entry<String, String>>>>() {}.getType();
         deserializedNestedSet = JSON.parseObject(content, type);
-        assertEquals("b", deserializedNestedSet.iterator().next().getValue().getKey());
+        assertEquals(nestedSet, deserializedNestedSet);
     }
 }

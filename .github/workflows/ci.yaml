@@ -32,6 +32,3 @@ jobs:
             ${{ runner.os }}
       - name: Test with Maven
         run: mvn test -B --file pom.xml
-      - uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}

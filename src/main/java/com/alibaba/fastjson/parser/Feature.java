@@ -150,7 +150,13 @@ public enum Feature {
     /**
      * @since 1.2.72
      */
-    TrimStringFieldValue
+    TrimStringFieldValue,
+
+    /**
+     * @since 1.2.77
+     * use HashMap instead of JSONObject, ArrayList instead of JSONArray
+     */
+    UseNativeJavaObject
     ;
 
     Feature(){

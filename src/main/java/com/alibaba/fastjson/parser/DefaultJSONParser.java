@@ -17,10 +17,7 @@ package com.alibaba.fastjson.parser;
 
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.parser.deserializer.*;
-import com.alibaba.fastjson.serializer.BeanContext;
-import com.alibaba.fastjson.serializer.IntegerCodec;
-import com.alibaba.fastjson.serializer.LongCodec;
-import com.alibaba.fastjson.serializer.StringCodec;
+import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.Closeable;
@@ -1416,14 +1413,20 @@ public class DefaultJSONParser implements Closeable {
                 parseArray(treeSet, fieldName);
                 return treeSet;
             case LBRACKET:
-                JSONArray array = new JSONArray();
+                Collection array = isEnabled(Feature.UseNativeJavaObject)
+                        ? new ArrayList()
+                        : new JSONArray();
                 parseArray(array, fieldName);
                 if (lexer.isEnabled(Feature.UseObjectArray)) {
                     return array.toArray();
                 }
                 return array;
             case LBRACE:
-                JSONObject object = new JSONObject(lexer.isEnabled(Feature.OrderedField));
+                Map object = isEnabled(Feature.UseNativeJavaObject)
+                    ? lexer.isEnabled(Feature.OrderedField)
+                    ? new HashMap()
+                    : new LinkedHashMap()
+                    : new JSONObject(lexer.isEnabled(Feature.OrderedField));
                 return parseObject(object, fieldName);
 //            case LBRACE: {
 //                Map<String, Object> map = lexer.isEnabled(Feature.OrderedField)
@@ -1591,7 +1594,7 @@ public class DefaultJSONParser implements Closeable {
                 refValue = getObject(ref);
                 if (refValue == null) {
                     try {
-                        JSONPath jsonpath = JSONPath.compile(ref);
+                        JSONPath jsonpath = new JSONPath(ref, SerializeConfig.getGlobalInstance(), config, true);
                         if (jsonpath.isRef()) {
                             refValue = jsonpath.eval(value);
                         }

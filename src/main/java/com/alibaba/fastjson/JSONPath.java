@@ -3847,7 +3847,7 @@ public class JSONPath implements JSONAware {
 
         if (currentObject instanceof String) {
             try {
-                JSONObject object = JSON.parseObject((String) currentObject);
+                JSONObject object = (JSONObject) JSON.parse((String) currentObject, parserConfig);
                 currentObject = object;
             } catch (Exception ex) {
                 // skip

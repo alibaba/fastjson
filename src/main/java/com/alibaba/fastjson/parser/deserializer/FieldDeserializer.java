@@ -2,8 +2,10 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.BeanContext;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 import java.lang.reflect.*;
 import java.util.Collection;
@@ -221,12 +223,27 @@ public abstract class FieldDeserializer {
     /**
      * kotlin代理类property的get方法会抛未初始化异常，用set方法直接赋值
      */
-    private static void degradeValueAssignment(Field field,Method getMethod, Object object, Object value) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private static boolean degradeValueAssignment(
+            Field field,
+            Method getMethod,
+            Object object,
+            Object value
+    ) throws InvocationTargetException, IllegalAccessException {
         if (setFieldValue(field, object, value)) {
-            return;
+            return true;
         }
-        Method setMethod = object.getClass().getDeclaredMethod("set" + getMethod.getName().substring(3), getMethod.getReturnType());
-        setMethod.invoke(object, value);
+
+        try {
+            Method setMethod = object
+                    .getClass()
+                    .getDeclaredMethod("set" + getMethod.getName().substring(3), getMethod.getReturnType());
+            setMethod.invoke(object, value);
+            return true;
+        } catch (InvocationTargetException ignored) {
+        } catch (NoSuchMethodException ignored) {
+        } catch (IllegalAccessException ignored) {
+        }
+        return false;
     }
 
     private static boolean setFieldValue(Field field, Object object, Object value) throws IllegalAccessException {

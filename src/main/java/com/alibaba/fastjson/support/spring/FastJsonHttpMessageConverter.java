@@ -67,6 +67,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     @Deprecated
     protected String dateFormat;
 
+    private boolean setLengthError = false;
+
     /**
      * with fastJson config
      */
@@ -323,8 +325,13 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                 headers.setContentType(APPLICATION_JAVASCRIPT);
             }
 
-            if (fastJsonConfig.isWriteContentLength()) {
-                headers.setContentLength(len);
+            if (fastJsonConfig.isWriteContentLength() && !setLengthError) {
+                try {
+                    headers.setContentLength(len);
+                } catch (UnsupportedOperationException ex) {
+                    // skip
+                    setLengthError = true;
+                }
             }
 
             outnew.writeTo(outputMessage.getBody());

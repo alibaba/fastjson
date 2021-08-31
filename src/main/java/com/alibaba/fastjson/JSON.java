@@ -1130,7 +1130,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         if (javaObject instanceof JSON) {
-            return javaObject;
+            return JSON.parse(JSON.toJSONString(javaObject));
         }
 
         if (javaObject instanceof Map) {

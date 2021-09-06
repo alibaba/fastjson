@@ -1,6 +1,6 @@
 package com.alibaba.json.bvtVO.wuqi;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +27,8 @@ public class SchemaResult {
     }
 
     public SchemaResult() {
-        data = new ArrayList<InstanceSchema>();
-        extra = new ArrayList<Map<String, Object>>();
+        data = new LinkedList<InstanceSchema>();
+        extra = new LinkedList<Map<String, Object>>();
     }
 
     public int getCode() {

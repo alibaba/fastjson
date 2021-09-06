@@ -1,7 +1,7 @@
 package com.alibaba.fastjson.serializer;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
@@ -21,7 +21,7 @@ public abstract class SerializeFilterable {
 
     public List<BeforeFilter> getBeforeFilters() {
         if (beforeFilters == null) {
-            beforeFilters = new ArrayList<BeforeFilter>();
+            beforeFilters = new LinkedList<BeforeFilter>();
             writeDirect = false;
         }
 
@@ -30,7 +30,7 @@ public abstract class SerializeFilterable {
 
     public List<AfterFilter> getAfterFilters() {
         if (afterFilters == null) {
-            afterFilters = new ArrayList<AfterFilter>();
+            afterFilters = new LinkedList<AfterFilter>();
             writeDirect = false;
         }
 
@@ -39,7 +39,7 @@ public abstract class SerializeFilterable {
 
     public List<NameFilter> getNameFilters() {
         if (nameFilters == null) {
-            nameFilters = new ArrayList<NameFilter>();
+            nameFilters = new LinkedList<NameFilter>();
             writeDirect = false;
         }
 
@@ -48,7 +48,7 @@ public abstract class SerializeFilterable {
 
     public List<PropertyPreFilter> getPropertyPreFilters() {
         if (propertyPreFilters == null) {
-            propertyPreFilters = new ArrayList<PropertyPreFilter>();
+            propertyPreFilters = new LinkedList<PropertyPreFilter>();
             writeDirect = false;
         }
 
@@ -57,7 +57,7 @@ public abstract class SerializeFilterable {
 
     public List<LabelFilter> getLabelFilters() {
         if (labelFilters == null) {
-            labelFilters = new ArrayList<LabelFilter>();
+            labelFilters = new LinkedList<LabelFilter>();
             writeDirect = false;
         }
 
@@ -66,7 +66,7 @@ public abstract class SerializeFilterable {
 
     public List<PropertyFilter> getPropertyFilters() {
         if (propertyFilters == null) {
-            propertyFilters = new ArrayList<PropertyFilter>();
+            propertyFilters = new LinkedList<PropertyFilter>();
             writeDirect = false;
         }
 
@@ -75,7 +75,7 @@ public abstract class SerializeFilterable {
 
     public List<ContextValueFilter> getContextValueFilters() {
         if (contextValueFilters == null) {
-            contextValueFilters = new ArrayList<ContextValueFilter>();
+            contextValueFilters = new LinkedList<ContextValueFilter>();
             writeDirect = false;
         }
 
@@ -84,7 +84,7 @@ public abstract class SerializeFilterable {
 
     public List<ValueFilter> getValueFilters() {
         if (valueFilters == null) {
-            valueFilters = new ArrayList<ValueFilter>();
+            valueFilters = new LinkedList<ValueFilter>();
             writeDirect = false;
         }
 

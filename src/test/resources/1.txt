@@ -2,7 +2,7 @@ Fastjson介绍
 
 Fastjson是一个Java语言编写的JSON处理器。
 1、遵循http://json.org标准，为其官方网站收录的参考实现之一。
-2、功能qiang打，支持JDK的各种类型，包括基本的JavaBean、Collection、Map、Date、Enum、泛型。
+2、功能强打，支持JDK的各种类型，包括基本的JavaBean、Collection、Map、Date、Enum、泛型。
 3、无依赖，不需要例外额外的jar，能够直接跑在JDK上。
 4、开源，使用Apache License 2.0协议开源。http://code.alibabatech.com/wiki/display/FastJSON/Home
 

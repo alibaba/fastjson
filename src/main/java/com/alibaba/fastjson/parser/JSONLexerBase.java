@@ -5079,7 +5079,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         if (!hexu1 || !hexu2 || !hexu3 || !hexu4) {
                             throw new JSONException("invalid unicode sequence \\u" + u1 + u2 + u3 + u4);
                         }
-                        putChar((char) Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16));
+                        putChar((char) (digits[u1] * 0x1000 + digits[u2] * 0x100 + digits[u3] * 0x10 + digits[u4]));
                         break;
                     default:
                         this.ch = chLocal;

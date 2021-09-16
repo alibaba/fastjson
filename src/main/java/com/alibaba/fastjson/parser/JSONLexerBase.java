@@ -5059,7 +5059,27 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                         putChar((char) (digits[x1] * 16 + digits[x2]));
                         break;
                     case 'u':
-                        putChar((char) Integer.parseInt(new String(new char[] { next(), next(), next(), next() }), 16));
+                        char u1 = next();
+                        char u2 = next();
+                        char u3 = next();
+                        char u4 = next();
+
+                        boolean hexu1 = (u1 >= '0' && u1 <= '9')
+                                || (u1 >= 'a' && u1 <= 'f')
+                                || (u1 >= 'A' && u1 <= 'F');
+                        boolean hexu2 = (u2 >= '0' && u2 <= '9')
+                                || (u2 >= 'a' && u2 <= 'f')
+                                || (u2 >= 'A' && u2 <= 'F');
+                        boolean hexu3 = (u3 >= '0' && u3 <= '9')
+                                || (u3 >= 'a' && u3 <= 'f')
+                                || (u3 >= 'A' && u3 <= 'F');
+                        boolean hexu4 = (u4 >= '0' && u4 <= '9')
+                                || (u4 >= 'a' && u4 <= 'f')
+                                || (u4 >= 'A' && u4 <= 'F');
+                        if (!hexu1 || !hexu2 || !hexu3 || !hexu4) {
+                            throw new JSONException("invalid unicode sequence \\u" + u1 + u2 + u3 + u4);
+                        }
+                        putChar((char) Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16));
                         break;
                     default:
                         this.ch = chLocal;

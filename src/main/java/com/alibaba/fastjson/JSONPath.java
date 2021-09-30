@@ -22,21 +22,10 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,12 +104,38 @@ public class JSONPath implements JSONAware {
 
         init();
 
-        Object currentObject = rootObject;
+        Queue<Object> tempContainer = new LinkedBlockingQueue<Object>();
+        Queue<Object> swapContainer = new LinkedBlockingQueue<Object>();
+        tempContainer.add(rootObject);
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
-            currentObject = segment.eval(this, rootObject, currentObject);
+            while (tempContainer.size() > 0) {
+                Object element = tempContainer.poll();
+                element = segment.eval(this, rootObject, element);
+                if (segment instanceof RangeSegment || segment instanceof MultiIndexSegment) {
+                    if (!(element instanceof List)) {
+                        return null;
+                    }
+                    swapContainer.addAll((List)element);
+                } else {
+                    swapContainer.add(element);
+                }
+            }
+            Queue<Object> temp = swapContainer;
+            swapContainer = tempContainer;
+            tempContainer = temp;
         }
-        return currentObject;
+        if (tempContainer.size() == 1) {
+            return tempContainer.poll();
+        } else if (tempContainer.size() == 0) {
+            return null;
+        } else {
+            JSONArray result = new JSONArray();
+            while(tempContainer.size() > 0) {
+                result.add(tempContainer.poll());
+            }
+            return result;
+        }
     }
     
     /**
@@ -2007,6 +2022,10 @@ public class JSONPath implements JSONAware {
             final char lastChar = indexText.charAt(indexTextLen - 1);
 
             int commaIndex = indexText.indexOf(',');
+
+            if (indexText.equals("*")) {
+                return new RangeSegment(0, -1, 1);
+            }
 
             if (indexText.length() > 2 && firstChar == '\'' && lastChar == '\'') {
 

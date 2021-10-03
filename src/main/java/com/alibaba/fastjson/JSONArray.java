@@ -346,6 +346,14 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof JSONArray) {
+            return this.list.equals(((JSONArray) obj).list);
+        }
+
         return this.list.equals(obj);
     }
 

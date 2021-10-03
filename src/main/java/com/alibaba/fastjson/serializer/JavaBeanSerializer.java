@@ -146,7 +146,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = new FieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new FieldSerializer(clazz, fieldInfo);
                 
                 getterList.add(fieldDeser);
             }
@@ -173,7 +173,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
             List<FieldSerializer> getterList = new ArrayList<FieldSerializer>();
 
             for (FieldInfo fieldInfo : fieldInfoList) {
-                FieldSerializer fieldDeser = new FieldSerializer(fieldInfo);
+                FieldSerializer fieldDeser = new FieldSerializer(clazz, fieldInfo);
                 getterList.add(fieldDeser);
             }
 
@@ -624,29 +624,7 @@ public class JavaBeanSerializer implements ObjectSerializer {
                                     }
                                 }
                             } else {
-                                if (fieldInfo.isEnum) {
-                                    if (propertyValue != null) {
-                                        if ((out.features & SerializerFeature.WriteEnumUsingToString.mask) != 0) {
-                                            Enum<?> e = (Enum<?>) propertyValue;
-                                            
-                                            String name = e.toString();
-                                            boolean userSingleQuote = (out.features & SerializerFeature.UseSingleQuotes.mask) != 0;
-                                            
-                                            if (userSingleQuote) {
-                                                out.writeStringWithSingleQuote(name);
-                                            } else {
-                                                out.writeStringWithDoubleQuote(name, (char) 0, false);    
-                                            }
-                                        } else {
-                                            Enum<?> e = (Enum<?>) propertyValue;
-                                            out.writeInt(e.ordinal());
-                                        }
-                                    } else {
-                                        out.writeNull();
-                                    }
-                                } else {
-                                    fieldSerializer.writeValue(serializer, propertyValue);
-                                }
+                                fieldSerializer.writeValue(serializer, propertyValue);
                             }
                         } else {
                             fieldSerializer.writeValue(serializer, propertyValue);

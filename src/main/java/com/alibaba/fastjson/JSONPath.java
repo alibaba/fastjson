@@ -15,6 +15,7 @@ import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
+import com.sun.jmx.remote.internal.ArrayQueue;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +26,6 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,39 +104,43 @@ public class JSONPath implements JSONAware {
 
         init();
 
-        Queue<Object> tempContainer = new LinkedBlockingQueue<Object>();
-        Queue<Object> swapContainer = new LinkedBlockingQueue<Object>();
+        List<Object> tempContainer = new LinkedList<Object>();
+        List<Object> swapContainer = new LinkedList<Object>();
         tempContainer.add(rootObject);
+        boolean isRanger = false;
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
-            if (segment instanceof TypeSegment && tempContainer.size() == 0) {
+            if (segment instanceof TypeSegment && tempContainer.size() == 1 && tempContainer.get(0) == null) {
                 return "null";
             }
-            while (tempContainer.size() > 0) {
-                Object element = tempContainer.poll();
+            for (int j = 0; j < tempContainer.size(); j++) {
+                Object element = tempContainer.get(j);
+                if (element == null) {
+                    continue;
+                }
                 element = segment.eval(this, rootObject, element);
                 if (segment instanceof RangeSegment || segment instanceof MultiIndexSegment) {
                     if (!(element instanceof List)) {
                         return null;
                     }
+                    isRanger = true;
                     swapContainer.addAll((List)element);
-                } else if (element != null) {
+                } else {
                     swapContainer.add(element);
                 }
             }
-            Queue<Object> temp = swapContainer;
+            tempContainer.clear();
+            List<Object> temp = swapContainer;
             swapContainer = tempContainer;
             tempContainer = temp;
         }
-        if (tempContainer.size() == 1) {
-            return tempContainer.poll();
+        if (tempContainer.size() == 1 && !isRanger) {
+            return tempContainer.get(0);
         } else if (tempContainer.size() == 0) {
             return null;
         } else {
             JSONArray result = new JSONArray();
-            while(tempContainer.size() > 0) {
-                result.add(tempContainer.poll());
-            }
+            result.addAll(tempContainer);
             return result;
         }
     }

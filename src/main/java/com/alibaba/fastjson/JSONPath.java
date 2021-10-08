@@ -109,6 +109,9 @@ public class JSONPath implements JSONAware {
         tempContainer.add(rootObject);
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
+            if (segment instanceof TypeSegment && tempContainer.size() == 0) {
+                return "null";
+            }
             while (tempContainer.size() > 0) {
                 Object element = tempContainer.poll();
                 element = segment.eval(this, rootObject, element);
@@ -117,7 +120,7 @@ public class JSONPath implements JSONAware {
                         return null;
                     }
                     swapContainer.addAll((List)element);
-                } else {
+                } else if (element != null) {
                     swapContainer.add(element);
                 }
             }

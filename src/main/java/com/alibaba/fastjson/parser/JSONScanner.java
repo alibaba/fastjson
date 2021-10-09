@@ -2199,7 +2199,7 @@ public final class JSONScanner extends JSONLexerBase {
         if (text.length() < 65535) {
             buf.append(text);
         } else {
-            buf.append(text.substring(0, 65535));
+            buf.append(text, 0, 65535);
         }
 
         return buf.toString();

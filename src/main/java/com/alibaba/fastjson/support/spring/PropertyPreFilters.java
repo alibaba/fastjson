@@ -27,7 +27,7 @@ public class PropertyPreFilters {
     }
 
     public MySimplePropertyPreFilter addFilter(Class<?> clazz, String... properties){
-        MySimplePropertyPreFilter filter = new MySimplePropertyPreFilter(clazz,properties);
+        MySimplePropertyPreFilter filter = new MySimplePropertyPreFilter(clazz, properties);
         filters.add(filter);
         return filter;
     }
@@ -44,7 +44,7 @@ public class PropertyPreFilters {
         return filters.toArray(new MySimplePropertyPreFilter[]{});
     }
 
-    public class MySimplePropertyPreFilter extends SimplePropertyPreFilter {
+    public static class MySimplePropertyPreFilter extends SimplePropertyPreFilter {
 
         public MySimplePropertyPreFilter(){}
 

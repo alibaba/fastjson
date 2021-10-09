@@ -3406,7 +3406,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
                 if (arrayarrayIndex >= arrayarray.length) {
                     float[][] tmp = new float[arrayarray.length * 3 / 2][];
-                    System.arraycopy(array, 0, tmp, 0, arrayIndex);
+                    System.arraycopy(arrayarray, 0, tmp, 0, arrayIndex);
                     arrayarray = tmp;
                 }
                 arrayarray[arrayarrayIndex++] = array;

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-public abstract class JSONValidator implements Cloneable, Closeable {
+public abstract class JSONValidator implements Closeable {
     public enum Type {
         Object, Array, Value
     }

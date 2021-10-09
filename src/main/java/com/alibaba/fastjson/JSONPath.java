@@ -15,7 +15,6 @@ import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.fastjson.util.TypeUtils;
-import com.sun.jmx.remote.internal.ArrayQueue;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -112,6 +111,15 @@ public class JSONPath implements JSONAware {
             Segment segment = segments[i];
             if (segment instanceof TypeSegment && tempContainer.size() == 1 && tempContainer.get(0) == null) {
                 return "null";
+            }
+            if (isRanger && (segment instanceof MaxSegment
+                    || segment instanceof SizeSegment
+                    || segment instanceof MinSegment)) {
+                isRanger = false;
+                JSONArray array = new JSONArray();
+                array.addAll(tempContainer);
+                tempContainer.clear();
+                tempContainer.add(array);
             }
             for (int j = 0; j < tempContainer.size(); j++) {
                 Object element = tempContainer.get(j);
@@ -222,7 +230,9 @@ public class JSONPath implements JSONAware {
                     eval = true;
                 } else if (segment instanceof WildCardSegment) {
                     eval = true;
-                }else if(segment instanceof MultiIndexSegment){
+                }else if (segment instanceof MultiIndexSegment) {
+                    eval = true;
+                } else if (segment instanceof RangeSegment) {
                     eval = true;
                 } else {
                     eval = false;
@@ -2851,6 +2861,13 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            if (context.eval) {
+                Object object = parser.parse();
+                if (object instanceof List) {
+                    context.object = object;
+                    return;
+                }
+            }
             throw new UnsupportedOperationException();
         }
     }

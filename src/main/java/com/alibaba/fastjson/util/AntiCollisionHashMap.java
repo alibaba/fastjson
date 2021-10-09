@@ -63,19 +63,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     transient volatile int modCount;
 
-    /**
-     * Constructs an empty <tt>SafelyHashMap</tt> with the specified initial
-     * capacity and load factor.
-     *
-     * @param initialCapacity
-     *            the initial capacity
-     * @param loadFactor
-     *            the load factor
-     * @throws IllegalArgumentException
-     *             if the initial capacity is negative or the load factor is
-     *             nonpositive
-     */
-
     final static int M_MASK = 0x8765fed3;
     final static int SEED = -2128831035;
     final static int KEY = 16777619;
@@ -89,6 +76,18 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         return (hash ^ (hash >> 1)) & M_MASK;
     }
 
+    /**
+     * Constructs an empty <tt>SafelyHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param initialCapacity
+     *            the initial capacity
+     * @param loadFactor
+     *            the load factor
+     * @throws IllegalArgumentException
+     *             if the initial capacity is negative or the load factor is
+     *             nonpositive
+     */
     public AntiCollisionHashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: "

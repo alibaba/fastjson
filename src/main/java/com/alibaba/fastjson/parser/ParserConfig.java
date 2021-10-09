@@ -937,7 +937,7 @@ public class ParserConfig {
      * @param clazz 转换的类型
      * @return 返回一个枚举的反序列化实现
      * @author zhu.xiaojie
-     * @time 2020-4-5
+     * @date 2020-4-5
      */
     protected ObjectDeserializer getEnumDeserializer(Class<?> clazz){
         return new EnumDeserializer(clazz);

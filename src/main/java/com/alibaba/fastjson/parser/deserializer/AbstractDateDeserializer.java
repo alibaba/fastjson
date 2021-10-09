@@ -50,6 +50,8 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
                         } catch (IllegalArgumentException e2) {
                             throw ex;
                         }
+                    } else {
+                        throw ex;
                     }
                 }
 

@@ -550,9 +550,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     public void clear() {
         modCount++;
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            tab[i] = null;
+        Arrays.fill(table, null);
         size = 0;
     }
 

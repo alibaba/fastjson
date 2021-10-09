@@ -471,25 +471,6 @@ public class ASMDeserializerFactory implements Opcodes {
                 Label objElseIf_ = new Label();
                 Label objEndIf_ = new Label();
 
-                if (fieldClass == java.util.Date.class) {
-                    mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "getCurrent", "()C");
-                    mw.visitLdcInsn((int) '1');
-                    mw.visitJumpInsn(IF_ICMPNE, objElseIf_);
-
-                    mw.visitTypeInsn(NEW, type(java.util.Date.class));
-                    mw.visitInsn(DUP);
-
-                    mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitVarInsn(BIPUSH, seperator);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
-
-                    mw.visitMethodInsn(INVOKESPECIAL, type(java.util.Date.class), "<init>", "(J)V");
-                    mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-
-                    mw.visitJumpInsn(GOTO, objEndIf_);
-                }
-
                 mw.visitLabel(objElseIf_);
 
                 _quickNextToken(context, mw, JSONToken.LBRACKET);

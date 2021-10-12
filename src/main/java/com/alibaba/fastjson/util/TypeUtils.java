@@ -2702,6 +2702,36 @@ public class TypeUtils {
         return clz;
     }
 
+    public static Set createSet(Type type) {
+        Class<?> rawClass = getRawClass(type);
+        Set set;
+        if (rawClass == AbstractCollection.class //
+                || rawClass == Collection.class) {
+            set = new HashSet();
+        } else if (rawClass.isAssignableFrom(HashSet.class)) {
+            set = new HashSet();
+        } else if (rawClass.isAssignableFrom(LinkedHashSet.class)) {
+            set = new LinkedHashSet();
+        } else if (rawClass.isAssignableFrom(TreeSet.class)) {
+            set = new TreeSet();
+        } else if (rawClass.isAssignableFrom(EnumSet.class)) {
+            Type itemType;
+            if (type instanceof ParameterizedType) {
+                itemType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            } else {
+                itemType = Object.class;
+            }
+            set = EnumSet.noneOf((Class<Enum>) itemType);
+        } else {
+            try {
+                set = (Set) rawClass.newInstance();
+            } catch (Exception e) {
+                throw new JSONException("create instance error, class " + rawClass.getName());
+            }
+        }
+        return set;
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static Collection createCollection(Type type) {
         Class<?> rawClass = getRawClass(type);

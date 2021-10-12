@@ -120,7 +120,13 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) array;
         }
 
-        Collection list = TypeUtils.createCollection(type);
+        Collection list;
+        if (parser.lexer.token() == JSONToken.SET) {
+            parser.lexer.nextToken();
+            list = TypeUtils.createSet(type);
+        } else {
+            list = TypeUtils.createCollection(type);
+        }
 
         Type itemType = TypeUtils.getCollectionItemType(type);
         parser.parseArray(itemType, list, fieldName);

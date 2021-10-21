@@ -337,13 +337,13 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         return castToDate(value);
     }
 
-    public java.sql.Date getSqlDate(String key) {
+    public Object getSqlDate(String key) {
         Object value = get(key);
 
         return castToSqlDate(value);
     }
 
-    public java.sql.Timestamp getTimestamp(String key) {
+    public Object getTimestamp(String key) {
         Object value = get(key);
 
         return castToTimestamp(value);
@@ -407,6 +407,14 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof JSONObject) {
+            return this.map.equals(((JSONObject) obj).map);
+        }
+
         return this.map.equals(obj);
     }
 

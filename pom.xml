@@ -634,10 +634,10 @@
 
     <profiles>
         <profile>
-            <id>travis</id>
+            <id>github_actions</id>
             <activation>
                 <property>
-                    <name>env.TRAVIS</name>
+                    <name>env.GITHUB_ACTIONS</name>
                     <value>true</value>
                 </property>
             </activation>
@@ -649,7 +649,7 @@
                         <!-- plugin docs: http://eclemma.org/jacoco/trunk/doc/ -->
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.6.201602180812</version>
+                        <version>0.8.7</version>
                         <executions>
                             <execution>
                                 <goals>

@@ -1699,7 +1699,7 @@ public class JSONPath implements JSONAware {
                     // 两个单引号 ' 包裹两侧，则去除包裹
                     propName = text.substring(1, text.length() - 1);
                 } else {
-                    // FIXME 这里做了逻辑改动，纵观代码，这里的作用应该是去除转义字符的 \ ，即: \. ==> .
+                    // 无需使用正则表达式进行替换
                     propName = text.replace("\\.", ".");
                     if (propName.contains("\\-")){
                         propName = propName.replace("\\-", "-");

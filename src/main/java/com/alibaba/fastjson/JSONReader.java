@@ -29,7 +29,7 @@ public class JSONReader implements Closeable {
     public JSONReader(Reader reader){
         this(reader, new Feature[0]);
     }
-    
+
     public JSONReader(Reader reader, Feature... features){
         this(new JSONReaderScanner(reader));
         for (Feature feature : features) {
@@ -44,11 +44,11 @@ public class JSONReader implements Closeable {
     public JSONReader(DefaultJSONParser parser){
         this.parser = parser;
     }
-    
+
     public void setTimzeZone(TimeZone timezone) {
         this.parser.lexer.setTimeZone(timezone);
     }
-    
+
     public void setLocale(Locale locale) {
         this.parser.lexer.setLocale(locale);
     }
@@ -56,11 +56,11 @@ public class JSONReader implements Closeable {
     public void config(Feature feature, boolean state) {
         this.parser.config(feature, state);
     }
-    
+
     public Locale getLocal() {
         return this.parser.lexer.getLocale();
     }
-    
+
     public TimeZone getTimzeZone() {
         return this.parser.lexer.getTimeZone();
     }
@@ -130,7 +130,7 @@ public class JSONReader implements Closeable {
         if (context == null) {
             return;
         }
-        
+
         final int state = context.state;
         int newState = -1;
         switch (state) {
@@ -223,7 +223,7 @@ public class JSONReader implements Closeable {
 
         return TypeUtils.castToString(object);
     }
-    
+
     public <T> T readObject(TypeReference<T> typeRef) {
         return readObject(typeRef.getType());
     }
@@ -308,7 +308,6 @@ public class JSONReader implements Closeable {
                 parser.accept(JSONToken.COMMA);
                 break;
             case StartObject:
-                break;
             case StartArray:
                 break;
             default:
@@ -321,13 +320,11 @@ public class JSONReader implements Closeable {
         int newStat = -1;
         switch (state) {
             case StartObject:
+            case PropertyValue:
                 newStat = PropertyKey;
                 break;
             case PropertyKey:
                 newStat = PropertyValue;
-                break;
-            case PropertyValue:
-                newStat = PropertyKey;
                 break;
             case ArrayValue:
                 break;

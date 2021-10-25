@@ -260,7 +260,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         if (count < 0) {
             throw new StringIndexOutOfBoundsException(count);
         }
-        
+
         if (offset == 0) {
             return buf;
         }
@@ -281,8 +281,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
             sp--;
         }
 
-        String value = new String(buf, offset, sp);
-        return value;
+        return new String(buf, offset, sp);
     }
 
     public final BigDecimal decimalValue() {

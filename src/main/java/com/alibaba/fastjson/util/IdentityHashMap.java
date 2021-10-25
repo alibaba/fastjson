@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 /**
  * for concurrent IdentityHashMap
- * 
+ *
  * @author wenshao[szujobs@hotmail.com]
  */
 @SuppressWarnings("unchecked")
@@ -43,17 +43,15 @@ public class IdentityHashMap<K, V> {
 
         for (Entry<K, V> entry = buckets[bucket]; entry != null; entry = entry.next) {
             if (key == entry.key) {
-                return (V) entry.value;
+                return entry.value;
             }
         }
 
         return null;
     }
 
-    public Class findClass(String keyString) {
-        for (int i = 0; i < buckets.length; i++) {
-            Entry bucket = buckets[i];
-
+    public Class<V> findClass(String keyString) {
+        for (Entry<K, V> bucket : buckets) {
             if (bucket == null) {
                 continue;
             }
@@ -61,7 +59,7 @@ public class IdentityHashMap<K, V> {
             for (Entry<K, V> entry = bucket; entry != null; entry = entry.next) {
                 Object key = bucket.key;
                 if (key instanceof Class) {
-                    Class clazz = ((Class) key);
+                    Class<V> clazz = ((Class<V>) key);
                     String className = clazz.getName();
                     if (className.equals(keyString)) {
                         return clazz;

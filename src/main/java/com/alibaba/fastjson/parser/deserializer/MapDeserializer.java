@@ -22,7 +22,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         if (type == JSONObject.class && parser.getFieldTypeResolver() == null) {
             return (T) parser.parseObject();
         }
-        
+
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken(JSONToken.COMMA);
@@ -59,7 +59,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type keyType = parameterizedType.getActualTypeArguments()[0];
-            Type valueType = null;
+            Type valueType;
             if(map.getClass().getName().equals("org.springframework.util.LinkedMultiValueMap")){
                 valueType = List.class;
             }else{
@@ -78,7 +78,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
     public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName) {
         return parseMap(parser, map, valueType, fieldName, 0);
     }
-    
+
     @SuppressWarnings("rawtypes")
     public static Map parseMap(DefaultJSONParser parser, Map<String, Object> map, Type valueType, Object fieldName, int features) {
         JSONLexer lexer = parser.lexer;
@@ -171,7 +171,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
 
                 lexer.resetStringPosition();
 
-                if (key == JSON.DEFAULT_TYPE_KEY
+                if (JSON.DEFAULT_TYPE_KEY.equals(key)
                         && !lexer.isEnabled(Feature.DisableSpecialKeyDetect)
                         && !Feature.isEnabled(features, Feature.DisableSpecialKeyDetect)
                 ) {
@@ -214,7 +214,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
                         parser.popContext();
                     }
 
-                    return (Map) deserializer.deserialze(parser, clazz, fieldName);
+                    return deserializer.deserialze(parser, clazz, fieldName);
                 }
 
                 Object value;
@@ -223,7 +223,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
                 if (i != 0) {
                     parser.setContext(context);
                 }
-                
+
                 if (lexer.token() == JSONToken.NULL) {
                     value = null;
                     lexer.nextToken();
@@ -252,7 +252,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         }
 
     }
-    
+
     public static Object parseMap(DefaultJSONParser parser, Map<Object, Object> map, Type keyType, Type valueType,
                                   Object fieldName) {
         JSONLexer lexer = parser.lexer;
@@ -385,7 +385,7 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         if (type == ConcurrentMap.class || type == ConcurrentHashMap.class) {
             return new ConcurrentHashMap();
         }
-        
+
         if (type == Map.class) {
             return (featrues & Feature.OrderedField.mask) != 0
                     ? new LinkedHashMap()
@@ -420,14 +420,14 @@ public class MapDeserializer extends ContextObjectDeserializer implements Object
         if ("java.util.Collections$UnmodifiableMap".equals(clazz.getName())) {
             return new HashMap();
         }
-        
+
         try {
             return (Map<Object, Object>) clazz.newInstance();
         } catch (Exception e) {
             throw new JSONException("unsupport type " + type, e);
         }
     }
-    
+
 
     public int getFastMatchToken() {
         return JSONToken.LBRACE;

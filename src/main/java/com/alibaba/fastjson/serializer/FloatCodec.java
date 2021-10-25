@@ -49,13 +49,13 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
 
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
-        
+
         if (object == null) {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
 
-        float floatValue = ((Float) object).floatValue();
+        float floatValue = (Float) object;
         if (decimalFormat != null) {
             String floatText = decimalFormat.format(floatValue);
             out.write(floatText);
@@ -63,13 +63,12 @@ public class FloatCodec implements ObjectSerializer, ObjectDeserializer {
             out.writeFloat(floatValue, true);
         }
     }
-    
-    @SuppressWarnings("unchecked")
+
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         try {
-            return (T) deserialze(parser);
+            return deserialze(parser);
         } catch (Exception ex) {
-            throw new JSONException("parseLong error, field : " + fieldName, ex);
+            throw new JSONException("parseFloat error, field : " + fieldName, ex);
         }
     }
 

@@ -605,7 +605,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
         calendar.set(Calendar.MILLISECOND, millis);
 
-        int timzeZoneLength = 0;
+        int timeZoneLength = 0;
         char timeZoneFlag = charAt(bp + date_len + 10 + millisLen);
 
         if (timeZoneFlag == ' ') {
@@ -656,29 +656,29 @@ public final class JSONScanner extends JSONLexerBase {
                     }
                 }
 
-                timzeZoneLength = 6;
+                timeZoneLength = 6;
             } else if (t2 == '0') { // TwoLetterISO8601TimeZone
                 t3 = charAt(bp + date_len + 10 + millisLen + 4);
                 if (t3 != '0' && t3 != '3') {
                     return false;
                 }
-                timzeZoneLength = 5;
+                timeZoneLength = 5;
             } else if (t2 == '3' && charAt(bp + date_len + 10 + millisLen + 4) == '0') {
                 t3 = '3';
                 t4 = '0';
-                timzeZoneLength = 5;
+                timeZoneLength = 5;
             } else if (t2 == '4' && charAt(bp + date_len + 10 + millisLen + 4) == '5') {
                 t3 = '4';
                 t4 = '5';
-                timzeZoneLength = 5;
+                timeZoneLength = 5;
             } else {
-                timzeZoneLength = 3;
+                timeZoneLength = 3;
             }
 
             setTimeZone(timeZoneFlag, t0, t1, t3, t4);
 
         } else if (timeZoneFlag == 'Z') {// UTC
-            timzeZoneLength = 1;
+            timeZoneLength = 1;
             if (calendar.getTimeZone().getRawOffset() != 0) {
                 String[] timeZoneIDs = TimeZone.getAvailableIDs(0);
                 if (timeZoneIDs.length > 0) {
@@ -688,11 +688,11 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        char end = charAt(bp + (date_len + 10 + millisLen + timzeZoneLength));
+        char end = charAt(bp + (date_len + 10 + millisLen + timeZoneLength));
         if (end != EOI && end != '"') {
             return false;
         }
-        ch = charAt(bp += (date_len + 10 + millisLen + timzeZoneLength));
+        ch = charAt(bp += (date_len + 10 + millisLen + timeZoneLength));
 
         token = JSONToken.LITERAL_ISO8601_DATE;
         return true;
@@ -726,15 +726,11 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     private boolean checkTime(char h0, char h1, char m0, char m1, char s0, char s1) {
-        if (h0 == '0') {
+        if (h0 == '0' || h0 == '1') { // 00~19
             if (h1 < '0' || h1 > '9') {
                 return false;
             }
-        } else if (h0 == '1') {
-            if (h1 < '0' || h1 > '9') {
-                return false;
-            }
-        } else if (h0 == '2') {
+        } else if (h0 == '2') { // 20~24
             if (h1 < '0' || h1 > '4') {
                 return false;
             }
@@ -742,31 +738,16 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
-        if (m0 >= '0' && m0 <= '5') {
-            if (m1 < '0' || m1 > '9') {
-                return false;
-            }
-        } else if (m0 == '6') {
-            if (m1 != '0') {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return lessThanOrEqualsTo60(m0, m1) && lessThanOrEqualsTo60(s0, s1);
+    }
 
+    private boolean lessThanOrEqualsTo60(char s0, char s1) {
+        // 00~59
         if (s0 >= '0' && s0 <= '5') {
-            if (s1 < '0' || s1 > '9') {
-                return false;
-            }
-        } else if (s0 == '6') {
-            if (s1 != '0') {
-                return false;
-            }
-        } else {
-            return false;
+            return s1 >= '0' && s1 <= '9';
         }
-
-        return true;
+        // 60
+        return s0 == '6' && s1 == '0';
     }
 
     private void setCalendar(char y0, char y1, char y2, char y3, char M0, char M1, char d0, char d1) {
@@ -806,23 +787,15 @@ public final class JSONScanner extends JSONLexerBase {
             return false;
         }
 
-        if (d0 == '0') {
-            if (d1 < '1' || d1 > '9') {
-                return false;
-            }
-        } else if (d0 == '1' || d0 == '2') {
-            if (d1 < '0' || d1 > '9') {
-                return false;
-            }
-        } else if (d0 == '3') {
-            if (d1 != '0' && d1 != '1') {
-                return false;
-            }
+        if (d0 == '0') { // 01~09
+            return d1 >= '1' && d1 <= '9';
+        } else if (d0 == '1' || d0 == '2') { // 10~29
+            return d1 >= '0' && d1 <= '9';
+        } else if (d0 == '3') { // 30~31
+            return d1 == '0' || d1 == '1';
         } else {
             return false;
         }
-
-        return true;
     }
 
     @Override
@@ -896,7 +869,6 @@ public final class JSONScanner extends JSONLexerBase {
                     break;
                 } else if(isWhitespace(ch)) {
                     ch = charAt(index++);
-                    continue;
                 } else {
                     matchStat = NOT_MATCH;
                     return 0;
@@ -991,13 +963,12 @@ public final class JSONScanner extends JSONLexerBase {
 
         final String strVal;
         {
-            int startIndex = index;
-            int endIndex = indexOf('"', startIndex);
+            int endIndex = indexOf('"', index);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
 
-            String stringVal = subString(startIndex, endIndex - startIndex);
+            String stringVal = subString(index, endIndex - index);
             if (stringVal.indexOf('\\') != -1) {
                 for (;;) {
                     int slashCount = 0;
@@ -1088,13 +1059,12 @@ public final class JSONScanner extends JSONLexerBase {
 
         final java.util.Date dateVal;
         if (ch == '"') {
-            int startIndex = index;
-            int endIndex = indexOf('"', startIndex);
+            int endIndex = indexOf('"', index);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
 
-            int rest = endIndex - startIndex;
+            int rest = endIndex - index;
             bp = index;
             if (scanISO8601DateIfMatch(false, rest)) {
                 dateVal = calendar.getTime();
@@ -1211,12 +1181,10 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         int index = bp + fieldName.length;
-        int spaceCount = 0;
         char ch = charAt(index++);
         if (ch != '"') {
             while (isWhitespace(ch)) {
                 ch = charAt(index++);
-                spaceCount++;
             }
 
             if (ch != '"') {
@@ -1280,7 +1248,6 @@ public final class JSONScanner extends JSONLexerBase {
         return hash;
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKNOWN;
 
@@ -1788,19 +1755,18 @@ public final class JSONScanner extends JSONLexerBase {
                 this.ch = charAt(bp);
                 matchStat = VALUE;
                 token = JSONToken.COMMA;
-                return negative ? -value : value;
             } else {
                 if (isWhitespace(chLocal)) {
                     chLocal = charAt(offset++);
                     continue;
                 }
                 matchStat = NOT_MATCH;
-                return negative ? -value : value;
             }
+            return negative ? -value : value;
         }
     }
 
-    public  double scanDouble(char seperator) {
+    public  double scanDouble(char separator) {
         matchStat = UNKNOWN;
 
         int offset = bp;
@@ -1928,16 +1894,15 @@ public final class JSONScanner extends JSONLexerBase {
             return 0;
         }
 
-        if (chLocal == seperator) {
+        if (chLocal == separator) {
             bp = offset;
             this.ch = this.charAt(bp);
             matchStat = VALUE;
             token = JSONToken.COMMA;
-            return value;
         } else {
             matchStat = NOT_MATCH;
-            return value;
         }
+        return value;
     }
 
     public long scanLong(char seperator) {
@@ -2052,13 +2017,12 @@ public final class JSONScanner extends JSONLexerBase {
 
         final java.util.Date dateVal;
         if (ch == '"') {
-            int startIndex = index;
-            int endIndex = indexOf('"', startIndex);
+            int endIndex = indexOf('"', index);
             if (endIndex == -1) {
                 throw new JSONException("unclosed str");
             }
 
-            int rest = endIndex - startIndex;
+            int rest = endIndex - index;
             bp = index;
             if (scanISO8601DateIfMatch(false, rest)) {
                 dateVal = calendar.getTime();
@@ -2199,7 +2163,7 @@ public final class JSONScanner extends JSONLexerBase {
         if (text.length() < 65535) {
             buf.append(text);
         } else {
-            buf.append(text.substring(0, 65535));
+            buf.append(text, 0, 65535);
         }
 
         return buf.toString();

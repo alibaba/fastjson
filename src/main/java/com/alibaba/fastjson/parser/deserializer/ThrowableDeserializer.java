@@ -24,7 +24,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
-        
+
         if (lexer.token() == JSONToken.NULL) {
             lexer.nextToken();
             return null;
@@ -40,14 +40,14 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
 
         Throwable cause = null;
         Class<?> exClass = null;
-        
+
         if (type != null && type instanceof Class) {
         	Class<?> clazz = (Class<?>) type;
         	if (Throwable.class.isAssignableFrom(clazz)) {
         		exClass = clazz;
         	}
         }
-        
+
         String message = null;
         StackTraceElement[] stackTrace = null;
         Map<String, Object> otherValues = null;
@@ -105,7 +105,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
             }
         }
 
-        Throwable ex = null;
+        Throwable ex;
         if (exClass == null) {
             ex = new Exception(message, cause);
         } else {

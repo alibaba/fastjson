@@ -16,27 +16,29 @@
 package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.MalformedInputException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Properties;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.serializer.SerializeWriter;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
 public class IOUtils {
-    
+
     public final static String     FASTJSON_PROPERTIES              = "fastjson.properties";
     public final static String     FASTJSON_COMPATIBLEWITHJAVABEAN  = "fastjson.compatibleWithJavaBean";
     public final static String     FASTJSON_COMPATIBLEWITHFIELDNAME = "fastjson.compatibleWithFieldName";
@@ -74,7 +76,7 @@ public class IOUtils {
             //skip
         }
     }
-    
+
     public static String getStringProperty(String name) {
         String prop = null;
         try {
@@ -84,7 +86,7 @@ public class IOUtils {
         }
         return (prop == null) ? DEFAULT_PROPERTIES.getProperty(name) : prop;
     }
-    
+
     public static void loadPropertiesFromFile(){
         InputStream imputStream = AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
             public InputStream run() {
@@ -96,7 +98,7 @@ public class IOUtils {
                 }
             }
         });
-        
+
         if (null != imputStream) {
             try {
                 DEFAULT_PROPERTIES.load(imputStream);
@@ -157,7 +159,7 @@ public class IOUtils {
             specicalFlags_doubleQuotes[i] = 4;
             specicalFlags_singleQuotes[i] = 4;
         }
-        
+
         for (int i = 0; i < 161; ++i) {
             specicalFlags_doubleQuotesFlags[i] = specicalFlags_doubleQuotes[i] != 0;
             specicalFlags_singleQuotesFlags[i] = specicalFlags_singleQuotes[i] != 0;
@@ -245,13 +247,12 @@ public class IOUtils {
 
         // Fall thru to fast mode for smaller numbers
         // assert(i2 <= 65536, i2);
-        for (;;) {
+        do {
             q2 = (i2 * 52429) >>> (16 + 3);
             r = i2 - ((q2 << 3) + (q2 << 1)); // r = i2-(q2*10) ...
             buf[--charPos] = digits[r];
             i2 = q2;
-            if (i2 == 0) break;
-        }
+        } while (i2 != 0);
         if (sign != 0) {
             buf[--charPos] = sign;
         }
@@ -282,13 +283,12 @@ public class IOUtils {
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
-        for (;;) {
+        do {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
             buf[--p] = digits[r];
             i = q;
-            if (i == 0) break;
-        }
+        } while (i != 0);
         if (sign != 0) {
             buf[--p] = sign;
         }
@@ -307,13 +307,12 @@ public class IOUtils {
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
-        for (;;) {
+        do {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
             buf[--charPos] = digits[r];
             i = q;
-            if (i == 0) break;
-        }
+        } while (i != 0);
         if (sign != 0) {
             buf[--charPos] = sign;
         }
@@ -371,11 +370,11 @@ public class IOUtils {
     public static boolean firstIdentifier(char ch) {
         return ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch];
     }
-    
+
     public static boolean isIdent(char ch) {
         return ch < identifierFlags.length && identifierFlags[ch];
     }
-    
+
     public static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
     public static final int[]  IA = new int[256];
     static {
@@ -581,7 +580,7 @@ public class IOUtils {
 
         return dArr;
     }
-    
+
     public static int encodeUTF8(char[] chars, int offset, int len, byte[] bytes) {
         int sl = offset + len;
         int dp = 0;
@@ -628,7 +627,7 @@ public class IOUtils {
                         uc = c;
                     }
                 }
-                
+
                 if (uc < 0) {
                     bytes[dp++] = (byte) '?';
                 } else {
@@ -674,7 +673,7 @@ public class IOUtils {
                     } else {
                         da[dp++] = (char) (((b1 << 6) ^ b2)^
                                        (((byte) 0xC0 << 6) ^
-                                        ((byte) 0x80 << 0)));
+                                        ((byte) 0x80)));
                     }
                     continue;
                 }
@@ -694,7 +693,7 @@ public class IOUtils {
                                           (b3 ^
                                           (((byte) 0xE0 << 12) ^
                                           ((byte) 0x80 <<  6) ^
-                                          ((byte) 0x80 <<  0))));
+                                          ((byte) 0x80))));
                         boolean isSurrogate = c >= '\uD800' && c < ('\uDFFF' + 1);
                         if (isSurrogate) {
                             return -1;
@@ -718,7 +717,7 @@ public class IOUtils {
                                (((byte) 0xF0 << 18) ^
                                ((byte) 0x80 << 12) ^
                                ((byte) 0x80 <<  6) ^
-                               ((byte) 0x80 <<  0))));
+                               ((byte) 0x80))));
                     if (((b2 & 0xc0) != 0x80 || (b3 & 0xc0) != 0x80 || (b4 & 0xc0) != 0x80) // isMalformed4
                         ||
                         // shortest form check
@@ -774,6 +773,21 @@ public class IOUtils {
         }
 
         return true;
+    }
+
+    /**
+     * 向字符数组中写入一个字符的 Unicode 码表示
+     * @return toBuffer 下一个存储字符的索引
+     */
+    public static int writeCharAsUnicode(char ch, char[] toBuffer, int index){
+        toBuffer[index++] = '\\';
+        toBuffer[index++] = 'u';
+        final char[] digits = IOUtils.DIGITS;
+        toBuffer[index++] = digits[(ch >>> 12) & 15];
+        toBuffer[index++] = digits[(ch >>> 8 ) & 15];
+        toBuffer[index++] = digits[(ch >>> 4 ) & 15];
+        toBuffer[index++] = digits[ch          & 15];
+        return index;
     }
 
 }

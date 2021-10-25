@@ -192,7 +192,6 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             ++i;
         }
         out.write(']');
-        return;
     }
 
     @SuppressWarnings("unchecked")
@@ -339,7 +338,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == File.class) {
-            if (strVal.indexOf("..") >= 0 && !FILE_RELATIVE_PATH_SUPPORT) {
+            if (!FILE_RELATIVE_PATH_SUPPORT && strVal.contains("..")) {
                 throw new JSONException("file relative path not support.");
             }
 

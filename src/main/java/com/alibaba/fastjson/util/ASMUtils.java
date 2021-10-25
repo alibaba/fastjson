@@ -15,27 +15,27 @@ import java.lang.reflect.Type;
 public class ASMUtils {
 
     public static final String JAVA_VM_NAME = System.getProperty("java.vm.name");
-    
+
     public static final boolean IS_ANDROID = isAndroid(JAVA_VM_NAME);
-	
+
     public static boolean isAndroid(String vmName) {
         if (vmName == null) { // default is false
             return false;
         }
-        
+
         String lowerVMName = vmName.toLowerCase();
-        
+
         return lowerVMName.contains("dalvik") //
                || lowerVMName.contains("lemur") // aliyun-vm name
         ;
     }
 
-    public static String desc(Method method) {   
+    public static String desc(Method method) {
     	Class<?>[] types = method.getParameterTypes();
         StringBuilder buf = new StringBuilder((types.length + 1) << 4);
         buf.append('(');
-        for (int i = 0; i < types.length; ++i) {
-            buf.append(desc(types[i]));
+        for (Class<?> type : types) {
+            buf.append(desc(type));
         }
         buf.append(')');
         buf.append(desc(method.getReturnType()));
@@ -64,7 +64,6 @@ public class ASMUtils {
             }
         }
     }
-    
 
     public static String getPrimitiveLetter(Class<?> type) {
         if (Integer.TYPE == type) {
@@ -107,7 +106,7 @@ public class ASMUtils {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -162,11 +161,12 @@ public class ASMUtils {
             for (int i = 0; i < parameterNames.length; i++) {
                 Annotation[] annotations = parameterAnnotations[i];
                 if (annotations != null) {
-                    for (int j = 0; j < annotations.length; j++) {
-                        if (annotations[j] instanceof JSONField) {
-                            JSONField jsonField = (JSONField) annotations[j];
+                    for (Annotation annotation : annotations) {
+                        if (annotation instanceof JSONField) {
+                            JSONField jsonField = (JSONField) annotation;
                             String fieldName = jsonField.name();
-                            if (fieldName != null && fieldName.length() > 0) {
+                            // 注解的属性值不可能为 null
+                            if (fieldName.length() > 0) {
                                 parameterNames[i] = fieldName;
                             }
                         }

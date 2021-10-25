@@ -360,7 +360,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     protected boolean string()
     {
         next();
-        for (; !eof; ) {
+        while (!eof) {
             if (ch == '\\') {
                 next();
 

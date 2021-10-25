@@ -46,7 +46,7 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
-        
+
         BigInteger val = (BigInteger) object;
         String str = val.toString();
         if (str.length() >= 16
@@ -60,9 +60,8 @@ public class BigIntegerCodec implements ObjectSerializer, ObjectDeserializer {
         out.write(str);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+        return deserialze(parser);
     }
 
     @SuppressWarnings("unchecked")

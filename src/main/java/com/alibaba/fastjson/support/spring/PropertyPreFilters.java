@@ -3,6 +3,7 @@ package com.alibaba.fastjson.support.spring;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ public class PropertyPreFilters {
     }
 
     public MySimplePropertyPreFilter[] toFilters(){
-        return filters.toArray(new MySimplePropertyPreFilter[]{});
+        return filters.toArray(new MySimplePropertyPreFilter[filters.size()]);
     }
 
     public class MySimplePropertyPreFilter extends SimplePropertyPreFilter {
@@ -57,16 +58,12 @@ public class PropertyPreFilters {
         }
 
         public MySimplePropertyPreFilter addExcludes(String... filters){
-            for (int i = 0; i < filters.length; i++) {
-                this.getExcludes().add(filters[i]);
-            }
+            Collections.addAll(getExcludes(), filters);
             return this;
         }
 
         public MySimplePropertyPreFilter addIncludes(String... filters){
-            for (int i = 0; i < filters.length; i++) {
-                this.getIncludes().add(filters[i]);
-            }
+            Collections.addAll(getIncludes(), filters);
             return this;
         }
     }

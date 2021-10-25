@@ -27,6 +27,7 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         Type rawType = type;
         if (type instanceof ParameterizedType) {
@@ -34,12 +35,12 @@ public class GuavaCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (rawType == ArrayListMultimap.class) {
-            ArrayListMultimap multimap = ArrayListMultimap.create();
+            ArrayListMultimap<String, Object> multimap = ArrayListMultimap.create();
             JSONObject object = parser.parseObject();
-            for (Map.Entry entry : object.entrySet()) {
+            for (Map.Entry<String, Object> entry : object.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof Collection) {
-                    multimap.putAll(entry.getKey(), (List) value);
+                    multimap.putAll(entry.getKey(), (List<?>) value);
                 } else {
                     multimap.put(entry.getKey(), value);
                 }

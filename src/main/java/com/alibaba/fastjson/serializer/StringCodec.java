@@ -84,7 +84,7 @@ public class StringCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new StringBuilder(value.toString());
         }
 
-        return (T) deserialze(parser);
+        return deserialze(parser);
     }
 
     @SuppressWarnings("unchecked")

@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 
 /**
  * circular references detect
- * 
+ *
  * @author wenshao[szujobs@hotmail.com]
  */
 public class SerializeConfig {
@@ -57,7 +57,7 @@ public class SerializeConfig {
     private static boolean                                oracleJdbcError = false;
     private static boolean                                springfoxError  = false;
     private static boolean                                guavaError      = false;
-    
+
     private static boolean                                jodaError       = false;
 
     private boolean                                       asm             = !ASMUtils.IS_ANDROID;
@@ -85,10 +85,10 @@ public class SerializeConfig {
 	public void setTypeKey(String typeKey) {
 		this.typeKey = typeKey;
 	}
-	
+
     private final JavaBeanSerializer createASMSerializer(SerializeBeanInfo beanInfo) throws Exception {
         JavaBeanSerializer serializer = asmFactory.createJavaBeanSerializer(beanInfo);
-        
+
         for (int i = 0; i < serializer.sortedGetters.length; ++i) {
             FieldSerializer fieldDeser = serializer.sortedGetters[i];
             Class<?> fieldClass = fieldDeser.fieldInfo.fieldClass;
@@ -99,7 +99,7 @@ public class SerializeConfig {
                 }
             }
         }
-     
+
         return serializer;
     }
 
@@ -117,26 +117,26 @@ public class SerializeConfig {
 
 	    return createJavaBeanSerializer(beanInfo);
 	}
-	
+
 	public ObjectSerializer createJavaBeanSerializer(SerializeBeanInfo beanInfo) {
 	    JSONType jsonType = beanInfo.jsonType;
 
         boolean asm = this.asm && !fieldBased;
-	    
+
 	    if (jsonType != null) {
 	        Class<?> serializerClass = jsonType.serializer();
 	        if (serializerClass != Void.class) {
 	            try {
-                    Object seralizer = serializerClass.newInstance();
-                    if (seralizer instanceof ObjectSerializer) {
-                        return (ObjectSerializer) seralizer;
+                    Object serializer = serializerClass.newInstance();
+                    if (serializer instanceof ObjectSerializer) {
+                        return (ObjectSerializer) serializer;
                     }
                 } catch (Throwable e) {
                     // skip
                 }
 	        }
-	        
-	        if (jsonType.asm() == false) {
+
+	        if (!jsonType.asm()) {
 	            asm = false;
 	        }
 
@@ -179,7 +179,7 @@ public class SerializeConfig {
 		if (asm && beanInfo.beanType.isInterface()) {
 		    asm = false;
         }
-		
+
 		if (asm) {
     		for(FieldInfo fieldInfo : beanInfo.fields){
                 Field field = fieldInfo.field;
@@ -201,7 +201,7 @@ public class SerializeConfig {
                 }
 
     			JSONField annotation = fieldInfo.getAnnotation();
-    			
+
     			if (annotation == null) {
     			    continue;
     			}
@@ -246,7 +246,7 @@ public class SerializeConfig {
                 }
     		}
 		}
-		
+
 		if (asm) {
 			try {
                 ObjectSerializer asmSerializer = createASMSerializer(beanInfo);
@@ -260,12 +260,12 @@ public class SerializeConfig {
 			} catch (ClassCastException e) {
 			    // skip
             } catch (OutOfMemoryError e) {
-			    if (e.getMessage().indexOf("Metaspace") != -1) {
+			    if (e.getMessage().contains("Metaspace")) {
 			        throw e;
                 }
                 // skip
 			} catch (Throwable e) {
-				throw new JSONException("create asm serializer error, verson " + JSON.VERSION + ", class " + clazz, e);
+				throw new JSONException("create asm serializer error, version " + JSON.VERSION + ", class " + clazz, e);
 			}
 		}
 
@@ -375,10 +375,10 @@ public class SerializeConfig {
 	 */
 	public void addFilter(Class<?> clazz, SerializeFilter filter) {
 	    ObjectSerializer serializer = getObjectWriter(clazz);
-	    
+
 	    if (serializer instanceof SerializeFilterable) {
 	        SerializeFilterable filterable = (SerializeFilterable) serializer;
-	        
+
 	        if (this != SerializeConfig.globalInstance) {
 	            if (filterable == MapSerializer.instance) {
 	                MapSerializer newMapSer = new MapSerializer();
@@ -387,28 +387,28 @@ public class SerializeConfig {
 	                return;
 	            }
 	        }
-	        
+
 	        filterable.addFilter(filter);
 	    }
 	}
-	
+
     /** class level serializer feature config
      * @since 1.2.12
      */
     public void config(Class<?> clazz, SerializerFeature feature, boolean value) {
         ObjectSerializer serializer = getObjectWriter(clazz, false);
-        
+
         if (serializer == null) {
             SerializeBeanInfo beanInfo = TypeUtils.buildBeanInfo(clazz, null, propertyNamingStrategy);
-            
+
             if (value) {
                 beanInfo.features |= feature.mask;
             } else {
                 beanInfo.features &= ~feature.mask;
             }
-            
+
             serializer = this.createJavaBeanSerializer(beanInfo);
-            
+
             put(clazz, serializer);
             return;
         }
@@ -416,18 +416,18 @@ public class SerializeConfig {
         if (serializer instanceof JavaBeanSerializer) {
             JavaBeanSerializer javaBeanSerializer = (JavaBeanSerializer) serializer;
             SerializeBeanInfo beanInfo = javaBeanSerializer.beanInfo;
-            
+
             int originalFeaturs = beanInfo.features;
             if (value) {
                 beanInfo.features |= feature.mask;
             } else {
                 beanInfo.features &= ~feature.mask;
             }
-            
+
             if (originalFeaturs == beanInfo.features) {
                 return;
             }
-            
+
             Class<?> serializerClass = serializer.getClass();
             if (serializerClass != JavaBeanSerializer.class) {
                 ObjectSerializer newSerializer = this.createJavaBeanSerializer(beanInfo);
@@ -435,11 +435,11 @@ public class SerializeConfig {
             }
         }
     }
-    
+
     public ObjectSerializer getObjectWriter(Class<?> clazz) {
         return getObjectWriter(clazz, true);
     }
-	
+
 	public ObjectSerializer getObjectWriter(Class<?> clazz, boolean create) {
         ObjectSerializer writer = get(clazz);
 
@@ -449,14 +449,11 @@ public class SerializeConfig {
 
         try {
             final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-                if (!(o instanceof AutowiredObjectSerializer)) {
-                    continue;
-                }
-
-                AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                for (Type forType : autowired.getAutowiredFor()) {
-                    put(forType, autowired);
+            for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                if (autowired != null) {
+	                for (Type forType : autowired.getAutowiredFor()) {
+		                put(forType, autowired);
+	                }
                 }
             }
         } catch (ClassCastException ex) {
@@ -469,15 +466,11 @@ public class SerializeConfig {
             final ClassLoader classLoader = JSON.class.getClassLoader();
             if (classLoader != Thread.currentThread().getContextClassLoader()) {
                 try {
-                    for (Object o : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
-
-                        if (!(o instanceof AutowiredObjectSerializer)) {
-                            continue;
-                        }
-
-                        AutowiredObjectSerializer autowired = (AutowiredObjectSerializer) o;
-                        for (Type forType : autowired.getAutowiredFor()) {
-                            put(forType, autowired);
+                    for (AutowiredObjectSerializer autowired : ServiceLoader.load(AutowiredObjectSerializer.class, classLoader)) {
+                        if (autowired != null) {
+	                        for (Type forType : autowired.getAutowiredFor()) {
+		                        put(forType, autowired);
+	                        }
                         }
                     }
                 } catch (ClassCastException ex) {
@@ -495,7 +488,7 @@ public class SerializeConfig {
                 return writer;
             }
         }
-        
+
         if (writer == null) {
             String className = clazz.getName();
             Class<?> superClass;
@@ -608,7 +601,7 @@ public class SerializeConfig {
                         }
                     }
                 }
-                
+
                 // jdk8
                 if ((!jdk8Error) //
                     && (className.startsWith("java.time.") //
@@ -669,7 +662,7 @@ public class SerializeConfig {
                         jdk8Error = true;
                     }
                 }
-                
+
                 if ((!oracleJdbcError) //
                     && className.startsWith("oracle.sql.")) {
                     try {
@@ -689,7 +682,7 @@ public class SerializeConfig {
                         oracleJdbcError = true;
                     }
                 }
-                
+
                 if ((!springfoxError) //
                     && className.equals("springfox.documentation.spring.web.json.Json")) {
                     try {
@@ -729,7 +722,7 @@ public class SerializeConfig {
                     put(clazz, writer = MiscCodec.instance);
                     return writer;
                 }
-                
+
 				if (className.equals("org.json.JSONObject")) {
                     put(clazz, writer = JSONObjectCodec.instance);
                     return writer;
@@ -873,7 +866,7 @@ public class SerializeConfig {
     protected ObjectSerializer getEnumSerializer(){
         return EnumSerializer.instance;
     }
-	
+
     public final ObjectSerializer get(Type type) {
         Type mixin = JSON.getMixInAnnotations(type);
         if (null == mixin) {

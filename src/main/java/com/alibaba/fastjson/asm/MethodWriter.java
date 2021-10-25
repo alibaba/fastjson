@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -259,14 +259,14 @@ public class MethodWriter implements MethodVisitor {
 
     /**
      * Returns the size of the bytecode of this method.
-     * 
+     *
      * @return the size of the bytecode of this method.
      */
     final int getSize() {
         int size = 8;
         if (code.length > 0) {
             cw.newUTF8("Code");
-            size += 18 + code.length + 8 * 0;
+            size += 18 + code.length;
         }
         if (exceptionCount > 0) {
             cw.newUTF8("Exceptions");
@@ -277,7 +277,7 @@ public class MethodWriter implements MethodVisitor {
 
     /**
      * Puts the bytecode of this method in the given byte vector.
-     * 
+     *
      * @param out the byte vector into which the bytecode of this method must be copied.
      */
     final void put(final ByteVector out) {
@@ -293,7 +293,7 @@ public class MethodWriter implements MethodVisitor {
 
         out.putShort(attributeCount);
         if (code.length > 0) {
-            int size = 12 + code.length + 8 * 0; // handlerCount
+            int size = 12 + code.length; // handlerCount
             out.putShort(cw.newUTF8("Code")).putInt(size);
             out.putShort(maxStack).putShort(maxLocals);
             out.putInt(code.length).putByteArray(code.data, 0, code.length);

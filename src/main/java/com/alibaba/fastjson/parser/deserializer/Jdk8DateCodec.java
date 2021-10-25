@@ -326,7 +326,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 char c4 = text.charAt(4);
                 if (c4 == '年') {
                     if (text.charAt(text.length() - 1) == '秒') {
-                        formatter = formatter_dt19_cn_1;    
+                        formatter = formatter_dt19_cn_1;
                     } else {
                         formatter = formatter_dt19_cn;
                     }
@@ -540,11 +540,9 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                     if ((features & mask) != 0 || serializer.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
                         format = formatter_iso8601_pattern;
                     } else if (serializer.isEnabled(SerializerFeature.WriteDateUseDateFormat)) {
-                        if (serializer.getFastJsonConfigDateFormatPattern() != null && 
-                                serializer.getFastJsonConfigDateFormatPattern().length() > 0){
-                            format = serializer.getFastJsonConfigDateFormatPattern();
-                        }else{
-                            format = JSON.DEFFAULT_DATE_FORMAT; 
+                        format = serializer.getFastJsonConfigDateFormatPattern();
+                        if (format == null || format.length() == 0){
+                            format = JSON.DEFFAULT_DATE_FORMAT;
                         }
                     } else {
                         int nano = dateTime.getNano();
@@ -606,7 +604,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             }
         }
 
-        if (format == formatter_iso8601_pattern) {
+        if (formatter_iso8601_pattern.equals(format)) {
             formatter = formatter_iso8601;
         } else {
             formatter = DateTimeFormatter.ofPattern(format);

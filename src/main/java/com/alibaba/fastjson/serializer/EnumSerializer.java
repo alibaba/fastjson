@@ -44,7 +44,7 @@ public class EnumSerializer implements ObjectSerializer {
             return;
         }
 
-        Object fieldValue = null;
+        Object fieldValue;
         try {
             if (member instanceof Field) {
                 fieldValue = ((Field) member).get(object);

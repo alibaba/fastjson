@@ -92,11 +92,11 @@ public class StackTraceElementDeserializer implements ObjectDeserializer {
                 } else {
                     throw new JSONException("syntax error");
                 }
-            } else if (key == JSON.DEFAULT_TYPE_KEY) {
+            } else if (JSON.DEFAULT_TYPE_KEY.equals(key)) {
                if (lexer.token() == JSONToken.LITERAL_STRING) {
                     String elementType = lexer.stringVal();
                     if (!elementType.equals("java.lang.StackTraceElement")) {
-                        throw new JSONException("syntax error : " + elementType);    
+                        throw new JSONException("syntax error : " + elementType);
                     }
                 } else {
                     if (lexer.token() != JSONToken.NULL) {

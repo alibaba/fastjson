@@ -52,7 +52,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
     protected boolean             browserCompatible;
 
     private RuntimeSerializerInfo runtimeInfo;
-    
+
     public FieldSerializer(Class<?> beanType, FieldInfo fieldInfo) {
         this.fieldInfo = fieldInfo;
         this.fieldContext = new BeanContext(beanType, fieldInfo);
@@ -76,7 +76,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 }
             }
         }
-        
+
         fieldInfo.setAccessible();
 
         this.double_quoted_fieldPrefix = '"' + fieldInfo.name + "\":";
@@ -108,10 +108,10 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                     browserCompatible = true;
                 }
             }
-            
+
             features |= SerializerFeature.of(annotation.serialzeFeatures());
         }
-        
+
         this.writeNull = writeNull;
 
         persistenceXToMany = TypeUtils.isAnnotationPresentOneToMany(fieldInfo.method)
@@ -125,7 +125,7 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             boolean useSingleQuotes = SerializerFeature.isEnabled(out.features, fieldInfo.serialzeFeatures, SerializerFeature.UseSingleQuotes);
             if (useSingleQuotes) {
                 if (single_quoted_fieldPrefix == null) {
-                    single_quoted_fieldPrefix = '\'' + fieldInfo.name + "\':";
+                    single_quoted_fieldPrefix = '\'' + fieldInfo.name + "':";
                 }
                 out.write(single_quoted_fieldPrefix);
             } else {
@@ -158,11 +158,10 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         }
         return propertyValue;
     }
-    
+
     public int compareTo(FieldSerializer o) {
         return this.fieldInfo.compareTo(o.fieldInfo);
     }
-    
 
     public void writeValue(JSONSerializer serializer, Object propertyValue) throws Exception {
         if (runtimeInfo == null) {
@@ -197,9 +196,10 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 serializeUsing = true;
             } else {
                 if (format != null) {
-                    if (runtimeFieldClass == double.class || runtimeFieldClass == Double.class) {
+                    // 前面已经做了 primitiveType -> wrapperType 的转换
+                    if (runtimeFieldClass == Double.class) {
                         fieldSerializer = new DoubleSerializer(format);
-                    } else if (runtimeFieldClass == float.class || runtimeFieldClass == Float.class) {
+                    } else if (runtimeFieldClass == Float.class) {
                         fieldSerializer = new FloatCodec(format);
                     }
                 }
@@ -211,9 +211,9 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
             runtimeInfo = new RuntimeSerializerInfo(fieldSerializer, runtimeFieldClass);
         }
-        
+
         final RuntimeSerializerInfo runtimeInfo = this.runtimeInfo;
-        
+
         final int fieldFeatures
                 = (disableCircularReferenceDetect
                 ? (fieldInfo.serialzeFeatures | SerializerFeature.DisableCircularReferenceDetect.mask)
@@ -264,11 +264,11 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
             }
 
             if (writeEnumUsingToString) {
-                serializer.out.writeString(((Enum<?>) propertyValue).toString());
+                serializer.out.writeString(propertyValue.toString());
                 return;
             }
         }
-        
+
         Class<?> valueClass = propertyValue.getClass();
         ObjectSerializer valueSerializer;
         if (valueClass == runtimeInfo.runtimeFieldClass || serializeUsing) {
@@ -276,10 +276,10 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
         } else {
             valueSerializer = serializer.getObjectWriter(valueClass);
         }
-        
+
         if (format != null && !(valueSerializer instanceof DoubleSerializer || valueSerializer instanceof FloatCodec)) {
             if (valueSerializer instanceof ContextObjectSerializer) {
-                ((ContextObjectSerializer) valueSerializer).write(serializer, propertyValue, this.fieldContext);    
+                ((ContextObjectSerializer) valueSerializer).write(serializer, propertyValue, this.fieldContext);
             } else {
                 serializer.writeWithFormat(propertyValue, format);
             }

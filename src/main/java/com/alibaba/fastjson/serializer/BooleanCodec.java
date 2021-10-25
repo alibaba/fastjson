@@ -42,11 +42,7 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        if (value.booleanValue()) {
-            out.write("true");
-        } else {
-            out.write("false");
-        }
+        out.write(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -63,14 +59,8 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
                 boolObj = Boolean.FALSE;
             } else if (lexer.token() == JSONToken.LITERAL_INT) {
-                int intValue = lexer.intValue();
+                boolObj = lexer.intValue() == 1;
                 lexer.nextToken(JSONToken.COMMA);
-
-                if (intValue == 1) {
-                    boolObj = Boolean.TRUE;
-                } else {
-                    boolObj = Boolean.FALSE;
-                }
             } else {
                 Object value = parser.parse();
 
@@ -85,7 +75,7 @@ public class BooleanCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == AtomicBoolean.class) {
-            return (T) new AtomicBoolean(boolObj.booleanValue());
+            return (T) new AtomicBoolean(boolObj);
         }
 
         return (T) boolObj;

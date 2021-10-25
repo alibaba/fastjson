@@ -2,10 +2,8 @@ package com.alibaba.fastjson.parser.deserializer;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
-import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.BeanContext;
 import com.alibaba.fastjson.util.FieldInfo;
-import com.alibaba.fastjson.util.TypeUtils;
 
 import java.lang.reflect.*;
 import java.util.Collection;
@@ -92,7 +90,7 @@ public abstract class FieldDeserializer {
                             degradeValueAssignment(fieldInfo.field, method, object, value);
                         }
                     } else if (Map.class.isAssignableFrom(method.getReturnType())) {
-                        Map map = null;
+                        Map map;
                         try {
                             map = (Map) method.invoke(object);
                         } catch (InvocationTargetException e) {
@@ -127,7 +125,7 @@ public abstract class FieldDeserializer {
                             degradeValueAssignment(fieldInfo.field, method, object, value);
                         }
                     } else {
-                        Collection collection = null;
+                        Collection collection;
                         try {
                             collection = (Collection) method.invoke(object);
                         } catch (InvocationTargetException e) {
@@ -139,8 +137,8 @@ public abstract class FieldDeserializer {
 
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
-                                    || collectionClassName == "java.util.ImmutableCollections$ListN"
-                                    || collectionClassName == "java.util.ImmutableCollections$List12"
+                                    || collectionClassName.equals("java.util.ImmutableCollections$ListN")
+                                    || collectionClassName.equals("java.util.ImmutableCollections$List12")
                                     || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;
@@ -168,7 +166,7 @@ public abstract class FieldDeserializer {
                 }
             } else {
                 final Field field = fieldInfo.field;
-                
+
                 if (fieldInfo.getOnly) {
                     if (fieldInfo.fieldClass == AtomicInteger.class) {
                         AtomicInteger atomic = (AtomicInteger) field.get(object);

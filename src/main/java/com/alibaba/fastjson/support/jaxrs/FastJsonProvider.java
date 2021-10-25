@@ -31,8 +31,8 @@ import java.util.List;
  */
 
 @Provider
-@Consumes({MediaType.WILDCARD})
-@Produces({MediaType.WILDCARD})
+@Consumes //  default value == MediaType.WILDCARD
+@Produces
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
@@ -58,7 +58,7 @@ public class FastJsonProvider //
     protected Charset charset = Charset.forName("UTF-8");
 
     @Deprecated
-    protected SerializerFeature[] features = new SerializerFeature[0];
+    protected SerializerFeature[] features = SerializerFeature.EMPTY;
 
     @Deprecated
     protected SerializeFilter[] filters = new SerializeFilter[0];

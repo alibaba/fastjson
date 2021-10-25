@@ -56,7 +56,7 @@ public final class ListSerializer implements ObjectSerializer {
         SerialContext context = serializer.context;
         serializer.setContext(context, object, fieldName, 0);
 
-        ObjectSerializer itemSerializer = null;
+        ObjectSerializer itemSerializer;
         try {
             if (out.isEnabled(SerializerFeature.PrettyFormat)) {
                 out.append('[');
@@ -74,8 +74,7 @@ public final class ListSerializer implements ObjectSerializer {
                             serializer.writeReference(item);
                         } else {
                             itemSerializer = serializer.getObjectWriter(item.getClass());
-                            SerialContext itemContext = new SerialContext(context, object, fieldName, 0, 0);
-                            serializer.context = itemContext;
+                            serializer.context = new SerialContext(context, object, fieldName, 0, 0);
                             itemSerializer.write(serializer, item, i, elementType, features);
                         }
                     } else {
@@ -96,21 +95,18 @@ public final class ListSerializer implements ObjectSerializer {
                 if (i != 0) {
                     out.append(',');
                 }
-                
+
                 if (item == null) {
                     out.append("null");
                 } else {
                     Class<?> clazz = item.getClass();
 
                     if (clazz == Integer.class) {
-                        out.writeInt(((Integer) item).intValue());
+                        out.writeInt((Integer) item);
                     } else if (clazz == Long.class) {
-                        long val = ((Long) item).longValue();
+                        out.writeLong((Long) item);
                         if (writeClassName) {
-                            out.writeLong(val);
                             out.write('L');
-                        } else {
-                            out.writeLong(val);
                         }
                     } else {
                         if ((SerializerFeature.DisableCircularReferenceDetect.mask & features) != 0){
@@ -118,8 +114,7 @@ public final class ListSerializer implements ObjectSerializer {
                             itemSerializer.write(serializer, item, i, elementType, features);
                         }else {
                             if (!out.disableCircularReferenceDetect) {
-                                SerialContext itemContext = new SerialContext(context, object, fieldName, 0, 0);
-                                serializer.context = itemContext;
+                                serializer.context = new SerialContext(context, object, fieldName, 0, 0);
                             }
 
                             if (serializer.containsReference(item)) {

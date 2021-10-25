@@ -92,20 +92,13 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
         if (value instanceof byte[]
                 && ("gzip".equals(fieldInfo.format) || "gzip,base64".equals(fieldInfo.format))) {
             byte[] bytes = (byte[]) value;
-            GZIPInputStream gzipIn = null;
             try {
-                gzipIn = new GZIPInputStream(new ByteArrayInputStream(bytes));
-
-                ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-                for (;;) {
-                    byte[] buf = new byte[1024];
-                    int len = gzipIn.read(buf);
-                    if (len == -1) {
-                        break;
-                    }
-                    if (len > 0) {
-                        byteOut.write(buf, 0, len);
-                    }
+                GZIPInputStream gzipIn = new GZIPInputStream(new ByteArrayInputStream(bytes));
+                ByteArrayOutputStream byteOut = new ByteArrayOutputStream(bytes.length);
+                final byte[] buf = new byte[1024];
+                int len;
+                while ((len = gzipIn.read(buf)) != -1){
+                    byteOut.write(buf, 0, len);
                 }
                 value = byteOut.toByteArray();
 

@@ -279,28 +279,18 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
             return (T) TypeUtils.castToJavaBean(obj, (Class) type);
         } else {
             String json = JSON.toJSONString(obj);
-            return (T) JSON.parseObject(json, type);
+            return JSON.parseObject(json, type);
         }
     }
 
     public Boolean getBoolean(int index) {
         Object value = get(index);
-
-        if (value == null) {
-            return null;
-        }
-
         return castToBoolean(value);
     }
 
     public boolean getBooleanValue(int index) {
-        Object value = get(index);
-
-        if (value == null) {
-            return false;
-        }
-
-        return castToBoolean(value).booleanValue();
+        Boolean booleanVal = getBoolean(index);
+        return booleanVal != null && booleanVal;
     }
 
     public Byte getByte(int index) {
@@ -310,14 +300,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public byte getByteValue(int index) {
-        Object value = get(index);
-
-        Byte byteVal = castToByte(value);
-        if (byteVal == null) {
-            return 0;
-        }
-
-        return byteVal;
+        Byte byteVal = getByte(index);
+        return byteVal == null ? 0 : byteVal;
     }
 
     public Short getShort(int index) {
@@ -327,14 +311,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public short getShortValue(int index) {
-        Object value = get(index);
-
-        Short shortVal = castToShort(value);
-        if (shortVal == null) {
-            return 0;
-        }
-
-        return shortVal;
+        Short shortVal = getShort(index);
+        return shortVal == null ? 0 : shortVal;
     }
 
     public Integer getInteger(int index) {
@@ -344,14 +322,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public int getIntValue(int index) {
-        Object value = get(index);
-
-        Integer intVal = castToInt(value);
-        if (intVal == null) {
-            return 0;
-        }
-
-        return intVal;
+        Integer intVal = getInteger(index);
+        return intVal == null ? 0 : intVal;
     }
 
     public Long getLong(int index) {
@@ -361,14 +333,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public long getLongValue(int index) {
-        Object value = get(index);
-
-        Long longVal = castToLong(value);
-        if (longVal == null) {
-            return 0L;
-        }
-
-        return longVal;
+        Long longVal = getLong(index);
+        return longVal == null ? 0L : longVal;
     }
 
     public Float getFloat(int index) {
@@ -378,14 +344,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public float getFloatValue(int index) {
-        Object value = get(index);
-
-        Float floatValue = castToFloat(value);
-        if (floatValue == null) {
-            return 0F;
-        }
-
-        return floatValue;
+        Float floatValue = getFloat(index);
+        return floatValue == null ? 0F : floatValue;
     }
 
     public Double getDouble(int index) {
@@ -395,14 +355,8 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     public double getDoubleValue(int index) {
-        Object value = get(index);
-
-        Double doubleValue = castToDouble(value);
-        if (doubleValue == null) {
-            return 0D;
-        }
-
-        return doubleValue;
+        Double doubleValue = getDouble(index);
+        return doubleValue == null ? 0D : doubleValue;
     }
 
     public BigDecimal getBigDecimal(int index) {
@@ -450,7 +404,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         ParserConfig config = ParserConfig.getGlobalInstance();
 
         for (Object item : this) {
-            T classItem = (T) TypeUtils.cast(item, clazz, config);
+            T classItem = TypeUtils.cast(item, clazz, config);
             list.add(classItem);
         }
 

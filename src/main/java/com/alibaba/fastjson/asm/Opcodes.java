@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -34,7 +34,7 @@ package com.alibaba.fastjson.asm;
  * because some opcodes are automatically handled. For example, the xLOAD and xSTORE opcodes are automatically replaced
  * by xLOAD_n and xSTORE_n opcodes when possible. The xLOAD_n and xSTORE_n opcodes are therefore not defined in this
  * interface. Likewise for LDC, automatically replaced by LDC_W or LDC2_W when necessary, WIDE, GOTO_W and JSR_W.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -75,22 +75,22 @@ public interface Opcodes {
     int    FLOAD               = 23;                     // -
     int    DLOAD               = 24;                     // -
     int    ALOAD               = 25;                     // -
-  
+
     int    ISTORE              = 54;                     // visitVarInsn
     int    LSTORE              = 55;                     // -
     int    FSTORE              = 56;                     // -
     int    DSTORE              = 57;                     // -
     int    ASTORE              = 58;                     // -
     int    IASTORE             = 79; // visitInsn
-    
+
     int    POP                 = 87;                     // -
 //    int    POP2                = 88;                     // -
     int    DUP                 = 89;                     // -
-                                                         
+
     int    IADD                = 96;                     // -
 
 //    int    ISUB                = 100;                    // -
-                                                  
+
     int    IAND                = 126;                    // -
                                                           // int LAND = 127; // -
     int    IOR                 = 128;                    // -
@@ -98,7 +98,7 @@ public interface Opcodes {
                                                           // int IXOR = 130; // -
                                                           // int LXOR = 131; // -
     // int    IINC                = 132;                    // visitIincInsn
-                                                       
+
     int    LCMP                = 148;                    // -
     int    FCMPL               = 149;                    // -
     int    DCMPL               = 151;                    // -
@@ -131,7 +131,7 @@ public interface Opcodes {
                                                           // int ATHROW = 191; // -
     int    CHECKCAST           = 192;                    // visitTypeInsn
     int    INSTANCEOF          = 193;
-    
+
     int    IFNULL              = 198;                    // visitJumpInsn
     int    IFNONNULL           = 199;                    // -
     int    GOTO_W              = 200;                    // visitJumpInsn

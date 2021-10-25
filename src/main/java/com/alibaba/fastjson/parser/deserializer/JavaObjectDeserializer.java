@@ -33,14 +33,14 @@ public class JavaObjectDeserializer implements ObjectDeserializer {
             list.toArray(array);
             return (T) array;
         }
-        
+
         if (type instanceof Class
                 && type != Object.class
                 && type != Serializable.class
                 && type != Cloneable.class
                 && type != Closeable.class
                 && type != Comparable.class) {
-            return (T) parser.parseObject(type);    
+            return parser.parseObject(type);
         }
 
         return (T) parser.parse(fieldName);

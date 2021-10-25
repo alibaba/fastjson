@@ -144,10 +144,8 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         } else if (itemType instanceof TypeVariable && objectType instanceof Class) {
             Class objectClass = (Class) objectType;
             TypeVariable typeVar = (TypeVariable) itemType;
-            objectClass.getTypeParameters();
 
-            for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
-                TypeVariable item = objectClass.getTypeParameters()[i];
+            for (TypeVariable item : objectClass.getTypeParameters()) {
                 if (item.getName().equals(typeVar.getName())) {
                     Type[] bounds = item.getBounds();
                     if (bounds.length == 1) {
@@ -173,7 +171,6 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
-                        continue;
                     }
                 }
 
@@ -188,7 +185,6 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
                 if (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken(itemFastMatchToken);
-                    continue;
                 }
             }
 

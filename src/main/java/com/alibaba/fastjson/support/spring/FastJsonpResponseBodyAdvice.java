@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Pattern;
 
 /**
  * A convenient base class for {@code ResponseBodyAdvice} implementations
@@ -30,10 +29,7 @@ import java.util.regex.Pattern;
 @Order(Integer.MIN_VALUE) //before FastJsonViewResponseBodyAdvice
 @ControllerAdvice
 public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
-    /**
-     * Pattern for validating jsonp callback parameter values.
-     */
-    private static final Pattern CALLBACK_PARAM_PATTERN = Pattern.compile("[0-9A-Za-z_\\.]*");
+
     private final String[] jsonpQueryParamNames;
     /**
      * Default JSONP query param names: callback/jsonp
@@ -97,7 +93,7 @@ public class FastJsonpResponseBodyAdvice implements ResponseBodyAdvice<Object> {
      * @param value the query param value, never {@code null}
      */
     protected boolean isValidJsonpQueryParam(String value) {
-        return CALLBACK_PARAM_PATTERN.matcher(value).matches();
+        return FastJsonJsonView.CALLBACK_PARAM_PATTERN.matcher(value).matches();
     }
 
     /**

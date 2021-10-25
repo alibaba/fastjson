@@ -41,7 +41,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 public class DateCodec extends AbstractDateDeserializer implements ObjectSerializer, ObjectDeserializer {
 
     public final static DateCodec instance = new DateCodec();
-    
+
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
         SerializeWriter out = serializer.out;
 
@@ -72,7 +72,6 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             }
 
             if ("millis".equals(serializer.getDateFormatPattern())) {
-                long seconds = millis;
                 out.writeLong(millis);
                 return;
             }
@@ -88,7 +87,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             java.sql.Timestamp ts = (java.sql.Timestamp) object;
             nanos = ts.getNanos();
         }
-        
+
         Date date;
         if (object instanceof Date) {
             date = (Date) object;
@@ -124,7 +123,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             out.writeString(text);
             return;
         }
-        
+
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             if (clazz != fieldType) {
                 if (clazz == java.util.Date.class) {
@@ -144,7 +143,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
 
         long time = date.getTime();
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
-            char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '\"'; 
+            char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) ? '\'' : '"';
             out.write(quote);
 
             Calendar calendar = Calendar.getInstance(serializer.timeZone, serializer.locale);
@@ -181,18 +180,15 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             } else {
                 if (second == 0 && minute == 0 && hour == 0) {
                     buf = "0000-00-00".toCharArray();
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 } else {
                     buf = "0000-00-00T00:00:00".toCharArray();
                     IOUtils.getChars(second, 19, buf);
                     IOUtils.getChars(minute, 16, buf);
                     IOUtils.getChars(hour, 13, buf);
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 }
+                IOUtils.getChars(day, 10, buf);
+                IOUtils.getChars(month, 7, buf);
+                IOUtils.getChars(year, 4, buf);
             }
 
 
@@ -243,7 +239,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             out.writeLong(time);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T cast(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
@@ -284,10 +280,10 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 }
             }
 
-            String dateFomartPattern = parser.getDateFomartPattern();
-            boolean formatMatch = strVal.length() == dateFomartPattern.length()
-                    || (strVal.length() == 22 && dateFomartPattern.equals("yyyyMMddHHmmssSSSZ"))
-                    || (strVal.indexOf('T') != -1 && dateFomartPattern.contains("'T'") && strVal.length() + 2 == dateFomartPattern.length())
+            String dateFormatPattern = parser.getDateFomartPattern();
+            boolean formatMatch = strVal.length() == dateFormatPattern.length()
+                    || (strVal.length() == 22 && dateFormatPattern.equals("yyyyMMddHHmmssSSSZ"))
+                    || (strVal.length() + 2 == dateFormatPattern.length() /* fast fail */ && strVal.indexOf('T') != -1 && dateFormatPattern.contains("'T'"))
                     ;
             if (formatMatch) {
                 DateFormat dateFormat = parser.getDateFormat();
@@ -297,10 +293,9 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                     // skip
                 }
             }
-            
+
             if (strVal.startsWith("/Date(") && strVal.endsWith(")/")) {
-                String dotnetDateStr = strVal.substring(6, strVal.length() - 2);
-                strVal = dotnetDateStr;
+                strVal = strVal.substring(6, strVal.length() - 2);
             }
 
             if ("0000-00-00".equals(strVal)
@@ -335,7 +330,6 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
             }
 
             // 2017-08-14 19:05:30.000|America/Los_Angeles
-//            
             long longVal = Long.parseLong(strVal);
             return (T) new java.util.Date(longVal);
         }

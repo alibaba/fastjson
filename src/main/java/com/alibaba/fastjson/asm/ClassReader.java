@@ -182,22 +182,16 @@ public class ClassReader {
     }
 
     private int readMethod(TypeCollector classVisitor, char[] c, int u) {
-        int v;
-        int w;
-        int j;
-        String attrName;
-        int k;
         int access = readUnsignedShort(u);
         String name = readUTF8(u + 2, c);
         String desc = readUTF8(u + 4, c);
-        v = 0;
-        w = 0;
 
         // looks for Code and Exceptions attributes
-        j = readUnsignedShort(u + 6);
+        int j = readUnsignedShort(u + 6);
         u += 8;
+        int v = 0;
         for (; j > 0; --j) {
-            attrName = readUTF8(u, c);
+            String attrName = readUTF8(u, c);
             int attrSize = readInt(u + 2);
             u += 6;
             // tests are sorted in decreasing frequency order
@@ -208,24 +202,15 @@ public class ClassReader {
             u += attrSize;
         }
         // reads declared exceptions
-        if (w == 0) {
-        } else {
-            w += 2;
-            for (j = 0; j < readUnsignedShort(w); ++j) {
-                w += 2;
-            }
-        }
+        // 原代码中此处的 w 必定为 0，所以此处的代码无效
 
         // visits the method's code, if any
         MethodCollector mv = classVisitor.visitMethod(access, name, desc);
 
         if (mv != null && v != 0) {
             int codeLength = readInt(v + 4);
-            v += 8;
-
-            int codeStart = v;
-            int codeEnd = v + codeLength;
-            v = codeEnd;
+            // 此处声明的 codeStart、codeEnd 在下面并未被有效使用
+            v += 8 + codeLength;
 
             j = readUnsignedShort(v);
             v += 2;
@@ -239,7 +224,7 @@ public class ClassReader {
             j = readUnsignedShort(v);
             v += 2;
             for (; j > 0; --j) {
-                attrName = readUTF8(v, c);
+                String attrName = readUTF8(v, c);
                 if (attrName.equals("LocalVariableTable")) {
                     varTable = v + 6;
                 } else if (attrName.equals("LocalVariableTypeTable")) {
@@ -248,12 +233,13 @@ public class ClassReader {
                 v += 6 + readInt(v + 2);
             }
 
-            v = codeStart;
             // visits the local variable tables
             if (varTable != 0) {
+                int k, w;
                 if (varTypeTable != 0) {
                     k = readUnsignedShort(varTypeTable) * 3;
                     w = varTypeTable + 2;
+                    // FIXME Contents of array 'typeTable' are written to, but never read
                     int[] typeTable = new int[k];
                     while (k > 0) {
                         typeTable[--k] = w + 6; // signature

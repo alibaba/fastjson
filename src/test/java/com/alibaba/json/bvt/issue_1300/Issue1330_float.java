@@ -16,7 +16,7 @@ public class Issue1330_float extends TestCase {
             error = e;
         }
         assertNotNull(error);
-        assertTrue(error.getMessage().indexOf("parseLong error, field : value") != -1);
+        assertTrue(error.getMessage().indexOf("parseFloat error, field : value") != -1);
     }
 
     public void test_for_issue_1() throws Exception {
@@ -27,7 +27,7 @@ public class Issue1330_float extends TestCase {
             error = e;
         }
         assertNotNull(error);
-        assertTrue(error.getMessage().indexOf("parseLong error, field : value") != -1);
+        assertTrue(error.getMessage().indexOf("parseFloat error, field : value") != -1);
     }
 
     public void test_for_issue_2() throws Exception {
@@ -38,7 +38,7 @@ public class Issue1330_float extends TestCase {
             error = e;
         }
         assertNotNull(error);
-        assertTrue(error.getMessage().indexOf("parseLong error, field : value") != -1);
+        assertTrue(error.getMessage().indexOf("parseFloat error, field : value") != -1);
     }
 
     public static class Model {

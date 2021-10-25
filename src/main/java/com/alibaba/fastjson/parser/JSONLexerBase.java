@@ -883,7 +883,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         for (;;) {
             ch = next();
 
-            if (ch == '\"') {
+            if (ch == '"') {
                 break;
             }
 
@@ -2969,24 +2969,17 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         BigDecimal value;
         if (chLocal >= '0' && chLocal <= '9') {
-            for (;;) {
+            do {
                 chLocal = charAt(bp + (offset++));
-                if (chLocal >= '0' && chLocal <= '9') {
-                } else {
-                    break;
-                }
-            }
+            } while (chLocal >= '0' && chLocal <= '9');
 
             boolean small = (chLocal == '.');
             if (small) {
                 chLocal = charAt(bp + (offset++));
                 if (chLocal >= '0' && chLocal <= '9') {
-                    for (;;) {
+                    do {
                         chLocal = charAt(bp + (offset++));
-                        if (chLocal < '0' || chLocal > '9') {
-                            break;
-                        }
-                    }
+                    } while (chLocal >= '0' && chLocal <= '9');
                 } else {
                     matchStat = NOT_MATCH;
                     return null;

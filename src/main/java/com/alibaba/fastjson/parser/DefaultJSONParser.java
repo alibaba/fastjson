@@ -1813,4 +1813,30 @@ public class DefaultJSONParser implements Closeable {
         }
     }
 
+    public Object parseFallback(JSONLexer lexer) {
+        if (resolveStatus == DefaultJSONParser.TypeNameRedirect) {
+            resolveStatus = DefaultJSONParser.NONE;
+            accept(JSONToken.COMMA);
+
+            if (lexer.token() == JSONToken.LITERAL_STRING) {
+                if (!"val".equals(lexer.stringVal())) {
+                    throw new JSONException("syntax error");
+                }
+                lexer.nextToken();
+            } else {
+                throw new JSONException("syntax error");
+            }
+
+            accept(JSONToken.COLON);
+
+            Object val = parse();
+
+            accept(JSONToken.RBRACE);
+
+            return val;
+        }
+
+        return parse();
+    }
+
 }

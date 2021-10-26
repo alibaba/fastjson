@@ -154,26 +154,8 @@ public abstract class AbstractDateDeserializer extends ContextObjectDeserializer
             val = timeMillis;
 
             parser.accept(JSONToken.RBRACE);
-        } else if (parser.getResolveStatus() == DefaultJSONParser.TypeNameRedirect) {
-            parser.setResolveStatus(DefaultJSONParser.NONE);
-            parser.accept(JSONToken.COMMA);
-
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                if (!"val".equals(lexer.stringVal())) {
-                    throw new JSONException("syntax error");
-                }
-                lexer.nextToken();
-            } else {
-                throw new JSONException("syntax error");
-            }
-
-            parser.accept(JSONToken.COLON);
-
-            val = parser.parse();
-
-            parser.accept(JSONToken.RBRACE);
         } else {
-            val = parser.parse();
+            val = parser.parseFallback(lexer);
         }
 
         return cast(parser, clazz, fieldName, val);

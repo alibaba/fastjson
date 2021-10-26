@@ -267,9 +267,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Returns null if the SafelyHashMap contains no mapping for the key.
      */
     final Entry<K, V> getEntry(Object key) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
             Object k;
             if (e.hash == hash
@@ -338,9 +336,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * comodification, etc. It calls createEntry rather than addEntry.
      */
     private void putForCreate(K key, V value) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
 
         /*
@@ -476,9 +472,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * this key.
      */
     final Entry<K, V> removeEntryForKey(Object key) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
         Entry<K, V> prev = table[i];
         Entry<K, V> e = prev;
@@ -512,9 +506,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
 
         Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
         Object key = entry.getKey();
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
         Entry<K, V> prev = table[i];
         Entry<K, V> e = prev;
@@ -535,6 +527,12 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         }
 
         return e;
+    }
+
+    protected int calcFinalHash(Object key) {
+        return (key == null) ? 0
+                : (key instanceof String) ? hash(hashString((String) key))
+                : hash(key.hashCode());
     }
 
     /**

@@ -92,7 +92,7 @@ public class FastJsonConfig {
                 SerializerFeature.BrowserSecure
         };
 
-        this.serializeFilters = new SerializeFilter[0];
+        this.serializeFilters = SerializeFilter.EMPTY_FILTERS;
         this.features = new Feature[0];
 
         this.writeContentLength = true;

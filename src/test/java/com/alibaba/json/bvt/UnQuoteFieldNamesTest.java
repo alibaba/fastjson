@@ -19,7 +19,7 @@ public class UnQuoteFieldNamesTest extends TestCase {
 
         String json = JSON.toJSONString(map
                 , SerializeConfig.globalInstance
-                , new SerializeFilter[0]
+                , SerializeFilter.EMPTY_FILTERS
                 , null
                 , JSON.DEFAULT_GENERATE_FEATURE & ~SerializerFeature.QuoteFieldNames.mask
         );

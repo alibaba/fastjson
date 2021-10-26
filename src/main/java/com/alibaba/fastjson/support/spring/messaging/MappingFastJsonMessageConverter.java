@@ -2,6 +2,7 @@ package com.alibaba.fastjson.support.spring.messaging;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.AbstractMessageConverter;
@@ -43,7 +44,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
     }
 
     public MappingFastJsonMessageConverter() {
-        super(new MimeType("application", "json", Charset.forName("UTF-8")));
+        super(new MimeType("application", "json", IOUtils.UTF8));
     }
 
     protected boolean supports(Class<?> clazz) {

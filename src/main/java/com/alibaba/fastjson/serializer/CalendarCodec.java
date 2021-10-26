@@ -63,7 +63,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
             final char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) //
                 ? '\'' //
-                : '\"';
+                : '"';
             out.append(quote);
 
             int year = calendar.get(Calendar.YEAR);

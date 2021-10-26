@@ -66,7 +66,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static TimeZone         defaultTimeZone      = TimeZone.getDefault();
     public static Locale           defaultLocale        = Locale.getDefault();
     public static String           DEFAULT_TYPE_KEY     = "@type";
-    static final SerializeFilter[] emptyFilters         = new SerializeFilter[0];
+    // emptyFilters 因为不是 public 的，所以可以直接移除
     public static String           DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static int              DEFAULT_PARSER_FEATURE;
     public static int              DEFAULT_GENERATE_FEATURE;
@@ -668,7 +668,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @return Json representation of {@code object}.
      */
     public static String toJSONString(Object object) {
-        return toJSONString(object, emptyFilters);
+        return toJSONString(object, SerializeFilter.EMPTY_FILTERS);
     }
 
     public static String toJSONString(Object object, SerializerFeature... features) {
@@ -784,21 +784,21 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @deprecated
      */
     public static String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
-        return toJSONString(object, mapping, emptyFilters, null, 0, features);
+        return toJSONString(object, mapping, SerializeFilter.EMPTY_FILTERS, null, 0, features);
     }
 
     /**
      * @since 1.2.42
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializerFeature... features) {
-        return toJSONBytes(object, config, emptyFilters, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONBytes(object, config, SerializeFilter.EMPTY_FILTERS, DEFAULT_GENERATE_FEATURE, features);
     }
 
     /**
      * @since 1.2.11
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, int defaultFeatures, SerializerFeature... features) {
-        return toJSONBytes(object, config, emptyFilters, defaultFeatures, features);
+        return toJSONBytes(object, config, SerializeFilter.EMPTY_FILTERS, defaultFeatures, features);
     }
 
     /**

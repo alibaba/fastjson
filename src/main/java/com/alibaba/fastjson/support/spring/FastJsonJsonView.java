@@ -49,13 +49,13 @@ public class FastJsonJsonView extends AbstractView {
     public static final Pattern CALLBACK_PARAM_PATTERN = Pattern.compile("[0-9A-Za-z_.]*");
 
     @Deprecated
-    protected Charset charset = Charset.forName("UTF-8");
+    protected Charset charset = IOUtils.UTF8;
 
     @Deprecated
     protected SerializerFeature[] features = SerializerFeature.EMPTY;
 
     @Deprecated
-    protected SerializeFilter[] filters = new SerializeFilter[0];
+    protected SerializeFilter[] filters = SerializeFilter.EMPTY_FILTERS;
 
     @Deprecated
     protected String dateFormat;

@@ -610,7 +610,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             formatter = DateTimeFormatter.ofPattern(format);
         }
 
-        String text = formatter.format((TemporalAccessor) object);
+        String text = formatter.format(object);
         out.writeString(text);
     }
 

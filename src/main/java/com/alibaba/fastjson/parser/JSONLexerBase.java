@@ -1660,7 +1660,6 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Collection<String> scanFieldStringArray(char[] fieldName, Class<?> type) {
         matchStat = UNKNOWN;
 

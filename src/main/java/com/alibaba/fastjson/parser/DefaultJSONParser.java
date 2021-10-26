@@ -661,7 +661,6 @@ public class DefaultJSONParser implements Closeable {
     }
 
     // compatible
-    @SuppressWarnings("unchecked")
     public <T> T parseObject(Class<T> clazz) {
         return parseObject(clazz, null);
     }

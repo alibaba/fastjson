@@ -16,10 +16,8 @@
 package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -32,7 +30,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.serializer.SerializeWriter;
 
 /**
  * @author wenshao[szujobs@hotmail.com]

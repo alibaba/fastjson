@@ -8,8 +8,6 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.AbstractMessageConverter;
 import org.springframework.util.MimeType;
 
-import java.nio.charset.Charset;
-
 /**
  * Fastjson for Spring Messaging Json Converter.
  * <p>

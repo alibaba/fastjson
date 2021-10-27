@@ -5251,13 +5251,9 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public abstract BigDecimal decimalValue();
 
     public static boolean isWhitespace(char ch) {
-        // 专门调整了判断顺序
-        return ch <= ' '
-                || ch == '\n'
-                || ch == '\r'
-                || ch == '\t'
-                || ch == '\f'
-                || ch == '\b';
+        // '\n'、'\r'、'\t'、'\f'、'\b' 都是 <= ' ' 的，因此无需额外判断
+        // java.lang.String.trim() 底层就是直接使用 ch <= ' ' 判断的
+        return ch <= ' ';
     }
 
     protected static final long  MULTMIN_RADIX_TEN     = Long.MIN_VALUE / 10;

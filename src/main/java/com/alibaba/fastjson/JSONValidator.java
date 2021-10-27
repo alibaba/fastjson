@@ -440,7 +440,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         @Override
         int read() throws IOException {
-            int len = is.read(buf, 0, buf.length);
+            int len = is.read(buf);
             readCount++;
             return len;
         }
@@ -535,7 +535,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         @Override
         int read() throws IOException {
-            int len = r.read(buf, 0, buf.length);
+            int len = r.read(buf);
             readCount++;
             return len;
         }

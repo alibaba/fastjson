@@ -163,14 +163,10 @@ public class ASMDeserializerFactory implements Opcodes {
             if (fieldClass == byte.class //
                 || fieldClass == short.class //
                 || fieldClass == int.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
+                lexer_scanInt(context, mw, separator);
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
             } else if (fieldClass == Byte.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
+                lexer_scanInt(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -183,9 +179,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
                 mw.visitLabel(valueNullEnd_);
             } else if (fieldClass == Short.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
+                lexer_scanInt(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -198,9 +192,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
                 mw.visitLabel(valueNullEnd_);
             } else if (fieldClass == Integer.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
+                lexer_scanInt(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -213,15 +205,11 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
                 mw.visitLabel(valueNullEnd_);
             } else if (fieldClass == long.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
+                lexer_scanLong(context, mw, separator);
                 mw.visitVarInsn(LSTORE, context.var_asm(fieldInfo, 2));
 
             } else if (fieldClass == Long.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
+                lexer_scanLong(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -239,15 +227,11 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanBoolean", "(C)Z");
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
             } else if (fieldClass == float.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFloat", "(C)F");
+                lexer_scanFloat(context, mw, separator);
                 mw.visitVarInsn(FSTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == Float.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFloat", "(C)F");
+                lexer_scanFloat(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -261,15 +245,11 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitLabel(valueNullEnd_);
 
             } else if (fieldClass == double.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDouble", "(C)D");
+                lexer_scanDouble(context, mw, separator);
                 mw.visitVarInsn(DSTORE, context.var_asm(fieldInfo, 2));
 
             } else if (fieldClass == Double.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDouble", "(C)D");
+                lexer_scanDouble(context, mw, separator);
                 mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
 
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -283,16 +263,12 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitLabel(valueNullEnd_);
 
             } else if (fieldClass == char.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanString", "(C)Ljava/lang/String;");
+                lexer_scanString(context, mw, separator);
                 mw.visitInsn(ICONST_0);
                 mw.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "charAt", "(I)C");
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
             } else if (fieldClass == String.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanString", "(C)Ljava/lang/String;");
+                lexer_scanString(context, mw, separator);
                 mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == BigDecimal.class) {
@@ -352,9 +328,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
                 _getFieldDeser(context, mw, fieldInfo);
                 mw.visitTypeInsn(CHECKCAST, type(EnumDeserializer.class)); // cast
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(BIPUSH, separator);
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
+                lexer_scanInt(context, mw, separator);
                 mw.visitMethodInsn(INVOKEVIRTUAL, type(EnumDeserializer.class), "valueOf", "(I)Ljava/lang/Enum;");
                 mw.visitJumpInsn(GOTO, enumStore_);
 
@@ -481,9 +455,7 @@ public class ASMDeserializerFactory implements Opcodes {
                     mw.visitTypeInsn(NEW, type(java.util.Date.class));
                     mw.visitInsn(DUP);
 
-                    mw.visitVarInsn(ALOAD, context.var("lexer"));
-                    mw.visitVarInsn(BIPUSH, separator);
-                    mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
+                    lexer_scanLong(context, mw, separator);
 
                     mw.visitMethodInsn(INVOKESPECIAL, type(java.util.Date.class), "<init>", "(J)V");
                     mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
@@ -575,6 +547,36 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitInsn(ARETURN);
         mw.visitMaxs(5, context.variantIndex);
         mw.visitEnd();
+    }
+
+    private void lexer_scanLong(Context context, MethodVisitor mw, char separator) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(BIPUSH, separator);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanLong", "(C)J");
+    }
+
+    private void lexer_scanString(Context context, MethodVisitor mw, char separator) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(BIPUSH, separator);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanString", "(C)Ljava/lang/String;");
+    }
+
+    private void lexer_scanDouble(Context context, MethodVisitor mw, char separator) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(BIPUSH, separator);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanDouble", "(C)D");
+    }
+
+    private void lexer_scanFloat(Context context, MethodVisitor mw, char separator) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(BIPUSH, separator);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFloat", "(C)F");
+    }
+
+    private void lexer_scanInt(Context context, MethodVisitor mw, char separator) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(BIPUSH, separator);
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
     }
 
     private void _deserialze(ClassWriter cw, Context context) {

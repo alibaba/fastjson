@@ -5296,4 +5296,15 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     public void setFeatures(int features) {
         this.features = features;
     }
+
+    protected int digitCharCount(int offset) {
+        int count = this.sp;
+
+        char last = charAt(offset + count - 1);
+        if (last == 'L' || last == 'S' || last == 'B' || last == 'F' || last == 'D') {
+            count--;
+        }
+
+        return count;
+    }
 }

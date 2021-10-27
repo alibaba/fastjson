@@ -86,7 +86,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         this(new CharArrayReader(input, 0, inputLength), features);
     }
 
-    public final char charAt(int index) {
+    public char charAt(int index) {
         if (index >= bufLength) {
             if (bufLength == -1) {
                 if (index < sp) {
@@ -137,7 +137,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return buf[index];
     }
 
-    public final int indexOf(char ch, int startIndex) {
+    public int indexOf(char ch, int startIndex) {
         int offset = startIndex - bp;
         for (;; ++offset) {
             final int index = bp + offset;
@@ -151,11 +151,11 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
     }
 
-    public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
+    public String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(buf, offset, len, hash);
     }
 
-    public final char next() {
+    public char next() {
         int index = ++bp;
 
         if (index >= bufLength) {
@@ -203,11 +203,11 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return ch = buf[index];
     }
 
-    protected final void copyTo(int offset, int count, char[] dest) {
+    protected void copyTo(int offset, int count, char[] dest) {
         System.arraycopy(buf, offset, dest, 0, count);
     }
 
-    public final boolean charArrayCompare(char[] chars) {
+    public boolean charArrayCompare(char[] chars) {
         for (int i = 0; i < chars.length; ++i) {
             if (charAt(bp + i) != chars[i]) {
                 return false;
@@ -225,14 +225,14 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return IOUtils.decodeBase64(buf, np + 1, sp);
     }
 
-    protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
+    protected void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         System.arraycopy(buf, srcPos, dest, destPos, length);
     }
 
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
-    public final String stringVal() {
+    public String stringVal() {
         if (!hasSpecial) {
             int offset = np + 1;
             if (offset < 0) {
@@ -248,7 +248,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         }
     }
 
-    public final String subString(int offset, int count) {
+    public String subString(int offset, int count) {
         if (count < 0) {
             throw new StringIndexOutOfBoundsException(count);
         }
@@ -256,7 +256,7 @@ public final class JSONReaderScanner extends JSONLexerBase {
         // return text.substring(offset, offset + count);
     }
 
-    public final char[] sub_chars(int offset, int count) {
+    public char[] sub_chars(int offset, int count) {
         if (count < 0) {
             throw new StringIndexOutOfBoundsException(count);
         }
@@ -269,38 +269,22 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return chars;
     }
 
-    public final String numberString() {
-        int offset = np;
-        if (offset == -1) {
-            offset = 0;
-        }
-        char chLocal = charAt(offset + sp - 1);
+    public String numberString() {
+        int offset = np == -1 ? 0 : np;
+        int count = digitCharCount(offset);
 
-        int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
-            sp--;
-        }
-
-        return new String(buf, offset, sp);
+        return new String(buf, offset, count);
     }
 
-    public final BigDecimal decimalValue() {
-        int offset = np;
-        if (offset == -1) {
-            offset = 0;
-        }
-        char chLocal = charAt(offset + sp - 1);
+    public BigDecimal decimalValue() {
+        int offset = np == -1 ? 0 : np;
+        int count = digitCharCount(offset);
 
-        int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
-            sp--;
-        }
-
-        if (sp > 65535) {
+        if (count > 65535) {
             throw new JSONException("decimal overflow");
         }
 
-        return new BigDecimal(buf, offset, sp, MathContext.UNLIMITED);
+        return new BigDecimal(buf, offset, count, MathContext.UNLIMITED);
     }
 
     public void close() {
@@ -319,8 +303,8 @@ public final class JSONReaderScanner extends JSONLexerBase {
         return bufLength == -1 || bp == buf.length || ch == EOI && bp + 1 >= buf.length;
     }
 
-    public final boolean isBlankInput() {
-        for (int i = 0;; ++i) {
+    public boolean isBlankInput() {
+        for (int i = 0; ; ++i) {
             char chLocal = buf[i];
             if (chLocal == EOI) {
                 token = JSONToken.EOF;

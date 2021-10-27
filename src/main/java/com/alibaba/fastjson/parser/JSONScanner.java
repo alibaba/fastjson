@@ -54,7 +54,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final char charAt(int index) {
+    public char charAt(int index) {
         if (index >= len) {
             return EOI;
         }
@@ -62,7 +62,7 @@ public final class JSONScanner extends JSONLexerBase {
         return text.charAt(index);
     }
 
-    public final char next() {
+    public char next() {
         int index = ++bp;
         return ch = (index >= this.len ? //
                 EOI //
@@ -77,7 +77,7 @@ public final class JSONScanner extends JSONLexerBase {
         this(new String(input, 0, inputLength), features);
     }
 
-    protected final void copyTo(int offset, int count, char[] dest) {
+    protected void copyTo(int offset, int count, char[] dest) {
         text.getChars(offset, offset + count, dest, 0);
     }
 
@@ -96,15 +96,15 @@ public final class JSONScanner extends JSONLexerBase {
         return true;
     }
 
-    public final boolean charArrayCompare(char[] chars) {
+    public boolean charArrayCompare(char[] chars) {
         return charArrayCompare(text, bp, chars);
     }
 
-    public final int indexOf(char ch, int startIndex) {
+    public int indexOf(char ch, int startIndex) {
         return text.indexOf(ch, startIndex);
     }
 
-    public final String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
+    public String addSymbol(int offset, int len, int hash, final SymbolTable symbolTable) {
         return symbolTable.addSymbol(text, offset, len, hash);
     }
 
@@ -139,7 +139,7 @@ public final class JSONScanner extends JSONLexerBase {
     /**
      * The value of a literal token, recorded as a string. For integers, leading 0x and 'l' suffixes are suppressed.
      */
-    public final String stringVal() {
+    public String stringVal() {
         if (!hasSpecial) {
             return this.subString(np + 1, sp);
         } else {
@@ -147,7 +147,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final String subString(int offset, int count) {
+    public String subString(int offset, int count) {
         if (ASMUtils.IS_ANDROID) {
             if (count < sbuf.length) {
                 text.getChars(offset, offset + count, sbuf, 0);
@@ -162,7 +162,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final char[] sub_chars(int offset, int count) {
+    public char[] sub_chars(int offset, int count) {
         if (ASMUtils.IS_ANDROID && count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
             return sbuf;
@@ -173,30 +173,20 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final String numberString() {
-        char chLocal = charAt(np + sp - 1);
+    public String numberString() {
+        int count = digitCharCount(np);
 
-        int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
-            sp--;
-        }
-
-        return this.subString(np, sp);
+        return this.subString(np, count);
     }
 
-    public final BigDecimal decimalValue() {
-        char chLocal = charAt(np + sp - 1);
+    public BigDecimal decimalValue() {
+        int count = digitCharCount(np);
 
-        int sp = this.sp;
-        if (chLocal == 'L' || chLocal == 'S' || chLocal == 'B' || chLocal == 'F' || chLocal == 'D') {
-            sp--;
-        }
-
-        if (sp > 65535) {
+        if (count > 65535) {
             throw new JSONException("decimal overflow");
         }
 
-        int offset = np, count = sp;
+        int offset = np;
         if (count < sbuf.length) {
             text.getChars(offset, offset + count, sbuf, 0);
             return new BigDecimal(sbuf, 0, count, MathContext.UNLIMITED);
@@ -1658,7 +1648,7 @@ public final class JSONScanner extends JSONLexerBase {
         return value;
     }
 
-    public final int scanInt(char expectNext) {
+    public int scanInt(char expectNext) {
         matchStat = UNKNOWN;
 
         final int mark = bp;
@@ -2132,7 +2122,7 @@ public final class JSONScanner extends JSONLexerBase {
         return dateVal;
     }
 
-    protected final void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
+    protected void arrayCopy(int srcPos, char[] dest, int destPos, int length) {
         text.getChars(srcPos, srcPos + length, dest, destPos);
     }
 
@@ -2299,11 +2289,11 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final void skipObject() {
+    public void skipObject() {
         skipObject(false);
     }
 
-    public final void skipObject(boolean valid) {
+    public void skipObject(boolean valid) {
         boolean quote = false;
         int braceCnt = 0;
         int i = bp;
@@ -2373,11 +2363,11 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final void skipArray() {
+    public void skipArray() {
         skipArray(false);
     }
 
-    public final void skipArray(boolean valid) {
+    public void skipArray(boolean valid) {
         boolean quote = false;
         int bracketCnt = 0;
         int i = bp;
@@ -2433,7 +2423,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public final void skipString() {
+    public void skipString() {
         if (ch == '"') {
             for (int i = bp + 1; i < text.length(); ++i) {
                 char c = text.charAt(i);

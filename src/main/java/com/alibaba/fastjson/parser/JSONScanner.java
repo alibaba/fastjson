@@ -1511,13 +1511,13 @@ public final class JSONScanner extends JSONLexerBase {
                 && (!quote || charAt(index++) == '"') /* AND MAYBE match quote */) {
 
             bp = index;
-            ch = charAt(bp);
             value = ch == '1';
         } else {
             matchStat = NOT_MATCH;
             return false;
         }
 
+        ch = charAt(bp);
         for (;;) {
             if (ch == ',') {
                 this.ch = charAt(++bp);
@@ -1553,7 +1553,6 @@ public final class JSONScanner extends JSONLexerBase {
                 ch = charAt(++bp);
             } else {
                 bp = startPos;
-                ch = charAt(bp);
                 matchStat = NOT_MATCH;
                 return false;
             }
@@ -1568,7 +1567,6 @@ public final class JSONScanner extends JSONLexerBase {
             index += matchCount;
             if (!quote || charAt(index++) == '"') {
                 bp = index;
-                ch = charAt(bp);
                 return true;
             }
         }

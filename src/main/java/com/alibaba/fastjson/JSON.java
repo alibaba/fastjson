@@ -213,19 +213,22 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parse(input, off, len, charsetDecoder, featureValues);
     }
 
-    public static Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, int features) {
+    private static CharBuffer getCharBuffer(byte[] input, int off, int len, CharsetDecoder charsetDecoder) {
         charsetDecoder.reset();
 
         int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
         char[] chars = allocateChars(scaleLength);
+        CharBuffer charBuf = CharBuffer.wrap(chars);
 
         ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
-        CharBuffer charBuf = CharBuffer.wrap(chars);
         IOUtils.decode(charsetDecoder, byteBuf, charBuf);
+        return charBuf;
+    }
 
-        int position = charBuf.position();
+    public static Object parse(byte[] input, int off, int len, CharsetDecoder charsetDecoder, int features) {
+        CharBuffer charBuf = getCharBuffer(input, off, len, charsetDecoder);
 
-        DefaultJSONParser parser = new DefaultJSONParser(chars, position, ParserConfig.getGlobalInstance(), features);
+        DefaultJSONParser parser = new DefaultJSONParser(charBuf.array(), charBuf.position(), ParserConfig.getGlobalInstance(), features);
         Object value = parser.parse();
 
         parser.handleResovleTask(value);
@@ -471,18 +474,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                     CharsetDecoder charsetDecoder, //
                                     Type clazz, //
                                     Feature... features) {
-        charsetDecoder.reset();
+        CharBuffer charBuf = getCharBuffer(input, off, len, charsetDecoder);
 
-        int scaleLength = (int) (len * (double) charsetDecoder.maxCharsPerByte());
-        char[] chars = allocateChars(scaleLength);
-
-        ByteBuffer byteBuf = ByteBuffer.wrap(input, off, len);
-        CharBuffer charByte = CharBuffer.wrap(chars);
-        IOUtils.decode(charsetDecoder, byteBuf, charByte);
-
-        int position = charByte.position();
-
-        return parseObject(chars, position, clazz, features);
+        return parseObject(charBuf.array(), charBuf.position(), clazz, features);
     }
 
     public static <T> T parseObject(char[] input, int length, Type clazz, Feature... features) {
@@ -759,20 +753,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
-
-            if (dateFormat != null && dateFormat.length() != 0) {
-                serializer.setDateFormat(dateFormat);
-                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            }
-
-            if (filters != null) {
-                for (SerializeFilter filter : filters) {
-                    serializer.addFilter(filter);
-                }
-            }
-
-            serializer.write(object);
+            prepareJSONString(object, out, config, filters, dateFormat);
 
             return out.toString();
         } finally {
@@ -839,20 +820,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
+            prepareJSONString(object, out, config, filters, dateFormat);
 
-            if (dateFormat != null && dateFormat.length() != 0) {
-                serializer.setDateFormat(dateFormat);
-                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            }
-
-            if (filters != null) {
-                for (SerializeFilter filter : filters) {
-                    serializer.addFilter(filter);
-                }
-            }
-
-            serializer.write(object);
             return out.toBytes(charset);
         } finally {
             out.close();
@@ -875,20 +844,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(out, config);
+            prepareJSONString(object, out, config, filters, dateFormat, true);
 
-            if (dateFormat != null && dateFormat.length() != 0) {
-                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
-                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            }
-
-            if (filters != null) {
-                for (SerializeFilter filter : filters) {
-                    serializer.addFilter(filter);
-                }
-            }
-
-            serializer.write(object);
             return out.toBytes(charset);
         } finally {
             out.close();
@@ -992,25 +949,37 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(writer, config);
-
-            if (dateFormat != null && dateFormat.length() != 0) {
-                serializer.setDateFormat(dateFormat);
-                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            }
-
-            if (filters != null) {
-                for (SerializeFilter filter : filters) {
-                    serializer.addFilter(filter);
-                }
-            }
-
-            serializer.write(object);
+            prepareJSONString(object, writer, config, filters, dateFormat);
 
             return writer.writeToEx(os, charset);
         } finally {
             writer.close();
         }
+    }
+
+    private static void prepareJSONString(Object object, SerializeWriter writer, SerializeConfig config, SerializeFilter[] filters, String dateFormat, boolean dateFormatInFastJsonConfig) {
+        JSONSerializer serializer = new JSONSerializer(writer, config);
+
+        if (dateFormat != null && dateFormat.length() > 0) {
+            if (dateFormatInFastJsonConfig) {
+                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
+            } else {
+                serializer.setDateFormat(dateFormat);
+            }
+            serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+        }
+
+        if (filters != null) {
+            for (SerializeFilter filter : filters) {
+                serializer.addFilter(filter);
+            }
+        }
+
+        serializer.write(object);
+    }
+
+    private static void prepareJSONString(Object object, SerializeWriter writer, SerializeConfig config, SerializeFilter[] filters, String dateFormat) {
+        prepareJSONString(object, writer, config, filters, dateFormat, false);
     }
 
     public static final int writeJSONStringWithFastJsonConfig(OutputStream os, //
@@ -1024,20 +993,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
 
         try {
-            JSONSerializer serializer = new JSONSerializer(writer, config);
-
-            if (dateFormat != null && dateFormat.length() != 0) {
-                serializer.setFastJsonConfigDateFormatPattern(dateFormat);
-                serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
-            }
-
-            if (filters != null) {
-                for (SerializeFilter filter : filters) {
-                    serializer.addFilter(filter);
-                }
-            }
-
-            serializer.write(object);
+            prepareJSONString(object, writer, config, filters, dateFormat, true);
 
             return writer.writeToEx(os, charset);
         } finally {
@@ -1403,5 +1359,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return null;
     }
 
-    public final static String VERSION = "1.2.76";
+    // 目前最新版本是 1.2.78，后续发布新版本时，记得同步调整
+    public final static String VERSION = "1.2.78";
 }

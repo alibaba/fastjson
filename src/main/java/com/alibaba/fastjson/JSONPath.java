@@ -2589,7 +2589,6 @@ public class JSONPath implements JSONAware {
 //                return;
 //            }
 
-            for_:
             for (;;) {
                 int index = lexer.seekObjectToField(propertyNamesHash);
                 int matchStat = lexer.matchStat;
@@ -2616,7 +2615,7 @@ public class JSONPath implements JSONAware {
                     array.set(index, value);
 
                     if (lexer.token() == JSONToken.COMMA) {
-                        continue for_;
+                        continue;
                     }
                 }
 

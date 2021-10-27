@@ -41,7 +41,7 @@ public class ThrowableDeserializer extends JavaBeanDeserializer {
         Throwable cause = null;
         Class<?> exClass = null;
 
-        if (type != null && type instanceof Class) {
+        if (type instanceof Class) {
         	Class<?> clazz = (Class<?>) type;
         	if (Throwable.class.isAssignableFrom(clazz)) {
         		exClass = clazz;

@@ -779,7 +779,7 @@ public class IOUtils {
     public static int writeCharAsUnicode(char ch, char[] toBuffer, int index){
         toBuffer[index++] = '\\';
         toBuffer[index++] = 'u';
-        final char[] digits = IOUtils.DIGITS;
+        final char[] digits = DIGITS;
         toBuffer[index++] = digits[(ch >>> 12) & 15];
         toBuffer[index++] = digits[(ch >>> 8 ) & 15];
         toBuffer[index++] = digits[(ch >>> 4 ) & 15];

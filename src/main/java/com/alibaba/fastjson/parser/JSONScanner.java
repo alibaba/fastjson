@@ -63,10 +63,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     public char next() {
-        int index = ++bp;
-        return ch = (index >= this.len ? //
-                EOI //
-                : text.charAt(index));
+        return ch = charAt(++bp);
     }
 
     public JSONScanner(char[] input, int inputLength){
@@ -260,8 +257,6 @@ public final class JSONScanner extends JSONLexerBase {
 
             char y0, y1, y2, y3, M0, M1, d0, d1;
 
-
-
             char c8 = charAt(bp + 8);
 
             final boolean c_47 = c4 == '-' && c7 == '-';
@@ -338,13 +333,7 @@ public final class JSONScanner extends JSONLexerBase {
                     char S0 = charAt(bp + 14);
                     char S1 = charAt(bp + 15);
                     char S2 = charAt(bp + 16);
-                    if (S0 < '0' || S0 > '9') {
-                        return false;
-                    }
-                    if (S1 < '0' || S1 > '9') {
-                        return false;
-                    }
-                    if (S2 < '0' || S2 > '9') {
+                    if (isNotDigit(S0) || isNotDigit(S1) || isNotDigit(S2)) {
                         return false;
                     }
 
@@ -688,6 +677,10 @@ public final class JSONScanner extends JSONLexerBase {
         return true;
     }
 
+    private static boolean isNotDigit(char ch) {
+        return ch < '0' || ch > '9';
+    }
+
     protected void setTime(char h0, char h1, char m0, char m1, char s0, char s1) {
         int hour = (h0 - '0') * 10 + (h1 - '0');
         int minute = (m0 - '0') * 10 + (m1 - '0');
@@ -752,16 +745,7 @@ public final class JSONScanner extends JSONLexerBase {
     }
 
     static boolean checkDate(char y0, char y1, char y2, char y3, char M0, char M1, int d0, int d1) {
-        if (y0 < '0' || y0 > '9') {
-            return false;
-        }
-        if (y1 < '0' || y1 > '9') {
-            return false;
-        }
-        if (y2 < '0' || y2 > '9') {
-            return false;
-        }
-        if (y3 < '0' || y3 > '9') {
+        if (isNotDigit(y0) || isNotDigit(y1) || isNotDigit(y2) || isNotDigit(y3)) {
             return false;
         }
 
@@ -880,16 +864,8 @@ public final class JSONScanner extends JSONLexerBase {
             bp = index - 1;
             ch = charAt(++bp);
             for (; ; ) {
-                if (ch == ',') {
-                    token = JSONToken.COMMA;
-                    this.ch = charAt(++bp);
-                    break;
-                } else if (ch == ']') {
-                    token = JSONToken.RBRACKET;
-                    this.ch = charAt(++bp);
-                    break;
-                } else if (ch == '}') {
-                    token = JSONToken.RBRACE;
+                if (ch == ',' || ch == ']' || ch == '}') {
+                    token = JSONToken.charToken(ch);
                     this.ch = charAt(++bp);
                     break;
                 } else if (ch == EOI) {
@@ -897,7 +873,6 @@ public final class JSONScanner extends JSONLexerBase {
                     break;
                 } else if (isWhitespace(ch)) {
                     ch = charAt(++bp);
-                    continue;
                 } else {
                     this.bp = startPos;
                     this.ch = startChar;
@@ -909,6 +884,24 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         return negative ? -value : value;
+    }
+
+    private int findEndOfString(int endIndex) {
+        for (;;) {
+            int slashCount = 0;
+            for (int i = endIndex - 1; i >= 0; --i) {
+                if (charAt(i) == '\\') {
+                    slashCount++;
+                } else {
+                    break;
+                }
+            }
+            if (slashCount % 2 == 0) {
+                break;
+            }
+            endIndex = indexOf('"', endIndex + 1);
+        }
+        return endIndex;
     }
 
     public String scanFieldString(char[] fieldName) {
@@ -960,20 +953,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             String stringVal = subString(index, endIndex - index);
             if (stringVal.indexOf('\\') != -1) {
-                for (;;) {
-                    int slashCount = 0;
-                    for (int i = endIndex - 1; i >= 0; --i) {
-                        if (charAt(i) == '\\') {
-                            slashCount++;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (slashCount % 2 == 0) {
-                        break;
-                    }
-                    endIndex = indexOf('"', endIndex + 1);
-                }
+                endIndex = findEndOfString(endIndex);
 
                 int chars_len = endIndex - (bp + fieldName.length + 1 + spaceCount);
                 char[] chars = sub_chars(bp + fieldName.length + 1 + spaceCount, chars_len);
@@ -1242,10 +1222,7 @@ public final class JSONScanner extends JSONLexerBase {
         matchStat = UNKNOWN;
 
         while (ch == '\n' || ch == ' ') {
-            int index = ++bp;
-            ch = (index >= this.len ? //
-                    EOI //
-                    : text.charAt(index));
+            ch = charAt(++bp);
         }
 
         if (!charArrayCompare(text, bp, fieldName)) {
@@ -1287,20 +1264,7 @@ public final class JSONScanner extends JSONLexerBase {
 
                     String stringVal = subString(startIndex, endIndex - startIndex);
                     if (stringVal.indexOf('\\') != -1) {
-                        for (;;) {
-                            int slashCount = 0;
-                            for (int i = endIndex - 1; i >= 0; --i) {
-                                if (charAt(i) == '\\') {
-                                    slashCount++;
-                                } else {
-                                    break;
-                                }
-                            }
-                            if (slashCount % 2 == 0) {
-                                break;
-                            }
-                            endIndex = indexOf('"', endIndex + 1);
-                        }
+                        endIndex = findEndOfString(endIndex);
 
                         int chars_len = endIndex - startIndex;
                         char[] chars = sub_chars(startIndex, chars_len);
@@ -1533,72 +1497,22 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         boolean value;
-        if (ch == 't') {
-            if (charAt(index++) != 'r') {
-                matchStat = NOT_MATCH;
+        if (ch == 't') { // match true
+            if (!regionMatchesNextAndHandle("true", index, quote)) {
                 return false;
             }
-            if (charAt(index++) != 'u') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(index++) != 'e') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-
-            if (quote && charAt(index++) != '"') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-
-            bp = index;
-            ch = charAt(bp);
             value = true;
-        } else if (ch == 'f') {
-            if (charAt(index++) != 'a') {
-                matchStat = NOT_MATCH;
+        } else if (ch == 'f') { // match false
+            if (!regionMatchesNextAndHandle("false", index, quote)) {
                 return false;
             }
-            if (charAt(index++) != 'l') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(index++) != 's') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-            if (charAt(index++) != 'e') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-
-            if (quote && charAt(index++) != '"') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-
-            bp = index;
-            ch = charAt(bp);
             value = false;
-        } else if (ch == '1') {
-            if (quote && charAt(index++) != '"') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
+        } else if ((ch == '1' || ch == '0') // match 1 or 0
+                && (!quote || charAt(index++) == '"') /* AND MAYBE match quote */) {
 
             bp = index;
             ch = charAt(bp);
-            value = true;
-        } else if (ch == '0') {
-            if (quote && charAt(index++) != '"') {
-                matchStat = NOT_MATCH;
-                return false;
-            }
-
-            bp = index;
-            ch = charAt(bp);
-            value = false;
+            value = ch == '1';
         } else {
             matchStat = NOT_MATCH;
             return false;
@@ -1613,23 +1527,23 @@ public final class JSONScanner extends JSONLexerBase {
             } else if (ch == '}') {
                 ch = charAt(++bp);
                 for (;;) {
-                    if (ch == ',') {
-                        token = JSONToken.COMMA;
-                        this.ch = charAt(++bp);
-                    } else if (ch == ']') {
-                        token = JSONToken.RBRACKET;
-                        this.ch = charAt(++bp);
-                    } else if (ch == '}') {
-                        token = JSONToken.RBRACE;
-                        this.ch = charAt(++bp);
-                    } else if (ch == EOI) {
-                        token = JSONToken.EOF;
-                    } else if (isWhitespace(ch)) {
-                        ch = charAt(++bp);
-                        continue;
-                    } else {
-                        matchStat = NOT_MATCH;
-                        return false;
+                    switch (ch) {
+                        case ',':
+                        case ']':
+                        case '}':
+                            token = JSONToken.charToken(ch);
+                            this.ch = charAt(++bp);
+                            break;
+                        case EOI:
+                            token = JSONToken.EOF;
+                            break;
+                        default:
+                            if (isWhitespace(ch)) {
+                                ch = charAt(++bp);
+                                continue;
+                            }
+                            matchStat = NOT_MATCH;
+                            return false;
                     }
                     break;
                 }
@@ -1646,6 +1560,20 @@ public final class JSONScanner extends JSONLexerBase {
         }
 
         return value;
+    }
+
+    private boolean regionMatchesNextAndHandle(String keyword, int index, boolean quote) {
+        final int matchCount = keyword.length() - 1;
+        if (keyword.regionMatches(1, text, index, matchCount)) {
+            index += matchCount;
+            if (!quote || charAt(index++) == '"') {
+                bp = index;
+                ch = charAt(bp);
+                return true;
+            }
+        }
+        matchStat = NOT_MATCH;
+        return false;
     }
 
     public int scanInt(char expectNext) {
@@ -1701,42 +1629,8 @@ public final class JSONScanner extends JSONLexerBase {
                 matchStat = NOT_MATCH;
                 return 0;
             }
-        } else if (chLocal == 'n'
-                && charAt(offset++) == 'u'
-                && charAt(offset++) == 'l'
-                && charAt(offset++) == 'l') {
-            matchStat = VALUE_NULL;
-            value = 0;
-            chLocal = charAt(offset++);
-
-            if (quote && chLocal == '"') {
-                chLocal = charAt(offset++);
-            }
-
-            for (;;) {
-                if (chLocal == ',') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.COMMA;
-                    return value;
-                } else if (chLocal == ']') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.RBRACKET;
-                    return value;
-                } else if (isWhitespace(chLocal)) {
-                    chLocal = charAt(offset++);
-                    continue;
-                }
-                break;
-            }
-            matchStat = NOT_MATCH;
-            return 0;
         } else {
-            matchStat = NOT_MATCH;
-            return 0;
+            return scanNullOrDefault(chLocal, offset, quote);
         }
 
         for (;;) {
@@ -1756,7 +1650,7 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
-    public  double scanDouble(char separator) {
+    public double scanDouble(char separator) {
         matchStat = UNKNOWN;
 
         int offset = bp;
@@ -1846,42 +1740,8 @@ public final class JSONScanner extends JSONLexerBase {
                 String text = this.subString(start, count);
                 value = Double.parseDouble(text);
             }
-        } else if (chLocal == 'n'
-                && charAt(offset++) == 'u'
-                && charAt(offset++) == 'l'
-                && charAt(offset++) == 'l') {
-            matchStat = VALUE_NULL;
-            value = 0;
-            chLocal = charAt(offset++);
-
-            if (quote && chLocal == '"') {
-                chLocal = charAt(offset++);
-            }
-
-            for (;;) {
-                if (chLocal == ',') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.COMMA;
-                    return value;
-                } else if (chLocal == ']') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.RBRACKET;
-                    return value;
-                } else if (isWhitespace(chLocal)) {
-                    chLocal = charAt(offset++);
-                    continue;
-                }
-                break;
-            }
-            matchStat = NOT_MATCH;
-            return 0;
         } else {
-            matchStat = NOT_MATCH;
-            return 0;
+            return scanNullOrDefault(chLocal, offset, quote);
         }
 
         if (chLocal == separator) {
@@ -1895,7 +1755,41 @@ public final class JSONScanner extends JSONLexerBase {
         return value;
     }
 
-    public long scanLong(char seperator) {
+    private int scanNullOrDefault(char chLocal, int offset, boolean quote) {
+        int value;
+        if (chLocal == 'n' && "null".regionMatches(1, text, offset, 3)) {
+            offset += 3;
+            matchStat = VALUE_NULL;
+            value = 0;
+            chLocal = charAt(offset++);
+
+            if (quote && chLocal == '"') {
+                chLocal = charAt(offset++);
+            }
+
+            for (;;) {
+                switch (chLocal) {
+                    case ',':
+                    case ']':
+                        bp = offset;
+                        this.ch = charAt(bp);
+                        matchStat = VALUE_NULL;
+                        token = JSONToken.charToken(chLocal);
+                        return value;
+                    default:
+                        if (isWhitespace(chLocal)) {
+                            chLocal = charAt(offset++);
+                            continue;
+                        }
+                }
+                break;
+            }
+        }
+        matchStat = NOT_MATCH;
+        return 0;
+    }
+
+    public long scanLong(char separator) {
         matchStat = UNKNOWN;
 
         int offset = bp;
@@ -1939,46 +1833,12 @@ public final class JSONScanner extends JSONLexerBase {
                 matchStat = NOT_MATCH;
                 return 0;
             }
-        } else if (chLocal == 'n'
-                && charAt(offset++) == 'u'
-                && charAt(offset++) == 'l'
-                && charAt(offset++) == 'l') {
-            matchStat = VALUE_NULL;
-            value = 0;
-            chLocal = charAt(offset++);
-
-            if (quote && chLocal == '"') {
-                chLocal = charAt(offset++);
-            }
-
-            for (;;) {
-                if (chLocal == ',') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.COMMA;
-                    return value;
-                } else if (chLocal == ']') {
-                    bp = offset;
-                    this.ch = charAt(bp);
-                    matchStat = VALUE_NULL;
-                    token = JSONToken.RBRACKET;
-                    return value;
-                } else if (isWhitespace(chLocal)) {
-                    chLocal = charAt(offset++);
-                    continue;
-                }
-                break;
-            }
-            matchStat = NOT_MATCH;
-            return 0;
         } else {
-            matchStat = NOT_MATCH;
-            return 0;
+            return scanNullOrDefault(chLocal, offset, quote);
         }
 
         for (;;) {
-            if (chLocal == seperator) {
+            if (chLocal == separator) {
                 bp = offset;
                 this.ch = charAt(bp);
                 matchStat = VALUE;
@@ -2331,10 +2191,7 @@ public final class JSONScanner extends JSONLexerBase {
                     this.ch = text.charAt(this.bp);
                     if (this.ch == ',') {
                         token = JSONToken.COMMA;
-                        int index = ++bp;
-                        this.ch = (index >= text.length() //
-                                ? EOI //
-                                : text.charAt(index));
+                        this.ch = charAt(++bp);
                         return;
                     } else if (this.ch == '}') {
                         token = JSONToken.RBRACE;
@@ -2390,12 +2247,7 @@ public final class JSONScanner extends JSONLexerBase {
                 }
                 bracketCnt++;
             } else if (ch == '{' && valid) {
-                {
-                    int index = ++bp;
-                    this.ch = (index >= text.length() //
-                            ? EOI //
-                            : text.charAt(index));
-                }
+                this.ch = charAt(++bp);
 
                 skipObject(valid);
             } else if (ch == ']') {
@@ -2517,6 +2369,42 @@ public final class JSONScanner extends JSONLexerBase {
         return true;
     }
 
+    private long seekFieldName() {
+        if (ch != '"') {
+            skipWhitespace();
+        }
+
+        if (ch == '"') {
+            long hash = fnv1a_64_magic_hashcode;
+
+            final String text = this.text; // avoid getfield opcode
+            final int length = text.length();
+            for (int i = bp + 1; i < length; ++i) {
+                char c = text.charAt(i);
+                if (c == '\\') {
+                    ++i;
+                    if (i == length) {
+                        throw new JSONException("unclosed str, " + info());
+                    }
+                    c = text.charAt(i);
+                }
+
+                if (c == '"') {
+                    bp = i + 1;
+                    ch = (bp >= length //
+                            ? EOI //
+                            : text.charAt(bp));
+                    break;
+                }
+
+                hash ^= c;
+                hash *= fnv1a_64_magic_prime;
+            }
+            return hash;
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public int seekObjectToField(long fieldNameHash, boolean deepScan) {
         if (token == JSONToken.EOF) {
             return JSONLexer.NOT_MATCH;
@@ -2541,226 +2429,41 @@ public final class JSONScanner extends JSONLexerBase {
                 return JSONLexer.NOT_MATCH;
             }
 
-            if (ch != '"') {
-                skipWhitespace();
-            }
-
-            long hash;
-            if (ch == '"') {
-                hash = fnv1a_64_magic_hashcode;
-
-                for (int i = bp + 1; i < text.length(); ++i) {
-                    char c = text.charAt(i);
-                    if (c == '\\') {
-                        ++i;
-                        if (i == text.length()) {
-                            throw new JSONException("unclosed str, " + info());
-                        }
-                        c = text.charAt(i);
-                    }
-
-                    if (c == '"') {
-                        bp = i + 1;
-                        ch = (bp >= text.length() //
-                                ? EOI //
-                                : text.charAt(bp));
-                        break;
-                    }
-
-                    hash ^= c;
-                    hash *= fnv1a_64_magic_prime;
-                }
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            long hash = seekFieldName();
 
             if (hash == fieldNameHash) {
-                if (ch != ':') {
-                    skipWhitespace();
-                }
-                if (ch == ':') {
-                    {
-                        int index = ++bp;
-                        ch = (index >= text.length() //
-                                ? EOI //
-                                : text.charAt(index));
-                    }
-                    if (ch == ',') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.COMMA;
-                    } else if (ch == ']') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.RBRACKET;
-                    } else if (ch == '}') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.RBRACE;
-                    } else if (ch >= '0' && ch <= '9') {
-                        sp = 0;
-                        pos = bp;
-                        scanNumber();
-                    } else {
-                        nextToken(JSONToken.LITERAL_INT);
-                    }
-                }
+                seekAfterFieldName();
                 return VALUE;
             }
 
-            if (ch != ':') {
-                skipWhitespace();
-            }
-
-            if (ch == ':') {
-                int index = ++bp;
-                ch = (index >= text.length() //
-                        ? EOI //
-                        : text.charAt(index));
-            } else {
-                throw new JSONException("illegal json, " + info());
-            }
-
-            if (ch != '"'
-                    && ch != '\''
-                    && ch != '{'
-                    && ch != '['
-                    && ch != '0'
-                    && ch != '1'
-                    && ch != '2'
-                    && ch != '3'
-                    && ch != '4'
-                    && ch != '5'
-                    && ch != '6'
-                    && ch != '7'
-                    && ch != '8'
-                    && ch != '9'
-                    && ch != '+'
-                    && ch != '-') {
-                skipWhitespace();
-            }
+            seekAfterFieldNameFallback();
 
             // skip fieldValues
-            if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
-                next();
-                while (ch >= '0' && ch <= '9') {
-                    next();
-                }
-
-                // scale
-                if (ch == '.') {
-                    next();
-                    while (ch >= '0' && ch <= '9') {
-                        next();
-                    }
-                }
-
-                // exp
-                if (ch == 'E' || ch == 'e') {
-                    next();
-                    if (ch == '-' || ch == '+') {
-                        next();
-                    }
-                    while (ch >= '0' && ch <= '9') {
-                        next();
-                    }
-                }
-
-                if (ch != ',') {
-                    skipWhitespace();
-                }
-                if (ch == ',') {
-                    next();
-                }
-            } else if (ch == '"') {
-                skipString();
-
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
-                    next();
-                }
+            if (trySkipNumberValue() || trySkipStringValue()) {
+                // handled in if-method()
             } else if (ch == 't') {
-                next();
-                if (ch == 'r') {
-                    next();
-                    if (ch == 'u') {
-                        next();
-                        if (ch == 'e') {
-                            next();
-                        }
-                    }
-                }
 
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
+                if (trySkipNextKeyword("true")) {
                     next();
                 }
+
+                skipToBeginOfNextField();
             } else if (ch == 'n') {
-                next();
-                if (ch == 'u') {
-                    next();
-                    if (ch == 'l') {
-                        next();
-                        if (ch == 'l') {
-                            next();
-                        }
-                    }
-                }
 
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
+                if (trySkipNextKeyword("null")) {
                     next();
                 }
+
+                skipToBeginOfNextField();
             } else if (ch == 'f') {
-                next();
-                if (ch == 'a') {
-                    next();
-                    if (ch == 'l') {
-                        next();
-                        if (ch == 's') {
-                            next();
-                            if (ch == 'e') {
-                                next();
-                            }
-                        }
-                    }
-                }
 
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
+                if (trySkipNextKeyword("false")) {
                     next();
                 }
+
+                skipToBeginOfNextField();
             } else if (ch == '{') {
-                {
-                    int index = ++bp;
-                    ch = (index >= text.length() //
-                            ? EOI //
-                            : text.charAt(index));
-                }
+                ch = charAt(++bp);
                 if (deepScan) {
                     token = JSONToken.LBRACE;
                     return OBJECT;
@@ -2786,6 +2489,62 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    private void seekAfterFieldName() {
+        if (ch != ':') {
+            skipWhitespace();
+        }
+        if (ch == ':') {
+            ch = charAt(++bp);
+            if (ch == ',') {
+                ch = charAt(++bp);
+                token = JSONToken.COMMA;
+            } else if (ch == ']') {
+                ch = charAt(++bp);
+                token = JSONToken.RBRACKET;
+            } else if (ch == '}') {
+                ch = charAt(++bp);
+                token = JSONToken.RBRACE;
+            } else if (ch >= '0' && ch <= '9') {
+                sp = 0;
+                pos = bp;
+                scanNumber();
+            } else {
+                nextToken(JSONToken.LITERAL_INT);
+            }
+        }
+    }
+
+    private void seekAfterFieldNameFallback() {
+        if (ch != ':') {
+            skipWhitespace();
+        }
+
+        if (ch == ':') {
+            ch = charAt(++bp);
+        } else {
+            throw new JSONException("illegal json, " + info());
+        }
+
+        if (ch != '"'
+                && ch != '\''
+                && ch != '{'
+                && ch != '['
+                && ch != '0'
+                && ch != '1'
+                && ch != '2'
+                && ch != '3'
+                && ch != '4'
+                && ch != '5'
+                && ch != '6'
+                && ch != '7'
+                && ch != '8'
+                && ch != '9'
+                && ch != '+'
+                && ch != '-') {
+            skipWhitespace();
+        }
+    }
+
     public int seekObjectToField(long[] fieldNameHash) {
         if (token != JSONToken.LBRACE && token != JSONToken.COMMA) {
             throw new UnsupportedOperationException();
@@ -2803,38 +2562,7 @@ public final class JSONScanner extends JSONLexerBase {
                 return -1;
             }
 
-            if (ch != '"') {
-                skipWhitespace();
-            }
-
-            long hash;
-            if (ch == '"') {
-                hash = fnv1a_64_magic_hashcode;
-
-                for (int i = bp + 1; i < text.length(); ++i) {
-                    char c = text.charAt(i);
-                    if (c == '\\') {
-                        ++i;
-                        if (i == text.length()) {
-                            throw new JSONException("unclosed str, " + info());
-                        }
-                        c = text.charAt(i);
-                    }
-
-                    if (c == '"') {
-                        bp = i + 1;
-                        ch = (bp >= text.length() //
-                                ? EOI //
-                                : text.charAt(bp));
-                        break;
-                    }
-
-                    hash ^= c;
-                    hash *= fnv1a_64_magic_prime;
-                }
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            long hash = seekFieldName();
 
             int matchIndex = -1;
             for (int i = 0; i < fieldNameHash.length; i++) {
@@ -2845,134 +2573,19 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             if (matchIndex != -1) {
-                if (ch != ':') {
-                    skipWhitespace();
-                }
-                if (ch == ':') {
-                    {
-                        int index = ++bp;
-                        ch = (index >= text.length() //
-                                ? EOI //
-                                : text.charAt(index));
-                    }
-                    if (ch == ',') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.COMMA;
-                    } else if (ch == ']') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.RBRACKET;
-                    } else if (ch == '}') {
-                        {
-                            int index = ++bp;
-                            ch = (index >= text.length() //
-                                    ? EOI //
-                                    : text.charAt(index));
-                        }
-                        token = JSONToken.RBRACE;
-                    } else if (ch >= '0' && ch <= '9') {
-                        sp = 0;
-                        pos = bp;
-                        scanNumber();
-                    } else {
-                        nextToken(JSONToken.LITERAL_INT);
-                    }
-                }
+                seekAfterFieldName();
 
                 matchStat = VALUE;
                 return matchIndex;
             }
 
-            if (ch != ':') {
-                skipWhitespace();
-            }
-
-            if (ch == ':') {
-                int index = ++bp;
-                ch = (index >= text.length() //
-                        ? EOI //
-                        : text.charAt(index));
-            } else {
-                throw new JSONException("illegal json, " + info());
-            }
-
-            if (ch != '"'
-                    && ch != '\''
-                    && ch != '{'
-                    && ch != '['
-                    && ch != '0'
-                    && ch != '1'
-                    && ch != '2'
-                    && ch != '3'
-                    && ch != '4'
-                    && ch != '5'
-                    && ch != '6'
-                    && ch != '7'
-                    && ch != '8'
-                    && ch != '9'
-                    && ch != '+'
-                    && ch != '-') {
-                skipWhitespace();
-            }
+            seekAfterFieldNameFallback();
 
             // skip fieldValues
-            if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
-                next();
-                while (ch >= '0' && ch <= '9') {
-                    next();
-                }
-
-                // scale
-                if (ch == '.') {
-                    next();
-                    while (ch >= '0' && ch <= '9') {
-                        next();
-                    }
-                }
-
-                // exp
-                if (ch == 'E' || ch == 'e') {
-                    next();
-                    if (ch == '-' || ch == '+') {
-                        next();
-                    }
-                    while (ch >= '0' && ch <= '9') {
-                        next();
-                    }
-                }
-
-                if (ch != ',') {
-                    skipWhitespace();
-                }
-                if (ch == ',') {
-                    next();
-                }
-            } else if (ch == '"') {
-                skipString();
-
-                if (ch != ',' && ch != '}') {
-                    skipWhitespace();
-                }
-
-                if (ch == ',') {
-                    next();
-                }
+            if (trySkipNumberValue() || trySkipStringValue()) {
+                // handled in if-method()
             } else if (ch == '{') {
-                {
-                    int index = ++bp;
-                    ch = (index >= text.length() //
-                            ? EOI //
-                            : text.charAt(index));
-                }
+                ch = charAt(++bp);
 
                 skipObject(false);
             } else if (ch == '[') {
@@ -2985,8 +2598,80 @@ public final class JSONScanner extends JSONLexerBase {
         }
     }
 
+    private boolean trySkipNumberValue() {
+        if (ch == '-' || ch == '+' || (ch >= '0' && ch <= '9')) {
+            next();
+            while (ch >= '0' && ch <= '9') {
+                next();
+            }
+
+            // scale
+            if (ch == '.') {
+                next();
+                while (ch >= '0' && ch <= '9') {
+                    next();
+                }
+            }
+
+            // exp
+            if (ch == 'E' || ch == 'e') {
+                next();
+                if (ch == '-' || ch == '+') {
+                    next();
+                }
+                while (ch >= '0' && ch <= '9') {
+                    next();
+                }
+            }
+
+            if (ch != ',') {
+                skipWhitespace();
+            }
+            if (ch == ',') {
+                next();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean trySkipStringValue() {
+        if (ch == '"') {
+            skipString();
+            skipToBeginOfNextField();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean trySkipNextKeyword(String keyword) {
+        int length = keyword.length();
+        for (int i = 1; i < length; i++) {
+            char ch = keyword.charAt(i);
+            if (next() != ch) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void skipToBeginOfNextField() {
+        if (ch != ',' && ch != '}') {
+            skipWhitespace();
+        }
+
+        if (ch == ',') {
+            next();
+        }
+    }
+
     public String scanTypeName(SymbolTable symbolTable) {
-        if (text.startsWith("\"@type\":\"", bp)) {
+        // JSON.DEFAULT_TYPE_KEY 目前不是 final 的，因此用户可能修改该变量值
+        // 如果用户未修改默认值，则直接利用字面值常量，避免额外的字符串拼接开销
+        final String prefix = "@type".equals(JSON.DEFAULT_TYPE_KEY)
+                ? "\"@type\":\""
+                : '"' + JSON.DEFAULT_TYPE_KEY + "\":\"";
+        if (text.startsWith(prefix, bp)) {
             int p = text.indexOf('"', bp + 9);
             if (p != -1) {
                 bp += 9;

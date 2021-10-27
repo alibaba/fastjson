@@ -63,7 +63,7 @@ public class JSONToken {
 
     public final static int SET                  = 21;
     public final static int TREE_SET             = 22;
-    
+
     public final static int UNDEFINED            = 23; // undefined
 
     public final static int SEMI                 = 24;
@@ -128,4 +128,30 @@ public class JSONToken {
                 return "Unknown";
         }
     }
+
+    public static int charToken(char ch) {
+        switch (ch) {
+            case '[':
+                return LBRACKET;
+            case ']':
+                return RBRACKET;
+            case ',':
+                return COMMA;
+            case '{':
+                return LBRACE;
+            case '}':
+                return RBRACE;
+            case ':':
+                return COLON;
+            case JSONLexer.EOI:
+                return EOF;
+            case '(':
+                return LPAREN;
+            case ')':
+                return RPAREN;
+            default:
+                throw new IllegalArgumentException("unsupported char token : " + ch);
+        }
+    }
+
 }

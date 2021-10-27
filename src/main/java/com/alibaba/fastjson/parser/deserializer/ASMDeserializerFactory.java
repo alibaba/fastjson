@@ -167,60 +167,20 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
             } else if (fieldClass == Byte.class) {
                 lexer_scanInt(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Byte", "(B)Ljava/lang/Byte;");
             } else if (fieldClass == Short.class) {
                 lexer_scanInt(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Short", "(S)Ljava/lang/Short;");
             } else if (fieldClass == Integer.class) {
                 lexer_scanInt(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Integer", "(I)Ljava/lang/Integer;");
             } else if (fieldClass == long.class) {
                 lexer_scanLong(context, mw, separator);
                 mw.visitVarInsn(LSTORE, context.var_asm(fieldInfo, 2));
 
             } else if (fieldClass == Long.class) {
                 lexer_scanLong(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Long", "(J)Ljava/lang/Long;");
             } else if (fieldClass == boolean.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(BIPUSH, separator);
@@ -232,17 +192,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
             } else if (fieldClass == Float.class) {
                 lexer_scanFloat(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Float", "(F)Ljava/lang/Float;");
 
             } else if (fieldClass == double.class) {
                 lexer_scanDouble(context, mw, separator);
@@ -250,17 +200,7 @@ public class ASMDeserializerFactory implements Opcodes {
 
             } else if (fieldClass == Double.class) {
                 lexer_scanDouble(context, mw, separator);
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Double", "(D)Ljava/lang/Double;");
 
             } else if (fieldClass == char.class) {
                 lexer_scanString(context, mw, separator);
@@ -579,6 +519,20 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanInt", "(C)I");
     }
 
+    private void lexer_setValueToField_checkMatchStat(Context context, MethodVisitor mw, FieldInfo fieldInfo, String owner, String desc) {
+        mw.visitMethodInsn(INVOKESTATIC, owner, "valueOf", desc);
+
+        mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
+        Label valueNullEnd_ = new Label();
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
+        mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
+        mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
+        mw.visitInsn(ACONST_NULL);
+        mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
+        mw.visitLabel(valueNullEnd_);
+    }
+
     private void _deserialze(ClassWriter cw, Context context) {
         if (context.fieldInfoList.length == 0) {
             return;
@@ -777,148 +731,51 @@ public class ASMDeserializerFactory implements Opcodes {
                 mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldBoolean", "([C)Z");
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
             } else if (fieldClass == byte.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
+                lexer_scanFieldInt(context, mw, fieldInfo);
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == Byte.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldInt(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Byte", "(B)Ljava/lang/Byte;");
 
             } else if (fieldClass == short.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
+                lexer_scanFieldInt(context, mw, fieldInfo);
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == Short.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldInt(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Short", "(S)Ljava/lang/Short;");
 
             } else if (fieldClass == int.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
+                lexer_scanFieldInt(context, mw, fieldInfo);
                 mw.visitVarInsn(ISTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == Integer.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldInt(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Integer", "(I)Ljava/lang/Integer;");
 
             } else if (fieldClass == long.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldLong", "([C)J");
+                lexer_scanFieldLong(context, mw, fieldInfo);
                 mw.visitVarInsn(LSTORE, context.var_asm(fieldInfo, 2));
 
             } else if (fieldClass == Long.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldLong", "([C)J");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldLong(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Long", "(J)Ljava/lang/Long;");
 
             } else if (fieldClass == float.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloat", "([C)F");
+                lexer_scanFieldFloat(context, mw, fieldInfo);
                 mw.visitVarInsn(FSTORE, context.var_asm(fieldInfo));
 
             } else if (fieldClass == Float.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloat", "([C)F");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldFloat(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Float", "(F)Ljava/lang/Float;");
             } else if (fieldClass == double.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldDouble", "([C)D");
+                lexer_scanFieldDouble(context, mw, fieldInfo);
                 mw.visitVarInsn(DSTORE, context.var_asm(fieldInfo, 2));
 
             } else if (fieldClass == Double.class) {
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitVarInsn(ALOAD, 0);
-                mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
-                mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldDouble", "([C)D");
-                mw.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-                Label valueNullEnd_ = new Label();
-                mw.visitVarInsn(ALOAD, context.var("lexer"));
-                mw.visitFieldInsn(GETFIELD, JSONLexerBase, "matchStat", "I");
-                mw.visitLdcInsn(com.alibaba.fastjson.parser.JSONLexerBase.VALUE_NULL);
-                mw.visitJumpInsn(IF_ICMPNE, valueNullEnd_);
-                mw.visitInsn(ACONST_NULL);
-                mw.visitVarInsn(ASTORE, context.var_asm(fieldInfo));
-
-                mw.visitLabel(valueNullEnd_);
+                lexer_scanFieldDouble(context, mw, fieldInfo);
+                lexer_setValueToField_checkMatchStat(context, mw, fieldInfo, "java/lang/Double", "(D)Ljava/lang/Double;");
             } else if (fieldClass == String.class) {
                 mw.visitVarInsn(ALOAD, context.var("lexer"));
                 mw.visitVarInsn(ALOAD, 0);
@@ -1157,6 +1014,34 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitMaxs(10, context.variantIndex);
         mw.visitEnd();
 
+    }
+
+    private void lexer_scanFieldLong(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldLong", "([C)J");
+    }
+
+    private void lexer_scanFieldInt(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldInt", "([C)I");
+    }
+
+    private void lexer_scanFieldFloat(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldFloat", "([C)F");
+    }
+
+    private void lexer_scanFieldDouble(Context context, MethodVisitor mw, FieldInfo fieldInfo) {
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitVarInsn(ALOAD, 0);
+        mw.visitFieldInsn(GETFIELD, context.className, context.fieldName(fieldInfo), "[C");
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "scanFieldDouble", "([C)D");
     }
 
     private void defineVarLexer(Context context, MethodVisitor mw) {

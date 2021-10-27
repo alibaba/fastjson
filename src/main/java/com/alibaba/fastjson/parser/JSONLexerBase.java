@@ -5252,13 +5252,12 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
     public static boolean isWhitespace(char ch) {
         // 专门调整了判断顺序
-        return ch <= ' '  &&
-              (ch == ' '  ||
-               ch == '\n' ||
-               ch == '\r' ||
-               ch == '\t' ||
-               ch == '\f' ||
-               ch == '\b');
+        return ch <= ' '
+                || ch == '\n'
+                || ch == '\r'
+                || ch == '\t'
+                || ch == '\f'
+                || ch == '\b';
     }
 
     protected static final long  MULTMIN_RADIX_TEN     = Long.MIN_VALUE / 10;

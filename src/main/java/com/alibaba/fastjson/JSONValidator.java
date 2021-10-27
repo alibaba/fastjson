@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.alibaba.fastjson.parser.JSONLexerBase;
+
 public abstract class JSONValidator implements Cloneable, Closeable {
     public enum Type {
         Object, Array, Value
@@ -137,7 +139,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             case '{':
                 next();
 
-                while (isWhiteSpace(ch)) {
+                while (JSONLexerBase.isWhitespace(ch)) {
                     next();
                 }
 
@@ -325,7 +327,7 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     }
 
     protected boolean isWordBoundary(char ch) {
-        return isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0';
+        return JSONLexerBase.isWhitespace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0';
     }
 
     protected void fieldName() {
@@ -381,19 +383,9 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     }
 
     void skipWhiteSpace() {
-        while (isWhiteSpace(ch)) {
+        while (JSONLexerBase.isWhitespace(ch)) {
             next();
         }
-    }
-
-    static boolean isWhiteSpace(char ch) {
-        return ch == ' '
-                || ch == '\t'
-                || ch == '\r'
-                || ch == '\n'
-                || ch == '\f'
-                || ch == '\b'
-                ;
     }
 
     static class UTF8Validator extends JSONValidator {

@@ -402,8 +402,8 @@ public final class SerializeWriter extends Writer {
         if (charset == IOUtils.UTF8) {
             return encodeToUTF8(out);
         } else {
-            // FIXME String.getBytes( Charset ) 是 Java 6+ 才有的 API
-            byte[] bytes = new String(buf, 0, count).getBytes(charset);
+            // String.getBytes( Charset ) 是 Java 6+ 才有的 API
+            byte[] bytes = new String(buf, 0, count).getBytes(charset.name());
             out.write(bytes);
             return bytes.length;
         }
@@ -451,8 +451,9 @@ public final class SerializeWriter extends Writer {
         if (charset == IOUtils.UTF8) {
             return encodeToUTF8Bytes();
         } else {
-            // FIXME String.getBytes( Charset ) 是 Java 6+ 才有的 API
-            return new String(buf, 0, count).getBytes(charset);
+            String str = new String(buf, 0, count);
+            // String.getBytes( Charset ) 是 Java 6+ 才有的 API
+            return IOUtils.getBytes(str, charset);
         }
     }
 

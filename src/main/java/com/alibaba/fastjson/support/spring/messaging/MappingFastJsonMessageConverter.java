@@ -81,8 +81,8 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         Object obj;
         if (byte[].class == getSerializedPayloadClass()) {
             if (payload instanceof String && JSON.isValid((String) payload)) {
-                // FIXME String.getBytes(Charset) 是 Java 6+ 才有的 API
-                obj = ((String) payload).getBytes(fastJsonConfig.getCharset());
+                // String.getBytes(Charset) 是 Java 6+ 才有的 API
+                obj = IOUtils.getBytes((String) payload, fastJsonConfig.getCharset());
             } else {
                 obj = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
                         fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());

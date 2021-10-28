@@ -16,6 +16,7 @@
 package com.alibaba.fastjson.util;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.ByteBuffer;
@@ -360,12 +361,12 @@ public class IOUtils {
         } catch (CharacterCodingException x) {
             // Substitution is always enabled,
             // so this shouldn't happen
-            throw new JSONException("utf8 decode error, " + x.getMessage(), x);
+            throw new JSONException(charsetDecoder.charset().name() + " decode error, " + x.getMessage(), x);
         }
     }
 
     public static boolean firstIdentifier(char ch) {
-        return ch < IOUtils.firstIdentifierFlags.length && IOUtils.firstIdentifierFlags[ch];
+        return ch < firstIdentifierFlags.length && firstIdentifierFlags[ch];
     }
 
     public static boolean isIdent(char ch) {
@@ -739,32 +740,33 @@ public class IOUtils {
      * @deprecated
      */
     public static String readAll(Reader reader) {
-        StringBuilder buf = new StringBuilder();
+        return readAll(reader, -1);
+    }
 
+    public static String readAll(Reader reader, int expectedCapacity) {
+        boolean expected = expectedCapacity >= 0;
+        StringBuilder buf = new StringBuilder(expected ? expectedCapacity : 16);
+        final char[] chars = new char[expected ? Math.min(2048, expectedCapacity) : 2048];
         try {
-            char[] chars = new char[2048];
-            for (;;) {
-                int len = reader.read(chars, 0, chars.length);
-                if (len < 0) {
-                    break;
-                }
+            for (int len; (len = reader.read(chars)) != -1; ) {
                 buf.append(chars, 0, len);
             }
-        } catch(Exception ex) {
+        } catch (IOException ex) {
             throw new JSONException("read string from reader error", ex);
+        } finally {
+            close(reader);
         }
-
         return buf.toString();
     }
 
-    public static boolean isValidJsonpQueryParam(String value){
+    public static boolean isValidJsonpQueryParam(String value) {
         if (value == null || value.length() == 0) {
             return false;
         }
 
         for (int i = 0, len = value.length(); i < len; ++i) {
             char ch = value.charAt(i);
-            if(ch != '.' && !IOUtils.isIdent(ch)){
+            if (ch != '.' && !isIdent(ch)) {
                 return false;
             }
         }
@@ -785,6 +787,24 @@ public class IOUtils {
         toBuffer[index++] = digits[(ch >>> 4 ) & 15];
         toBuffer[index++] = digits[ch          & 15];
         return index;
+    }
+
+    public static IOException newIOException(String message, Throwable cause) {
+        IOException ex = new IOException(message);
+        ex.initCause(cause);
+        return ex;
+    }
+
+    /**
+     * 基于 JDK 1.5 调用 String.getBytes( Charset ) <br>
+     * String.getBytes( Charset ) 是 Java 6+ 才有的 API
+     */
+    public static byte[] getBytes(String str, Charset charset) {
+        try {
+            return str.getBytes(charset.name());
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new JSONException("encode string to bytes error", e); // can't happen
+        }
     }
 
 }

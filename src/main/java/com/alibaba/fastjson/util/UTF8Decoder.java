@@ -32,7 +32,7 @@ import java.nio.charset.CoderResult;
  */
 public class UTF8Decoder extends CharsetDecoder {
 
-    private final static Charset charset = Charset.forName("UTF-8");
+    private final static Charset charset = IOUtils.UTF8;
 
     public UTF8Decoder(){
         super(charset, 1.0f, 1.0f);

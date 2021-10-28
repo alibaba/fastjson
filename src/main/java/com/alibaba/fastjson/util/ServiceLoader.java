@@ -21,7 +21,7 @@ public class ServiceLoader {
         if (classLoader == null) {
             return Collections.emptySet();
         }
-        
+
         Set<T> services = new HashSet<T>();
 
         String className = clazz.getName();
@@ -61,7 +61,7 @@ public class ServiceLoader {
         BufferedReader reader = null;
         try {
             is = url.openStream();
-            reader = new BufferedReader(new InputStreamReader(is, "utf-8"));
+            reader = new BufferedReader(new InputStreamReader(is, IOUtils.UTF8));
             for (;;) {
                 String line = reader.readLine();
                 if (line == null) {

@@ -444,8 +444,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                 try {
                     gzipReader = new InputStreamReader(
                             new GZIPInputStream(
-                                    new ByteArrayInputStream(bytes, offset, len)), "UTF-8");
-                    strVal = IOUtils.readAll(gzipReader);
+                                    new ByteArrayInputStream(bytes, offset, len)), IOUtils.UTF8);
+                    strVal = IOUtils.readAll(gzipReader, Math.max(bytes.length / 2, 16));
                 } catch (Exception ex) {
                     return null;
                 } finally {
@@ -462,8 +462,12 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (len < 0) {
                 return null;
             }
-            // FIXME new String(byte[], int, int, Charset) 是 Java 6+ 才有的 API
-            strVal = new String(bytes, offset, len, charset);
+            // new String(byte[], int, int, Charset) 是 Java 6+ 才有的 API
+            try {
+                strVal = new String(bytes, offset, len, charset.name());
+            } catch (UnsupportedEncodingException e) {
+                throw new JSONException("decode bytes to string error", e);
+            }
         }
         return parseObject(strVal, clazz, config, processor, featureValues, features);
     }

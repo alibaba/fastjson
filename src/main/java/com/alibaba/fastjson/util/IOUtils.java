@@ -251,6 +251,7 @@ public class IOUtils {
             buf[--charPos] = digits[r];
             i2 = q2;
         } while (i2 != 0);
+
         if (sign != 0) {
             buf[--charPos] = sign;
         }
@@ -259,61 +260,17 @@ public class IOUtils {
     /**
      * Places characters representing the integer i into the character array buf. The characters are placed into the
      * buffer backwards starting with the least significant digit at the specified index (exclusive), and working
-     * backwards from there. Will fail if i == Integer.MIN_VALUE
+     * backwards from there.
      */
     public static void getChars(int i, int index, char[] buf) {
-        int q, r, p = index;
-        char sign = 0;
-
-        if (i < 0) {
-            sign = '-';
-            i = -i;
-        }
-
-        while (i >= 65536) {
-            q = i / 100;
-            // really: r = i - (q * 100);
-            r = i - ((q << 6) + (q << 5) + (q << 2));
-            i = q;
-            buf[--p] = DigitOnes[r];
-            buf[--p] = DigitTens[r];
-        }
-
-        // Fall thru to fast mode for smaller numbers
-        // assert(i <= 65536, i);
-        do {
-            q = (i * 52429) >>> (16 + 3);
-            r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--p] = digits[r];
-            i = q;
-        } while (i != 0);
-        if (sign != 0) {
-            buf[--p] = sign;
-        }
+        // 与 long 类型后面的处理代码是完全一致的，只多了两次类似 int cast to long 的开销，可以忽略不计
+        // 此外，也可以直接支持 Integer.MIN_VALUE 了
+        // ( Java 9+ 后，官方源代码作了调整：先将正数转负数后再处理，以兼容 Integer.MIN_VALUE )
+        getChars((long) i, index, buf);
     }
 
     public static void getChars(byte b, int index, char[] buf) {
-        int i = b;
-        int q, r;
-        int charPos = index;
-        char sign = 0;
-
-        if (i < 0) {
-            sign = '-';
-            i = -i;
-        }
-
-        // Fall thru to fast mode for smaller numbers
-        // assert(i <= 65536, i);
-        do {
-            q = (i * 52429) >>> (16 + 3);
-            r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = digits[r];
-            i = q;
-        } while (i != 0);
-        if (sign != 0) {
-            buf[--charPos] = sign;
-        }
+        getChars((long) b, index, buf);
     }
 
     /**
@@ -744,19 +701,25 @@ public class IOUtils {
     }
 
     public static String readAll(Reader reader, int expectedCapacity) {
-        boolean expected = expectedCapacity >= 0;
-        StringBuilder buf = new StringBuilder(expected ? expectedCapacity : 16);
-        final char[] chars = new char[expected ? Math.min(2048, expectedCapacity) : 2048];
+        boolean expected = expectedCapacity > 0;
+        StringBuilder sb = new StringBuilder(expected ? expectedCapacity : 16);
+        int bufLength = expected ? Math.min(2048, expectedCapacity) /* 有准确的容量时，缓冲区最大为 2048 */
+                : expectedCapacity == 0 ? 16 /* 期望容量 == 0 时，则 默认为 16 （主要避免少数 API 无法获取准确的 容量 时，可能直接返回 0 时出现 bug ） */
+                : 2048; // 期望容量未知时，则使用默认的 2048
+        final char[] buf = new char[bufLength];
         try {
-            for (int len; (len = reader.read(chars)) != -1; ) {
-                buf.append(chars, 0, len);
+            for (int len; (len = reader.read(buf)) != -1; ) {
+                sb.append(buf, 0, len);
             }
         } catch (IOException ex) {
             throw new JSONException("read string from reader error", ex);
         } finally {
             close(reader);
         }
-        return buf.toString();
+        if (sb.length() == 0) {
+            return ""; // avoid new String()
+        }
+        return sb.toString();
     }
 
     public static boolean isValidJsonpQueryParam(String value) {

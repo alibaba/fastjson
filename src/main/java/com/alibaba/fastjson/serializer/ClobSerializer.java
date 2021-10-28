@@ -18,30 +18,39 @@ public class ClobSerializer implements ObjectSerializer {
                 serializer.writeNull();
                 return;
             }
-            
+
             Clob clob = (Clob) object;
             Reader reader = clob.getCharacterStream();
 
-            StringBuilder buf = new StringBuilder();
-            
+            long length;
+            // JDBC driver may not support clob.length()
             try {
-                char[] chars = new char[2048];
-                for (;;) {
-                    int len = reader.read(chars, 0, chars.length);
-                    if (len < 0) {
-                        break;
-                    }
+                length = clob.length();
+            } catch (SQLException e) {
+                length = 2048;
+            }
+
+            // initialize capacity
+            int capacity = (int) Math.min(length, Integer.MAX_VALUE);
+            StringBuilder buf = new StringBuilder(capacity);
+            final char[] chars = new char[Math.min(capacity, 2048)];
+            try {
+                for (int len; (len = reader.read(chars)) != -1; ) {
                     buf.append(chars, 0, len);
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 throw new JSONException("read string from reader error", ex);
+            } finally {
+                reader.close();
             }
-            
+
             String text = buf.toString();
-            reader.close();
             serializer.write(text);
         } catch (SQLException e) {
-            throw new IOException("write clob error", e);
+            // constructor IOException(String, Throwable) requires Java 6+
+            IOException ioe = new IOException("write clob error");
+            ioe.initCause(e);
+            throw ioe;
         }
     }
 

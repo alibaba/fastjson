@@ -31,6 +31,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import org.springframework.aop.scope.ScopedProxyUtils;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -1458,6 +1459,19 @@ public class TypeUtils {
 
     @SuppressWarnings({"unchecked"})
     public static <T> T castToJavaBean(Map<String, Object> map, Class<T> clazz, ParserConfig config) {
+
+        Field[] classFields = clazz.getDeclaredFields();
+
+        // Matching data type with clazz if different.
+        for (int i = 0; i < classFields.length; i++) {
+            String fieldName = classFields[i].getName();
+            Class<?> fieldTypeClass = classFields[i].getType();
+            if(map.keySet().contains(fieldName) && fieldTypeClass!=map.get(fieldName).getClass()) {
+                Object tmp = cast(map.get(fieldName),fieldTypeClass,config);
+                map.replace(fieldName,tmp);
+            }
+        }
+
         try {
             if (clazz == StackTraceElement.class) {
                 String declaringClass = (String) map.get("className");

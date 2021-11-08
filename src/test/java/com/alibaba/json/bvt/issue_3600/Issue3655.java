@@ -2,6 +2,7 @@ package com.alibaba.json.bvt.issue_3600;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +13,20 @@ public class Issue3655 {
     private final static String jsonStr =
             "{\"data\":\"\",\"data2\":\"\",\"data3\":\"\",\"data4\":\"\",\"data5\":\"\",\"data6\":\"\",\"data7\":\"\",\"data8\":\"\",\"data9\":\"\"}";
 
+    private ValueFilter filter = new ValueFilter(){
+        @Override
+        public Object process(Object obj, String s, Object v){
+            if(v == null){
+                return "";
+            }
+            return v;
+        }
+    };
+
     @Test
     public void test_inherit_from_abstract_class_1() {
         issue3655_b b = new issue3655_b(null, null, null, null, null, null, null, null, null);
-        String result = JSON.toJSONString(b, SerializerFeature.WriteNullStringAsEmpty);
+        String result = JSON.toJSONString(b, filter, SerializerFeature.WriteNullStringAsEmpty);
         System.out.println(result);
         Assert.assertEquals(jsonStr, result);
     }
@@ -23,10 +34,11 @@ public class Issue3655 {
     @Test
     public void test_inherit_from_abstract_class_2() {
         issue3655_c c = new issue3655_c(null, null, null, null, null, null, null, null, null);
-        String result = JSON.toJSONString(c, SerializerFeature.WriteNullStringAsEmpty);
+        String result = JSON.toJSONString(c, filter, SerializerFeature.WriteNullStringAsEmpty);
         System.out.println(result);
         Assert.assertEquals(jsonStr, result);
     }
+
 
     public static class issue3655_b extends issue3655_a {
         private String data;

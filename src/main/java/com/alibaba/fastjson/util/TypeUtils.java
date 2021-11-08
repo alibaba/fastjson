@@ -43,11 +43,8 @@ import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.*;
+import java.util.regex.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1857,6 +1854,12 @@ public class TypeUtils {
         List<FieldInfo> fieldInfoList = fieldBased
                 ? computeGettersWithFieldBase(beanType, aliasMap, false, propertyNamingStrategy) //
                 : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
+        // ADDCODE 由于这个地方是使用 getter 方法来进行查找，如果是 record，直接从 fieldCacheMap 中提取其属性值。
+        if (beanType.isRecord()) {
+            fieldInfoList = computeRecordFields(beanType, aliasMap, fieldCacheMap, propertyNamingStrategy);
+            var listEmpty = fieldInfoList.isEmpty();
+        }
+
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         FieldInfo[] sortedFields;
@@ -2304,6 +2307,18 @@ public class TypeUtils {
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
+    }
+
+    /**
+     * 计算 Record 类中属性
+     * @param clazz
+     * @param aliasMap
+     * @param fieldCacheMap
+     * @param propertyNamingStrategy
+     * @return
+     */
+    private static List<FieldInfo> computeRecordFields(Class<?> clazz, Map<String, String> aliasMap, Map<String, Field> fieldCacheMap, PropertyNamingStrategy propertyNamingStrategy) {
+        return Collections.emptyList();
     }
 
     private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,

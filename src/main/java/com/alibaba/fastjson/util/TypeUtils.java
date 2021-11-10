@@ -1854,10 +1854,10 @@ public class TypeUtils {
         List<FieldInfo> fieldInfoList = fieldBased
                 ? computeGettersWithFieldBase(beanType, aliasMap, false, propertyNamingStrategy) //
                 : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
-        // ADDCODE 由于这个地方是使用 getter 方法来进行查找，如果是 record，直接从 fieldCacheMap 中提取其属性值。
+
+        // 由于原来的实体类提取是使用 getter 方法来进行查找，如果是 record，直接从 fieldCacheMap 中提取其属性值。
         if (beanType.isRecord()) {
-            fieldInfoList = computeRecordFields(beanType, aliasMap, fieldCacheMap, propertyNamingStrategy);
-            var listEmpty = fieldInfoList.isEmpty();
+            fieldInfoList = computeRecordFields(beanType, aliasMap, fieldCacheMap, propertyNamingStrategy, false);
         }
 
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
@@ -2311,14 +2311,12 @@ public class TypeUtils {
 
     /**
      * 计算 Record 类中属性
-     * @param clazz
-     * @param aliasMap
-     * @param fieldCacheMap
-     * @param propertyNamingStrategy
-     * @return
      */
-    private static List<FieldInfo> computeRecordFields(Class<?> clazz, Map<String, String> aliasMap, Map<String, Field> fieldCacheMap, PropertyNamingStrategy propertyNamingStrategy) {
-        return Collections.emptyList();
+    private static List<FieldInfo> computeRecordFields(Class<?> clazz, Map<String, String> aliasMap, Map<String, Field> fieldCacheMap, PropertyNamingStrategy propertyNamingStrategy, boolean sorted) {
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+        Field[] fields = fieldCacheMap.values().toArray(new Field[0]);
+        computeFields(clazz, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
     }
 
     private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,

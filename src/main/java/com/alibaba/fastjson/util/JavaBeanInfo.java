@@ -972,7 +972,7 @@ public class JavaBeanInfo {
                         || AtomicLong.class.equals(fieldType) //
                         || AtomicInteger.class.equals(fieldType) //
                         || AtomicBoolean.class.equals(fieldType)
-                        || clazz.isRecord();
+                        || TypeUtils.isRecord(clazz);
                 if (!supportReadOnly) {
                     continue;
                 }

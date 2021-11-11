@@ -15,34 +15,6 @@
  */
 package com.alibaba.fastjson.parser;
 
-import java.io.*;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.security.AccessControlException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicLongArray;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
 import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -53,11 +25,31 @@ import com.alibaba.fastjson.parser.deserializer.*;
 import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.spi.Module;
 import com.alibaba.fastjson.support.moneta.MonetaCodec;
-import com.alibaba.fastjson.util.*;
 import com.alibaba.fastjson.util.IdentityHashMap;
 import com.alibaba.fastjson.util.ServiceLoader;
+import com.alibaba.fastjson.util.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.Closeable;
+import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.*;
+import java.nio.charset.Charset;
+import java.security.AccessControlException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.*;
+import java.util.regex.Pattern;
 
 import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
 import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
@@ -1089,6 +1081,10 @@ public class ParserConfig {
 
         if (asmEnable) {
             if (TypeUtils.isXmlField(clazz)) {
+                asmEnable = false;
+            }
+
+            if (TypeUtils.isRecord(clazz)) {
                 asmEnable = false;
             }
         }

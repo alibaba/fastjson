@@ -1,12 +1,5 @@
 package com.alibaba.fastjson.util;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.PropertyNamingStrategy;
@@ -16,6 +9,13 @@ import com.alibaba.fastjson.annotation.JSONPOJOBuilder;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JavaBeanInfo {
 
@@ -942,6 +942,10 @@ public class JavaBeanInfo {
                 fieldBased = true;
             }
 
+            if (TypeUtils.isRecord(clazz)) {
+                fieldBased = true;
+            }
+
             if (fieldBased) {
                 for (Class<?> currentClass = clazz; currentClass != null; currentClass = currentClass.getSuperclass()) {
                     computeFields(clazz, type, propertyNamingStrategy, fieldList, declaredFields);
@@ -967,7 +971,8 @@ public class JavaBeanInfo {
                         || Collection.class.isAssignableFrom(fieldType)
                         || AtomicLong.class.equals(fieldType) //
                         || AtomicInteger.class.equals(fieldType) //
-                        || AtomicBoolean.class.equals(fieldType);
+                        || AtomicBoolean.class.equals(fieldType)
+                        || clazz.isRecord();
                 if (!supportReadOnly) {
                     continue;
                 }
@@ -1151,5 +1156,29 @@ public class JavaBeanInfo {
         }
 
         return builderClass;
+    }
+
+    @Override
+    public String toString() {
+        return "JavaBeanInfo{" +
+                "clazz=" + clazz +
+                ", builderClass=" + builderClass +
+                ", defaultConstructor=" + defaultConstructor +
+                ", creatorConstructor=" + creatorConstructor +
+                ", factoryMethod=" + factoryMethod +
+                ", buildMethod=" + buildMethod +
+                ", defaultConstructorParameterSize=" + defaultConstructorParameterSize +
+                ", fields=" + Arrays.toString(fields) +
+                ", sortedFields=" + Arrays.toString(sortedFields) +
+                ", parserFeatures=" + parserFeatures +
+                ", jsonType=" + jsonType +
+                ", typeName='" + typeName + '\'' +
+                ", typeKey='" + typeKey + '\'' +
+                ", orders=" + Arrays.toString(orders) +
+                ", creatorConstructorParameterTypes=" + Arrays.toString(creatorConstructorParameterTypes) +
+                ", creatorConstructorParameters=" + Arrays.toString(creatorConstructorParameters) +
+                ", kotlin=" + kotlin +
+                ", kotlinDefaultConstructor=" + kotlinDefaultConstructor +
+                '}';
     }
 }

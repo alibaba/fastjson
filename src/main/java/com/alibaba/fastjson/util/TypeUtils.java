@@ -98,6 +98,9 @@ public class TypeUtils {
     private static volatile Field field_XmlAccessType_FIELD = null;
     private static volatile Object field_XmlAccessType_FIELD_VALUE = null;
 
+    private static volatile Class record_metadata = null;
+    private static volatile boolean record_metadata_error = false;
+
     private static Class class_deque = null;
 
     static {
@@ -168,6 +171,17 @@ public class TypeUtils {
         }
 
         return value == field_XmlAccessType_FIELD_VALUE;
+    }
+
+    public static boolean isRecord(Class clazz) {
+        if (record_metadata == null && !record_metadata_error) {
+            try {
+                record_metadata = Class.forName("java.lang.Record");
+            } catch (Throwable e) {
+                record_metadata_error = true;
+            }
+        }
+        return record_metadata != null && record_metadata.equals(clazz.getSuperclass());
     }
 
     public static Annotation getXmlAccessorType(Class clazz) {
@@ -1856,7 +1870,7 @@ public class TypeUtils {
                 : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
 
         // 由于原来的实体类提取是使用 getter 方法来进行查找，如果是 record，直接从 fieldCacheMap 中提取其属性值。
-        if (beanType.isRecord()) {
+        if (TypeUtils.isRecord(beanType)) {
             fieldInfoList = computeRecordFields(beanType, aliasMap, fieldCacheMap, propertyNamingStrategy, false);
         }
 

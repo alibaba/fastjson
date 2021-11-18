@@ -799,6 +799,10 @@ public class DefaultJSONParser implements Closeable {
                     lexer.nextToken(deserializer.getFastMatchToken());
                     continue;
                 }
+                if (lexer.token() != RBRACKET) {
+                    // token is NOT `COMMA` and `RBRACKET`
+                    throw new JSONException("syntax error, expect `,` or `]`, but found `" + JSONToken.name(lexer.token()) + "`");
+                }
             }
         } finally {
             this.setContext(context);
@@ -1275,6 +1279,10 @@ public class DefaultJSONParser implements Closeable {
                 if (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken(JSONToken.LITERAL_STRING);
                     continue;
+                }
+                if (lexer.token() != RBRACKET) {
+                    // token is NOT `COMMA` and `RBRACKET`
+                    throw new JSONException("syntax error, expect `,` or `]`, but found `" + JSONToken.name(lexer.token()) + "`");
                 }
             }
         } catch (ClassCastException e) {

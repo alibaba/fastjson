@@ -16,7 +16,8 @@ public class DefaultExtJSONParserTest_4 extends TestCase {
 
     public void test_0() throws Exception {
         List<?> res = Arrays.asList(1, 2, 3);
-        String[] tests = { "[1,2,3]", "[1,,2,3]", "[1,2,,,3]", "[1 2,,,3]", "[1 2 3]", "[1, 2, 3,,]", "[,,1, 2, 3,,]", };
+        // String[] tests = { "[1,2,3]", "[1,,2,3]", "[1,2,,,3]", "[1 2,,,3]", "[1 2 3]", "[1, 2, 3,,]", "[,,1, 2, 3,,]", };
+        String[] tests = { "[1,2,3]", "[1,,2,3]", "[1,2,,,3]", "[1 ,2,,,3]", "[1 ,2 ,3]", "[1, 2, 3,,]", "[,,1, 2, 3,,]", };
 
         for (String t : tests) {
             DefaultJSONParser ext = new DefaultJSONParser(t);

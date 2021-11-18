@@ -193,6 +193,28 @@ public class JSONArrayTest extends TestCase {
         Assert.assertEquals(123, array.getObject(0, User.class).getId());
     }
 
+    public void test_error_array() {
+        String errorJson = "[{\"a\":1}{\"b\":2}null undefined 676]";
+        Exception ex = null;
+        try {
+            JSONObject.parseArray(errorJson);
+        } catch (Exception e) {
+            ex = e;
+        }
+        Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);
+    }
+
+    public void test_error_obj_arr() {
+        String errorJson = "[213, 235, 122, null null, 5]";
+        Exception ex = null;
+        try {
+            JSONObject.parseArray(errorJson, Integer.class);
+        } catch (Exception e) {
+            ex = e;
+        }
+        Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);
+    }
+
     public static class User {
 
         private long   id;

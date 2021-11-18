@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alibaba.fastjson.JSONException;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -198,7 +199,7 @@ public class JSONArrayTest extends TestCase {
         Exception ex = null;
         try {
             JSONObject.parseArray(errorJson);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             ex = e;
         }
         Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);
@@ -209,7 +210,7 @@ public class JSONArrayTest extends TestCase {
         Exception ex = null;
         try {
             JSONObject.parseArray(errorJson, Integer.class);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             ex = e;
         }
         Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);

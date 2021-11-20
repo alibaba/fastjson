@@ -1463,11 +1463,12 @@ public class TypeUtils {
         Field[] classFields = clazz.getDeclaredFields();
 
         // Matching data type with clazz if different.
-        for (int i = 0; i < classFields.length; i++) {
-            String fieldName = classFields[i].getName();
-            Class<?> fieldTypeClass = classFields[i].getType();
-            if(map.keySet().contains(fieldName) && fieldTypeClass!=map.get(fieldName).getClass()) {
-                Object tmp = cast(map.get(fieldName),fieldTypeClass,config);
+        for (final Field classField : classFields){
+            final String fieldName = classField.getName();
+            final Class<?> fieldTypeClass = classField.getType();
+            final Object mappedFieldType = map.get(fieldName);
+            if(fieldTypeClass!=mappedFieldType) {
+                final Object tmp = cast(map.get(fieldName),fieldTypeClass,config);
                 map.replace(fieldName,tmp);
             }
         }

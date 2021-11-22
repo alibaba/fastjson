@@ -53,6 +53,11 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     private final Map<String, Object> map;
 
+    //newly added code
+    public static <T> T toJavaObject(JSON json, Class<T> clazz) {
+        return TypeUtils.cast(json, clazz, ParserConfig.getGlobalInstance());
+    } //newly added code end
+
     public JSONObject(){
         this(DEFAULT_INITIAL_CAPACITY, false);
     }

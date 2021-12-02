@@ -1036,6 +1036,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                                 }
                             }
                         } else {
+                            beanInfo.creatorConstructor.setAccessible(true);
                             object = beanInfo.creatorConstructor.newInstance(params);
                         }
                     } catch (Exception e) {

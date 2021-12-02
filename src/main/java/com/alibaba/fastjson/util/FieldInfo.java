@@ -93,12 +93,24 @@ public class FieldInfo implements Comparable<FieldInfo> {
         fieldAnnotation = field == null ? null : TypeUtils.getAnnotation(field, JSONField.class);
         methodAnnotation = null;
         this.getOnly = false;
-        this.jsonDirect = false;
-        this.unwrapped = false;
-        this.format = null;
-        this.alternateNames = new String[0];
-
-        nameHashCode = nameHashCode64(name, fieldAnnotation);
+    
+        String format = null;
+        JSONField annotation = getAnnotation();
+    
+        nameHashCode = nameHashCode64(name, annotation);
+    
+        if (annotation != null) {
+            format = getFormat(annotation);
+            jsonDirect = annotation.jsonDirect();
+            unwrapped = annotation.unwrapped();
+            alternateNames = annotation.alternateNames();
+        } else {
+            jsonDirect = false;
+            unwrapped = false;
+            alternateNames = new String[0];
+        }
+        this.format = format;
+        
     }
 
     public FieldInfo(String name, //
@@ -171,11 +183,7 @@ public class FieldInfo implements Comparable<FieldInfo> {
 
         boolean jsonDirect = false;
         if (annotation != null) {
-            format = annotation.format();
-
-            if (format.trim().length() == 0) {
-                format = null;
-            }
+            format = getFormat(annotation);
             jsonDirect = annotation.jsonDirect();
             unwrapped = annotation.unwrapped();
             alternateNames = annotation.alternateNames();
@@ -252,7 +260,17 @@ public class FieldInfo implements Comparable<FieldInfo> {
         
         isEnum = fieldClass.isEnum();
     }
-
+    
+    private String getFormat(JSONField annotation) {
+        String format;
+        format = annotation.format();
+        
+        if (format.trim().length() == 0) {
+            format = null;
+        }
+        return format;
+    }
+    
     private long nameHashCode64(String name, JSONField annotation)
     {
         if (annotation != null && annotation.name().length() != 0) {

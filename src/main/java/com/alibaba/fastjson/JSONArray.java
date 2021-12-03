@@ -50,8 +50,21 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     protected transient Object relatedArray;
     protected transient Type   componentType;
 
+    // Java class JSON parsed to
+    protected Class<?> templateClass;
+
     public JSONArray(){
         this.list = new ArrayList<Object>();
+    }
+
+    /**
+     * This constructor inherit a default constructor and initialize templateClass
+     * @param templateClass JAVA object that will be used for JSON
+     * @param <T> Class
+     */
+    public <T> JSONArray(Class<T> templateClass) {
+        this();
+        this.templateClass = templateClass;
     }
 
     public JSONArray(List<Object> list){
@@ -439,6 +452,15 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         Object value = get(index);
 
         return castToTimestamp(value);
+    }
+
+    /**
+     * This method will call toJavaList with passing Java class JSON parsed to
+     * @param <T> clazz class type
+     * @return List of java objects
+     */
+    public <T> List<T> toJavaList() {
+        return (List<T>) toJavaList(this.templateClass);
     }
 
     /**

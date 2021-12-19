@@ -1271,10 +1271,41 @@ public class TypeUtils {
         return new Locale(items[0], items[1], items[2]);
     }
 
+    /**
+     * Object convert to Enum, support register enum Deserializer.<br>
+     * e.g. <code>ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());</code><br>
+     * UserState is an enum;<br>
+     * <code>TypeUtils.castToEnum(1, UserState.class);</code><br>
+     * if UserStateDeserializer is an <code>ObjectDeserializer</code>,<br>
+     * -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)<br>
+     * if UserStateDeserializer is an <code>EnumDeserializer</code>,<br>
+     * -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)<br>
+     *
+     * @param obj source object
+     * @param clazz target enum type
+     * @param <T> class type
+     * @return Enum
+     */
     public static <T> T castToEnum(Object obj, Class<T> clazz) {
         return castToEnum(obj, clazz, null);
     }
 
+    /**
+     * Object convert to Enum, support register enum Deserializer.<br>
+     * e.g. <code>ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());</code><br>
+     * UserState is an enum;<br>
+     * <code>TypeUtils.castToEnum(1, UserState.class);</code><br>
+     * if UserStateDeserializer is an <code>ObjectDeserializer</code>,<br>
+     * -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)<br>
+     * if UserStateDeserializer is an <code>EnumDeserializer</code>,<br>
+     * -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)<br>
+     *
+     * @param obj source object
+     * @param clazz target enum type
+     * @param <T> class type
+     * @param mapping ParserConfig
+     * @return Enum
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping){
         if (obj == null || (obj instanceof String && ((String) obj).length() == 0)) {
@@ -1289,14 +1320,6 @@ public class TypeUtils {
         // Previously, deserializer was only checked if the object was a string.
         // Change to no precondition, it will be called as soon as it is registered.
         // Because the number are not necessarily 'enum.ordinal', it may also be necessary to call deserializer.
-
-        // ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());
-        // UserState is an enum
-        // TypeUtils.castToEnum(1, UserState.class);
-        // if UserStateDeserializer is an ObjectDeserializer,
-        // -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)
-        // if UserStateDeserializer is an EnumDeserializer,
-        // -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)
 
         ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
         if (deserializer != null && !(deserializer instanceof EnumDeserializer)) {
@@ -1338,17 +1361,17 @@ public class TypeUtils {
             } else if(obj instanceof BigDecimal){
                 int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
-                if(ordinal < values.length){
+                if (ordinal < values.length) {
                     return (T) values[ordinal];
                 }
             } else if(obj instanceof Number){
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
-                if(ordinal < values.length){
+                if (ordinal < values.length) {
                     return (T) values[ordinal];
                 }
             }
-        } catch(Exception ex){
+        } catch (Exception ex) {
             throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
         }
         throw new JSONException("can not cast " + obj + " to : " + clazz.getName());

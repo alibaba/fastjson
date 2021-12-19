@@ -1285,9 +1285,17 @@ public class TypeUtils {
             mapping = ParserConfig.getGlobalInstance();
         }
 
+        // Issue#3372, zhaohuihua, 20211219
+        // Previously, deserializer was only checked if the object was a string.
+        // Change to no precondition, it will be called as soon as it is registered.
+        // Because the number are not necessarily 'enum.ordinal', it may also be necessary to call deserializer.
+
         ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
         if (deserializer != null && !(deserializer instanceof EnumDeserializer)) {
+            // EnumDeserializer is not actually an ObjectDeserializer, cannot enter this code,
+            // Because the EnumDeserializer only calls getEnumByHashCode(), deserialze() was not called.
             try {
+                // Try to convert object to string, hand over to ObjectDeserializer for conversion to enum.
                 String string = JSON.toJSONString(tryCastToEnumString(obj, clazz));
                 DefaultJSONParser parser = new DefaultJSONParser(string, mapping);
                 return (T) deserializer.deserialze(parser, clazz, null);
@@ -1302,13 +1310,17 @@ public class TypeUtils {
             if(obj instanceof String){
                 String name = (String) obj;
                 if (isDigitString(name)) {
+                    // string is digital, search by ordinal
+                    // e.g. TypeUtils.castToEnum("1", UserState.class)
                     int ordinal = Long.valueOf(name).intValue();
                     Object[] values = clazz.getEnumConstants();
                     if(ordinal < values.length){
                         return (T) values[ordinal];
                     }
                 } else {
+                    // string is not digital, search by name
                     if (deserializer != null) {
+                        // If not an EnumDeserializer it will go to the ObjectDeserializer code above.
                         EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
                         return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
                     } else {
@@ -1334,6 +1346,8 @@ public class TypeUtils {
         throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
     }
 
+    // Try to convert object to string, hand over to ObjectDeserializer for conversion to enum.
+    // Only String/Number/Boolean conversions to enum are supported.
     private static String tryCastToEnumString(Object obj, Class<?> clazz) {
         if (obj instanceof String) {
             return (String) obj;
@@ -1341,10 +1355,13 @@ public class TypeUtils {
                 || obj instanceof BigInteger || obj instanceof Boolean) {
             return obj.toString();
         } else if (obj instanceof BigDecimal) {
+            // new BigDecimal("20000.0000").toPlainString(); = 20000.0000
+            // new BigDecimal("20000.0000").stripTrailingZeros().toPlainString(); = 20000
             return ((BigDecimal) obj).stripTrailingZeros().toPlainString();
         } else if (obj instanceof Number) {
             return new BigDecimal(obj.toString()).stripTrailingZeros().toPlainString();
         } else {
+            // Other object types are not supported.
             throw new JSONException("can not cast " + obj.getClass() + " to : " + clazz.getName());
         }
     }

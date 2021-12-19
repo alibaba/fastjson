@@ -1338,7 +1338,7 @@ public class TypeUtils {
         }
 
         try {
-            if(obj instanceof String){
+            if (obj instanceof String) {
                 String name = (String) obj;
                 if (isDigitString(name)) {
                     // string is digital, search by ordinal
@@ -1358,13 +1358,13 @@ public class TypeUtils {
                         return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
                     }
                 }
-            } else if(obj instanceof BigDecimal){
+            } else if (obj instanceof BigDecimal) {
                 int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
                 if (ordinal < values.length) {
                     return (T) values[ordinal];
                 }
-            } else if(obj instanceof Number){
+            } else if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
                 if (ordinal < values.length) {

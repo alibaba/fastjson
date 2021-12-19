@@ -1290,6 +1290,14 @@ public class TypeUtils {
         // Change to no precondition, it will be called as soon as it is registered.
         // Because the number are not necessarily 'enum.ordinal', it may also be necessary to call deserializer.
 
+        // ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());
+        // UserState is an enum
+        // TypeUtils.castToEnum(1, UserState.class);
+        // if UserStateDeserializer is an ObjectDeserializer,
+        // -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)
+        // if UserStateDeserializer is an EnumDeserializer,
+        // -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)
+
         ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
         if (deserializer != null && !(deserializer instanceof EnumDeserializer)) {
             // EnumDeserializer is not actually an ObjectDeserializer, cannot enter this code,

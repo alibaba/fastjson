@@ -20,14 +20,6 @@ import junit.framework.TestCase;
  */
 public class Issue3372 extends TestCase {
 
-    public static void main(String[] args) {
-        Issue3372 test = new Issue3372();
-        test.setUp();
-        test.testConvert();
-        test.testException();
-        System.out.println("test passed!");
-    }
-
     protected void setUp() {
         // Register a customized Deserializer for UserState
         ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new CodeEnumDeserializer());

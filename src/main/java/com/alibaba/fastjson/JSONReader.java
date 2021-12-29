@@ -246,6 +246,7 @@ public class JSONReader implements Closeable {
 
         readBefore();
         T object = parser.parseObject(type);
+        parser.handleResovleTask(object);
         readAfter();
         return object;
     }

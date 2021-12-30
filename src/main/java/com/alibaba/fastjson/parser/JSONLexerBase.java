@@ -5621,6 +5621,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     protected static final int   INT_MULTMIN_RADIX_TEN = Integer.MIN_VALUE / 10;
 
     protected final static int[] digits                = new int[(int) 'f' + 1];
+    protected              int   idxQuote                = 0; // index of quote array
+    protected              int   idxBackslash            = 0; // index of backslash array
 
     static {
         for (int i = '0'; i <= '9'; ++i) {

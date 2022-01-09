@@ -453,8 +453,12 @@ public class JodaCodec implements ObjectSerializer, ContextObjectSerializer, Obj
             }
 
             if (fieldType == LocalDateTime.class) {
-                final int mask = SerializerFeature.UseISO8601DateFormat.getMask();
                 LocalDateTime dateTime = (LocalDateTime) object;
+                if (serializer.isEnabled(SerializerFeature.WriteDateUseTimestamp)) {
+                    out.writeLong(dateTime.toDate(JSON.defaultTimeZone).getTime());
+                    return;
+                }
+                final int mask = SerializerFeature.UseISO8601DateFormat.getMask();
                 String format = serializer.getDateFormatPattern();
 
                 if (format == null) {

@@ -152,7 +152,12 @@ public enum SerializerFeature {
     /**
      * @since 1.2.27
      */
-    MapSortField;
+    MapSortField,
+
+    /**
+     * @since 1.2.30
+     */
+    WriteDateUseTimestamp;
 
     SerializerFeature(){
         mask = (1 << ordinal());

@@ -21,6 +21,7 @@ public class UnQuoteFieldNamesTest extends TestCase {
                 , SerializeConfig.globalInstance
                 , new SerializeFilter[0]
                 , null
+                ,null
                 , JSON.DEFAULT_GENERATE_FEATURE & ~SerializerFeature.QuoteFieldNames.mask
         );
         assertEquals("{value:123}", json);

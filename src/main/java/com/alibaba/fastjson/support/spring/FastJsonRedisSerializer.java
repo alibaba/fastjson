@@ -40,6 +40,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
                     fastJsonConfig.getSerializeConfig(),
                     fastJsonConfig.getSerializeFilters(),
                     fastJsonConfig.getDateFormat(),
+                    fastJsonConfig.getLocalTimeFormat(),
                     JSON.DEFAULT_GENERATE_FEATURE,
                     fastJsonConfig.getSerializerFeatures()
             );

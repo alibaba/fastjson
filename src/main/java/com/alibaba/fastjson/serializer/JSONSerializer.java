@@ -48,7 +48,11 @@ public class JSONSerializer extends SerializeFilterable {
     private String                                   dateFormatPattern;
     private DateFormat                               dateFormat;
 
+    private String                                   localTimeFormatPattern;
+
     private String                                   fastJsonConfigDateFormatPattern;
+
+    private String                                   fastJsonConfigLocalTimeFormatPattern;
 
     protected IdentityHashMap<Object, SerialContext> references  = null;
     protected SerialContext                          context;
@@ -78,6 +82,10 @@ public class JSONSerializer extends SerializeFilterable {
             return ((SimpleDateFormat) dateFormat).toPattern();
         }
         return dateFormatPattern;
+    }
+
+    public String getLocalTimeFormatPattern() {
+        return localTimeFormatPattern;
     }
 
     public DateFormat getDateFormat() {
@@ -111,6 +119,10 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
+    public void setLocalTimeFormatPattern(String localTimeFormatPattern) {
+        this.localTimeFormatPattern = localTimeFormatPattern;
+    }
+
     /**
      * Set global date format pattern in FastJsonConfig
      *
@@ -120,8 +132,21 @@ public class JSONSerializer extends SerializeFilterable {
         this.fastJsonConfigDateFormatPattern = dateFormatPattern;
     }
 
+    /**
+     * Set global LocalTime format pattern in FastJsonConfig
+     *
+     * @param fastJsonConfigLocalTimeFormatPattern global LocalTime format pattern
+     */
+    public void setFastJsonConfigLocalTimeFormatPattern(String fastJsonConfigLocalTimeFormatPattern) {
+        this.fastJsonConfigLocalTimeFormatPattern = fastJsonConfigLocalTimeFormatPattern;
+    }
+
     public String getFastJsonConfigDateFormatPattern() {
         return this.fastJsonConfigDateFormatPattern;
+    }
+
+    public String getFastJsonConfigLocalTimeFormatPattern() {
+        return this.fastJsonConfigLocalTimeFormatPattern;
     }
 
     public SerialContext getContext() {

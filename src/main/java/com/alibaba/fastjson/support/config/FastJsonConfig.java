@@ -74,6 +74,11 @@ public class FastJsonConfig {
     private String dateFormat;
 
     /**
+     * format localTime type
+     */
+    private String localTimeFormat;
+
+    /**
      * The Write content length.
      */
     private boolean writeContentLength;
@@ -203,6 +208,20 @@ public class FastJsonConfig {
      */
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    /**
+     * @return the localTimeFormat
+     */
+    public String getLocalTimeFormat() {
+        return localTimeFormat;
+    }
+
+    /**
+     * @param localTimeFormat the localTimeFormat to set
+     */
+    public void setLocalTimeFormat(String localTimeFormat) {
+        this.localTimeFormat = localTimeFormat;
     }
 
     /**

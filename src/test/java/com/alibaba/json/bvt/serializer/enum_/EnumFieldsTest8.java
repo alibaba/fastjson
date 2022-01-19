@@ -29,6 +29,7 @@ public class EnumFieldsTest8 extends TestCase {
         String text = JSON.toJSONString(model, SerializeConfig.getGlobalInstance(), // 
                                         filters, 
                                         null,
+                                        null,
                                         0, // 
                                         SerializerFeature.QuoteFieldNames, // 
                                         SerializerFeature.BrowserCompatible, // 

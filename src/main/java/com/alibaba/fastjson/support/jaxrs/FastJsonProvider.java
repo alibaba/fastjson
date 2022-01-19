@@ -367,6 +367,7 @@ public class FastJsonProvider //
                     fastJsonConfig.getSerializeConfig(), //
                     fastJsonConfig.getSerializeFilters(), //
                     fastJsonConfig.getDateFormat(), //
+                    fastJsonConfig.getLocalTimeFormat(), //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
 

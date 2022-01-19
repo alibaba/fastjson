@@ -35,6 +35,7 @@ public class Issue3361 extends TestCase {
                 config.getSerializeConfig(),
                 config.getSerializeFilters(),
                 config.getDateFormat(),
+                config.getLocalTimeFormat(),
                 JSON.DEFAULT_GENERATE_FEATURE,
                 config.getSerializerFeatures());
         log.info("{}", string);

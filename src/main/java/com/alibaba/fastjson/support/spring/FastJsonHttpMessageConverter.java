@@ -318,6 +318,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
                     //fastJsonConfig.getSerializeFilters(), //
                     allFilters.toArray(new SerializeFilter[allFilters.size()]),
                     fastJsonConfig.getDateFormat(), //
+                    fastJsonConfig.getLocalTimeFormat(), //
                     JSON.DEFAULT_GENERATE_FEATURE, //
                     fastJsonConfig.getSerializerFeatures());
 

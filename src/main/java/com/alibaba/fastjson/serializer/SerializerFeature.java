@@ -152,7 +152,11 @@ public enum SerializerFeature {
     /**
      * @since 1.2.27
      */
-    MapSortField;
+    MapSortField,
+
+    WriteLocalTimeUseLocalTimeFormat,
+
+    UseDefaultLocalTimeFormat;
 
     SerializerFeature(){
         mask = (1 << ordinal());

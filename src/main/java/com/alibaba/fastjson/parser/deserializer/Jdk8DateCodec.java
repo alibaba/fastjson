@@ -34,6 +34,8 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
 
     private final static String            defaultPatttern     = "yyyy-MM-dd HH:mm:ss";
     private final static DateTimeFormatter defaultFormatter    = DateTimeFormatter.ofPattern(defaultPatttern);
+    private final static String defaultLocalTimePatttern = "HH:mm:ss";
+    private final static DateTimeFormatter defaultLocalTimeFormatter    = DateTimeFormatter.ofPattern(defaultLocalTimePatttern);
     private final static DateTimeFormatter defaultFormatter_23 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     private final static DateTimeFormatter formatter_dt19_tw   = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private final static DateTimeFormatter formatter_dt19_cn   = DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm:ss");
@@ -563,6 +565,25 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 } else {
                     out.writeLong(dateTime.atZone(JSON.defaultTimeZone.toZoneId()).toInstant().toEpochMilli());
                 }
+            } else if (fieldType == LocalTime.class) {
+                LocalTime localTime = (LocalTime)object;
+                String format = serializer.getLocalTimeFormatPattern();
+                if (format == null) {
+                    final int mask = SerializerFeature.WriteLocalTimeUseLocalTimeFormat.getMask();
+                    if ((features & mask) != 0 || serializer.isEnabled(SerializerFeature.UseDefaultLocalTimeFormat)) {
+                        format = defaultLocalTimePatttern;
+                    } else if (serializer.isEnabled(SerializerFeature.WriteLocalTimeUseLocalTimeFormat)) {
+                        if (serializer.getFastJsonConfigLocalTimeFormatPattern() != null &&
+                            serializer.getFastJsonConfigLocalTimeFormatPattern().length() > 0){
+                            format = serializer.getFastJsonConfigLocalTimeFormatPattern();
+                        }else{
+                            format = defaultLocalTimePatttern;
+                        }
+                    }else {
+                        format = defaultLocalTimePatttern;
+                    }
+                }
+                write(out, localTime, format);
             } else {
                 out.writeString(object.toString());
             }
@@ -606,9 +627,11 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             }
         }
 
-        if (format == formatter_iso8601_pattern) {
+        if (formatter_iso8601_pattern.equals(format)) {
             formatter = formatter_iso8601;
-        } else {
+        } else if (defaultLocalTimePatttern.equals(format)){
+            formatter=defaultLocalTimeFormatter;
+        }else {
             formatter = DateTimeFormatter.ofPattern(format);
         }
 

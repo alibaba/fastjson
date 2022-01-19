@@ -720,15 +720,20 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      */
     public static String toJSONStringWithDateFormat(Object object, String dateFormat,
                                                           SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, null, dateFormat, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, null, dateFormat,null, DEFAULT_GENERATE_FEATURE, features);
+    }
+
+    public static String toJSONStringWithLocalTimeFormat(Object object,String LocalTimeFormat,
+        SerializerFeature... features) {
+        return toJSONString(object, SerializeConfig.globalInstance, null, null,LocalTimeFormat, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static String toJSONString(Object object, SerializeFilter filter, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, new SerializeFilter[] {filter}, null,null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static String toJSONString(Object object, SerializeFilter[] filters, SerializerFeature... features) {
-        return toJSONString(object, SerializeConfig.globalInstance, filters, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, SerializeConfig.globalInstance, filters, null,null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static byte[] toJSONBytes(Object object, SerializerFeature... features) {
@@ -754,14 +759,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                       SerializeConfig config, //
                                       SerializeFilter filter, //
                                       SerializerFeature... features) {
-        return toJSONString(object, config, new SerializeFilter[] {filter}, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, config, new SerializeFilter[] {filter}, null,null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     public static String toJSONString(Object object, //
                                       SerializeConfig config, //
                                       SerializeFilter[] filters, //
                                       SerializerFeature... features) {
-        return toJSONString(object, config, filters, null, DEFAULT_GENERATE_FEATURE, features);
+        return toJSONString(object, config, filters, null,null, DEFAULT_GENERATE_FEATURE, features);
     }
 
     /**
@@ -772,6 +777,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                       SerializeConfig config, // 
                                       SerializeFilter[] filters, // 
                                       String dateFormat, //
+                                      String localTimeFormat,
                                       int defaultFeatures, // 
                                       SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
@@ -782,6 +788,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (localTimeFormat != null && localTimeFormat.length() != 0) {
+                serializer.setLocalTimeFormatPattern(localTimeFormat);
+                serializer.config(SerializerFeature.WriteLocalTimeUseLocalTimeFormat, true);
             }
 
             if (filters != null) {
@@ -802,7 +813,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @deprecated
      */
     public static String toJSONStringZ(Object object, SerializeConfig mapping, SerializerFeature... features) {
-        return toJSONString(object, mapping, emptyFilters, null, 0, features);
+        return toJSONString(object, mapping, emptyFilters, null,null, 0, features);
     }
 
     /**
@@ -834,14 +845,14 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @since 1.2.42
      */
     public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, int defaultFeatures, SerializerFeature... features) {
-        return toJSONBytes(object, config, filters, null, defaultFeatures, features);
+        return toJSONBytes(object, config, filters, null,null, defaultFeatures, features);
     }
 
     /**
      * @since 1.2.55
      */
-    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, String dateFormat, int defaultFeatures, SerializerFeature... features) {
-        return toJSONBytes(IOUtils.UTF8, object, config, filters, dateFormat, defaultFeatures, features);
+    public static byte[] toJSONBytes(Object object, SerializeConfig config, SerializeFilter[] filters, String dateFormat,String localTimeFormat, int defaultFeatures, SerializerFeature... features) {
+        return toJSONBytes(IOUtils.UTF8, object, config, filters, dateFormat,localTimeFormat, defaultFeatures, features);
     }
 
     /**
@@ -852,6 +863,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                      SerializeConfig config, //
                                      SerializeFilter[] filters, //
                                      String dateFormat, //
+                                     String localTimeFormat, //
                                      int defaultFeatures, //
                                      SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
@@ -862,6 +874,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (localTimeFormat != null && localTimeFormat.length() != 0) {
+                serializer.setLocalTimeFormatPattern(localTimeFormat);
+                serializer.config(SerializerFeature.WriteLocalTimeUseLocalTimeFormat, true);
             }
 
             if (filters != null) {
@@ -888,6 +905,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                      SerializeConfig config, //
                                      SerializeFilter[] filters, //
                                      String dateFormat, //
+                                     String locaTimeFormat, //
                                      int defaultFeatures, //
                                      SerializerFeature... features) {
         SerializeWriter out = new SerializeWriter(null, defaultFeatures, features);
@@ -898,6 +916,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setFastJsonConfigDateFormatPattern(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (locaTimeFormat != null && locaTimeFormat.length() != 0) {
+                serializer.setFastJsonConfigLocalTimeFormatPattern(locaTimeFormat);
+                serializer.config(SerializerFeature.WriteLocalTimeUseLocalTimeFormat, true);
             }
 
             if (filters != null) {
@@ -980,7 +1003,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                               object, //
                               SerializeConfig.globalInstance, //
                               null, //
-                              null, // 
+                              null, //
+                              null, //
                               defaultFeatures, //
                               features);
     }
@@ -995,6 +1019,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                SerializeConfig.globalInstance, //
                                null, //
                                null, //
+                               null, //
                                DEFAULT_GENERATE_FEATURE, //
                                features);
     }
@@ -1005,6 +1030,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                              SerializeConfig config, //
                                              SerializeFilter[] filters, //
                                              String dateFormat, //
+                                             String localTimeFormat, //
                                              int defaultFeatures, //
                                              SerializerFeature... features) throws IOException {
         SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
@@ -1015,6 +1041,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setDateFormat(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (localTimeFormat != null && localTimeFormat.length() != 0) {
+                serializer.setLocalTimeFormatPattern(localTimeFormat);
+                serializer.config(SerializerFeature.WriteLocalTimeUseLocalTimeFormat, true);
             }
 
             if (filters != null) {
@@ -1038,6 +1069,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                                             SerializeConfig config, //
                                             SerializeFilter[] filters, //
                                             String dateFormat, //
+                                            String locaTimeFormat, //
                                             int defaultFeatures, //
                                             SerializerFeature... features) throws IOException {
         SerializeWriter writer = new SerializeWriter(null, defaultFeatures, features);
@@ -1048,6 +1080,11 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             if (dateFormat != null && dateFormat.length() != 0) {
                 serializer.setFastJsonConfigDateFormatPattern(dateFormat);
                 serializer.config(SerializerFeature.WriteDateUseDateFormat, true);
+            }
+
+            if (locaTimeFormat != null && locaTimeFormat.length() != 0) {
+                serializer.setFastJsonConfigLocalTimeFormatPattern(locaTimeFormat);
+                serializer.config(SerializerFeature.WriteLocalTimeUseLocalTimeFormat, true);
             }
 
             if (filters != null) {

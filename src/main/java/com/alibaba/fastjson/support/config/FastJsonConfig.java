@@ -74,6 +74,11 @@ public class FastJsonConfig {
     private String dateFormat;
 
     /**
+     * format localTime type
+     */
+    private String localTimeFormat;
+
+    /**
      * The Write content length.
      */
     private boolean writeContentLength;
@@ -89,7 +94,7 @@ public class FastJsonConfig {
         this.parserConfig = ParserConfig.getGlobalInstance();
 
         this.serializerFeatures = new SerializerFeature[] {
-                SerializerFeature.BrowserSecure
+            SerializerFeature.BrowserSecure
         };
 
         this.serializeFilters = new SerializeFilter[0];
@@ -179,7 +184,7 @@ public class FastJsonConfig {
      * @param classSerializeFilters the classSerializeFilters to set
      */
     public void setClassSerializeFilters(
-            Map<Class<?>, SerializeFilter> classSerializeFilters) {
+        Map<Class<?>, SerializeFilter> classSerializeFilters) {
 
         if (classSerializeFilters == null)
             return;
@@ -203,6 +208,20 @@ public class FastJsonConfig {
      */
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    /**
+     * @return the localTimeFormat
+     */
+    public String getLocalTimeFormat() {
+        return localTimeFormat;
+    }
+
+    /**
+     * @param localTimeFormat the localTimeFormat to set
+     */
+    public void setLocalTimeFormat(String localTimeFormat) {
+        this.localTimeFormat = localTimeFormat;
     }
 
     /**

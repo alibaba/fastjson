@@ -16,23 +16,24 @@ public class EnumFieldsTest8 extends TestCase {
         Model model = new Model();
         model.t1 = Type.A;
         model.t2 = null;
-        
+
         ValueFilter valueFilter = new ValueFilter() {
 
             public Object process(Object object, String name, Object value) {
                 return value;
             }
-            
+
         };
-        
+
         SerializeFilter[] filters = {valueFilter};
         String text = JSON.toJSONString(model, SerializeConfig.getGlobalInstance(), // 
-                                        filters, 
-                                        null,
-                                        0, // 
-                                        SerializerFeature.QuoteFieldNames, // 
-                                        SerializerFeature.BrowserCompatible, // 
-                                        SerializerFeature.WriteEnumUsingName);
+            filters,
+            null,
+            null,
+            0, //
+            SerializerFeature.QuoteFieldNames, //
+            SerializerFeature.BrowserCompatible, //
+            SerializerFeature.WriteEnumUsingName);
         Assert.assertEquals("{\"t1\":\"A\"}", text);
     }
 
@@ -43,6 +44,6 @@ public class EnumFieldsTest8 extends TestCase {
     }
 
     public static enum Type {
-                             A, B, C
+        A, B, C
     }
 }

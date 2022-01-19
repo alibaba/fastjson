@@ -67,10 +67,10 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         Object obj = null;
         if (payload instanceof byte[]) {
             obj = JSON.parseObject((byte[]) payload, fastJsonConfig.getCharset(), targetClass, fastJsonConfig.getParserConfig(),
-                    fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
+                fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
         } else if (payload instanceof String) {
             obj = JSON.parseObject((String) payload, targetClass, fastJsonConfig.getParserConfig(),
-                    fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
+                fastJsonConfig.getParseProcess(), JSON.DEFAULT_PARSER_FEATURE, fastJsonConfig.getFeatures());
         }
 
         return obj;
@@ -85,14 +85,14 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
                 obj = ((String) payload).getBytes(fastJsonConfig.getCharset());
             } else {
                 obj = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
-                        fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+                    fastJsonConfig.getDateFormat(),fastJsonConfig.getLocalTimeFormat(),JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
             }
         } else {
             if (payload instanceof String && JSON.isValid((String) payload)) {
                 obj = payload;
             } else {
                 obj = JSON.toJSONString(payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
-                        fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
+                    fastJsonConfig.getDateFormat(),fastJsonConfig.getLocalTimeFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());
             }
         }
 

@@ -58,16 +58,16 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
 
     @Override
     public Converter<ResponseBody, Object> responseBodyConverter(Type type, //
-                                                                 Annotation[] annotations, //
-                                                                 Retrofit retrofit) {
+        Annotation[] annotations, //
+        Retrofit retrofit) {
         return new ResponseBodyConverter<Object>(type);
     }
 
     @Override
     public Converter<Object, RequestBody> requestBodyConverter(Type type, //
-                                                               Annotation[] parameterAnnotations, //
-                                                               Annotation[] methodAnnotations, //
-                                                               Retrofit retrofit) {
+        Annotation[] parameterAnnotations, //
+        Annotation[] methodAnnotations, //
+        Retrofit retrofit) {
         return new RequestBodyConverter<Object>();
     }
 
@@ -219,12 +219,12 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
         public T convert(ResponseBody value) throws IOException {
             try {
                 return JSON.parseObject(value.bytes()
-                        , fastJsonConfig.getCharset()
-                        , type
-                        , fastJsonConfig.getParserConfig()
-                        , fastJsonConfig.getParseProcess()
-                        , JSON.DEFAULT_PARSER_FEATURE
-                        , fastJsonConfig.getFeatures()
+                    , fastJsonConfig.getCharset()
+                    , type
+                    , fastJsonConfig.getParserConfig()
+                    , fastJsonConfig.getParseProcess()
+                    , JSON.DEFAULT_PARSER_FEATURE
+                    , fastJsonConfig.getFeatures()
                 );
             } catch (Exception e) {
                 throw new IOException("JSON parse error: " + e.getMessage(), e);
@@ -241,12 +241,13 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
         public RequestBody convert(T value) throws IOException {
             try {
                 byte[] content = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset()
-                        , value
-                        , fastJsonConfig.getSerializeConfig()
-                        , fastJsonConfig.getSerializeFilters()
-                        , fastJsonConfig.getDateFormat()
-                        , JSON.DEFAULT_GENERATE_FEATURE
-                        , fastJsonConfig.getSerializerFeatures()
+                    , value
+                    , fastJsonConfig.getSerializeConfig()
+                    , fastJsonConfig.getSerializeFilters()
+                    , fastJsonConfig.getDateFormat()
+                    , fastJsonConfig.getLocalTimeFormat()
+                    , JSON.DEFAULT_GENERATE_FEATURE
+                    , fastJsonConfig.getSerializerFeatures()
                 );
                 return RequestBody.create(MEDIA_TYPE, content);
             } catch (Exception e) {

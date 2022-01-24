@@ -727,7 +727,7 @@ public final class SerializeWriter extends Writer {
         if (writeEnumUsingName && !writeEnumUsingToString) {
             strVal = value.name();
         } else if (writeEnumUsingToString) {
-            strVal = value.toString();;
+            strVal = value.toString();
         }
 
         if (strVal != null) {

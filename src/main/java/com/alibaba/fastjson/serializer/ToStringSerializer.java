@@ -16,8 +16,16 @@ public class ToStringSerializer implements ObjectSerializer {
             out.writeNull();
             return;
         }
-
-        String strVal = object.toString();
+        
+        String strVal = null;
+        if (object instanceof Long 
+           && (serializer.out.isEnabled(SerializerFeature.WriteClassName) 
+            || SerializerFeature.isEnabled(features, SerializerFeature.WriteClassName))
+           ) {
+            strVal = new StringBuffer().append(object).append("L").toString();
+        } else {
+            strVal =object.toString();
+        }
         out.writeString(strVal);
     }
 

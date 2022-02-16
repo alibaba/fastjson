@@ -6,6 +6,7 @@ import org.junit.Assert;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSONWriter;
+import org.junit.Test;
 
 @SuppressWarnings("deprecation")
 public class JSONWriterTest extends TestCase {
@@ -21,6 +22,7 @@ public class JSONWriterTest extends TestCase {
         Assert.assertEquals("{}", out.toString());
     }
 
+    @Test
     public void test_1() throws Exception {
         StringWriter out = new StringWriter();
 
@@ -30,7 +32,6 @@ public class JSONWriterTest extends TestCase {
         writer.writeValue(33);
         writer.writeEndObject();
         writer.flush();
-
         Assert.assertEquals("{\"id\":33}", out.toString());
     }
 

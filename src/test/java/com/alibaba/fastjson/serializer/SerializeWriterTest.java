@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.logging.Logger;
 
+import org.codehaus.groovy.classgen.asm.AssertionWriter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,6 +14,8 @@ import org.junit.Test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
+
+import javax.validation.constraints.AssertTrue;
 
 public class SerializeWriterTest {
 
@@ -115,5 +118,25 @@ public class SerializeWriterTest {
         byte[] bytesLocal = bytesBufLocal.get();
         Assert.assertNotNull("bytesLocal is null", bytesLocal);
         Assert.assertTrue("bytesLocal is smaller than expected", bytesLocal.length >= bytes.length);
+    }
+
+    @Test
+    public void singleQuoteTest() throws Exception {
+        SerializerFeature SingleQuote = SerializerFeature.UseSingleQuotes;
+
+        SerializeWriter serializeWriter = new SerializeWriter(SingleQuote);
+        String value = "'{key:1,value:1}'";
+        serializeWriter.writeStringWithSingleQuote(value);
+
+    }
+
+    @Test
+    public void writeByteArrayTest() {
+        SerializerFeature SingleQuote = SerializerFeature.UseSingleQuotes;
+
+        SerializeWriter serializeWriter = new SerializeWriter(SingleQuote);
+        String value = "'{key:1,value:1}'";
+        byte[] bytes = value.getBytes();
+        serializeWriter.writeByteArray(bytes);
     }
 }

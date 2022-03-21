@@ -187,4 +187,13 @@ public class JSONObjectTest extends TestCase {
 
         Assert.assertEquals(0, json.getJSONObject("obj").size());
     }
+
+    public void test_getObjectOrDefault() {
+        JSONObject json = new JSONObject();
+        json.put("testKey", "testVal");
+        json.put("testKey2", null);
+
+        Assert.assertEquals("default", json.getOrDefault("testNonKet", "default"));
+        Assert.assertEquals("default", json.getOrDefault("testKey2", "default"));
+    }
 }

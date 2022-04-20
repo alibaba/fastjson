@@ -38,7 +38,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.AccessControlException;
 import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2553,7 +2552,7 @@ public class TypeUtils {
         }
         try {
             obj.setAccessible(true);
-        } catch (AccessControlException error) {
+        } catch (Throwable error) {
             setAccessibleEnable = false;
         }
     }

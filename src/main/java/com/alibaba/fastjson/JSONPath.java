@@ -3801,7 +3801,7 @@ public class JSONPath implements JSONAware {
             }
             
             if (b instanceof BigInteger) {
-                BigInteger bigIntB = (BigInteger) a;
+                BigInteger bigIntB = (BigInteger) b;
                 BigInteger bigIntA = BigInteger.valueOf(a.longValue());
                 
                 return bigIntA.equals(bigIntB);

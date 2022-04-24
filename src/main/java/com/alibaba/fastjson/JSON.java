@@ -180,7 +180,10 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         if (text == null) {
             return null;
         }
-
+        String trimText=text.trim().toLowerCase();
+        if(trimText.length()==0){
+            throw new JSONException("value invalid: the input string is null or doesn't have valid character");
+        }
         DefaultJSONParser parser = new DefaultJSONParser(text, config, features);
         Object value = parser.parse();
 
@@ -189,6 +192,42 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         parser.close();
 
         return value;
+    }
+
+    /**
+    * Parse a string into an object
+     * @param text the input text,which will be generated into an object
+     * @param onlyNull if true,the string that only contains whitespace and null will be invalid
+     * @return an object generated from the string
+    **/
+    public static Object parseObject(String text, boolean onlyNull){
+        if(!onlyNull){
+            String trimText = text.trim().toLowerCase();
+            if(trimText.equals("null")){
+                throw new JSONException("value invalid: the input string is null");
+            }
+        }
+        return parseObject(text);
+    }
+
+    /**
+     * Parse a string into an object
+     * @param text the input text,which will be generated into an object
+     * @param onlyNull if true,the string that only contains whitespace and null will be invalid
+     *                 if false,the string --null will be valid and can be generated into a null object
+     * @param allowUndefined the string that only contains whitespace and undefined will be invalid
+     *      *                 if false,the string --undefined will be valid and can be generated into a null object
+     * @return an object generated from the string
+     **/
+    public static Object parseObject(String text,boolean onlyNull,boolean allowUndefined){
+        String trimText=text.trim().toLowerCase();
+        if(!onlyNull && trimText.equals("null")){
+            throw new JSONException("value invalid: the input string is null");
+        }
+        if(!allowUndefined && trimText.equals("undefined")){
+            throw new JSONException("value invalid: a JSON string or a JSON object cannot be undefined");
+        }
+        return parseObject(text);
     }
 
     public static Object parse(String text, int features) {

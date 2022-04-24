@@ -194,6 +194,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return value;
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
     /**
     * Parse a string into an object
      * @param text the input text,which will be generated into an object
@@ -210,6 +211,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseObject(text);
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
     /**
      * Parse a string into an object
      * @param text the input text,which will be generated into an object
@@ -758,6 +760,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
     /**
      * This method generate a JSON object that contains scientific notation to a JSON string in the specified format
      * @param object the object which contains scientific notation and needs to be generated
@@ -784,6 +787,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return JSON.toJSONString(object);
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
     /**
      * This method generate a JSON object that contains scientific notation to a JSON string in form of scientific notation
      * @param object the object which contains scientific notation and needs to be generated

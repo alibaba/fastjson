@@ -1,4 +1,4 @@
-package com.alibaba.fastjson.parser;
+package com.alibaba.fastjson;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;

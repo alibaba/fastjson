@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
+//CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
 /**
  * A Test on Issue4013
  **/

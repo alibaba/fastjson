@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+//CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
 /**
  * A Test on Issue3968
  **/

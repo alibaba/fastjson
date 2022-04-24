@@ -191,7 +191,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
-
     /**
      * Parse a string into an object
      *
@@ -210,7 +209,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
-
     /**
      * Parse a string into an object
      *
@@ -218,7 +216,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * @param onlyNull       if true,the string that only contains whitespace and null will be invalid
      *                       if false,the string --null will be valid and can be generated into a null object
      * @param allowUndefined the string that only contains whitespace and undefined will be invalid
-     *                       *                 if false,the string --undefined will be valid and can be generated into a null object
+     *                       if false,the string --undefined will be valid and can be generated into a null object
      * @return an object generated from the string
      **/
     public static Object parseObject(String text, boolean onlyNull, boolean allowUndefined) {
@@ -761,7 +759,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
-
     /**
      * This method generate a JSON object that contains scientific notation to a JSON string in the specified format
      *
@@ -805,9 +802,9 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
-
     /**
-     * This method generate a JSON object that contains scientific notation to a JSON string in form of scientific notation
+     * This method generate a JSON object that contains scientific notation
+     * to a JSON string in form of scientific notation
      *
      * @param object the object which contains scientific notation and needs to be generated
      * @param key    the key of the value in form of scientific notation

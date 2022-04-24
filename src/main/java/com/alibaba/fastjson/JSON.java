@@ -588,6 +588,60 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseObject(text, clazz, new Feature[0]);
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
+    /**
+     * This method generate a JSON object that contains scientific notation
+     * to a JSON string in form of scientific notation
+     *
+     * @param object the object which contains scientific notation and needs to be generated
+     * @param key    the key of the value in form of scientific notation
+     * @return a JSON string that contains values in form of scientific notation
+     */
+    public static String toJSONStringScientificNotation(JSONObject object, String key) {
+        return toJSONStringScientificNotation(object, key, true);
+    }
+
+
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
+    /**
+     * Parse a string into an object
+     *
+     * @param text     the input text,which will be generated into an object
+     * @param onlyNull if true,the string that only contains whitespace and null will be invalid
+     * @return an object generated from the string
+     **/
+    public static Object parseObject(String text, boolean onlyNull) {
+        if (!onlyNull) {
+            String trimText = text.trim().toLowerCase();
+            if (trimText.equals("null")) {
+                throw new JSONException("value invalid: the input string is null");
+            }
+        }
+        return parseObject(text);
+    }
+
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4013
+    /**
+     * Parse a string into an object
+     *
+     * @param text           the input text,which will be generated into an object
+     * @param onlyNull       if true,the string that only contains whitespace and null will be invalid
+     *                       if false,the string --null will be valid and can be generated into a null object
+     * @param allowUndefined the string that only contains whitespace and undefined will be invalid
+     *                       if false,the string --undefined will be valid and can be generated into a null object
+     * @return an object generated from the string
+     **/
+    public static Object parseObject(String text, boolean onlyNull, boolean allowUndefined) {
+        String trimText = text.trim().toLowerCase();
+        if (!onlyNull && trimText.equals("null")) {
+            throw new JSONException("value invalid: the input string is null");
+        }
+        if (!allowUndefined && trimText.equals("undefined")) {
+            throw new JSONException("value invalid: a JSON string or a JSON object cannot be undefined");
+        }
+        return parseObject(text);
+    }
+
     public static JSONArray parseArray(String text) {
         return parseArray(text, ParserConfig.global);
     }

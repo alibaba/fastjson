@@ -17,13 +17,13 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
     public final static SqlDateDeserializer instance = new SqlDateDeserializer();
     public final static SqlDateDeserializer instance_timestamp = new SqlDateDeserializer(true);
-    
+
     private boolean                           timestamp = false;
-    
+
     public SqlDateDeserializer() {
-        
+
     }
-    
+
     public SqlDateDeserializer(boolean timestmap) {
         this.timestamp = true;
     }
@@ -33,7 +33,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         if (timestamp) {
             return castTimestamp(parser, clazz, fieldName, val);
         }
-        
+
         if (val == null) {
             return null;
         }
@@ -41,9 +41,9 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
         if (val instanceof java.util.Date) {
             val = new java.sql.Date(((Date) val).getTime());
         } else if (val instanceof BigDecimal) {
-            val = (T) new java.sql.Date(TypeUtils.longValue((BigDecimal) val));
+            val = new java.sql.Date(TypeUtils.longValue((BigDecimal) val));
         } else if (val instanceof Number) {
-            val = (T) new java.sql.Date(((Number) val).longValue());
+            val = new java.sql.Date(((Number) val).longValue());
         } else if (val instanceof String) {
             String strVal = (String) val;
             if (strVal.length() == 0) {
@@ -60,7 +60,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
                     DateFormat dateFormat = parser.getDateFormat();
                     try {
-                        java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
+                        java.util.Date date = dateFormat.parse(strVal);
                         java.sql.Date sqlDate = new java.sql.Date(date.getTime());
                         return (T) sqlDate;
                     } catch (ParseException e) {
@@ -79,7 +79,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
 
         return (T) val;
     }
-    
+
     @SuppressWarnings("unchecked")
     protected <T> T castTimestamp(DefaultJSONParser parser, Type clazz, Object fieldName, Object val) {
 
@@ -116,7 +116,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
                         && strVal.charAt(16) == ':'
                         && strVal.charAt(19) == '.') {
                     String dateFomartPattern = parser.getDateFomartPattern();
-                    if (dateFomartPattern.length() != strVal.length() && dateFomartPattern == JSON.DEFFAULT_DATE_FORMAT) {
+                    if (dateFomartPattern.length() != strVal.length() && dateFomartPattern.equals(JSON.DEFFAULT_DATE_FORMAT)) {
                         return (T) java.sql.Timestamp.valueOf(strVal);
                     }
                 }
@@ -126,7 +126,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
                 } else {
                     DateFormat dateFormat = parser.getDateFormat();
                     try {
-                        java.util.Date date = (java.util.Date) dateFormat.parse(strVal);
+                        java.util.Date date = dateFormat.parse(strVal);
                         java.sql.Timestamp sqlDate = new java.sql.Timestamp(date.getTime());
                         return (T) sqlDate;
                     } catch (ParseException e) {

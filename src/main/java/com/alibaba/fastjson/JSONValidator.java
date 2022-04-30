@@ -11,7 +11,10 @@ public abstract class JSONValidator implements Cloneable, Closeable {
     }
 
     protected boolean eof;
+    /** current index */
     protected int pos = -1;
+    /** exclude index */
+    protected int end = -1;
     protected char ch;
     protected Type type;
     private Boolean validateResult;
@@ -46,13 +49,55 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
     public Type getType() {
         if (type == null) {
+            // FIXME 返回值没被使用，是否需要根据返回值抛出异常？
             validate();
         }
 
         return type;
     }
 
-    abstract void next();
+    void next() {
+        if (eof) {
+            return;
+        }
+        pos++;
+        if (pos < end) {
+            ch = charAt(pos);
+        } else {
+            int len;
+            try {
+                len = read();
+            } catch (IOException e) {
+                throw new JSONException("read error", e);
+            }
+
+            afterRead(len);
+        }
+    }
+
+    abstract char charAt(int index);
+
+    int read() throws IOException {
+        // default does nothing
+        return 0;
+    }
+
+    void afterRead(int len) throws JSONException {
+        if (len > 0) {
+            pos = 0;
+            ch = charAt(pos);
+            end = len;
+        } else {
+            pos = -1;
+            end = -1;
+            ch = '\0';
+            // 目前看来，上面这几个属性的重置操作貌似是多余的？
+            eof = true;
+            if (len < -1) {
+                throw new JSONException("read error");
+            }
+        }
+    }
 
     public boolean validate() {
         if (validateResult != null) {
@@ -61,15 +106,13 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         for (;;) {
             if (!any()) {
-                validateResult = false;
-                return false;
+                return validateResult = false;
             }
             skipWhiteSpace();
 
             count++;
             if (eof) {
-                validateResult = true;
-                return true;
+                return validateResult = true;
             }
 
             if (supportMultiValue) {
@@ -77,15 +120,12 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 if (eof) {
                     break;
                 }
-                continue;
             } else {
-                validateResult = false;
-                return false;
+                return validateResult = false;
             }
         }
 
-        validateResult = true;
-        return true;
+        return validateResult = true;
     }
 
     public void close() throws IOException {
@@ -250,75 +290,19 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                     }
                 }
             case 't':
-                next();
-
-                if (ch != 'r') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'u') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'e') {
-                    return false;
-                }
-                next();
-
-                if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
+                if (nextMatchKeyword("true", 1)) {
                     type = Type.Value;
                     return true;
                 }
                 return false;
             case 'f':
-                next();
-
-                if (ch != 'a') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'l') {
-                    return false;
-                }
-                next();
-
-                if (ch != 's') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'e') {
-                    return false;
-                }
-                next();
-
-                if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
+                if (nextMatchKeyword("false", 1)) {
                     type = Type.Value;
                     return true;
                 }
                 return false;
             case 'n':
-                next();
-
-                if (ch != 'u') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'l') {
-                    return false;
-                }
-                next();
-
-                if (ch != 'l') {
-                    return false;
-                }
-                next();
-
-                if (isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0') {
+                if (nextMatchKeyword("null", 1)) {
                     type = Type.Value;
                     return true;
                 }
@@ -329,8 +313,22 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         return true;
     }
 
-    protected void fieldName()
-    {
+    boolean nextMatchKeyword(String keyword, int startIndex) {
+        for (int i = startIndex, size = keyword.length(); i < size; i++) {
+            next();
+            if (ch != keyword.charAt(i)) {
+                return false;
+            }
+        }
+        next();
+        return isWordBoundary(ch);
+    }
+
+    protected boolean isWordBoundary(char ch) {
+        return isWhiteSpace(ch) || ch == ',' || ch == ']' || ch == '}' || ch == '\0';
+    }
+
+    protected void fieldName() {
         next();
         for (; ; ) {
             if (ch == '\\') {
@@ -346,21 +344,18 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 } else {
                     next();
                 }
-            }
-            else if (ch == '"') {
+            } else if (ch == '"') {
                 next();
                 break;
-            }
-            else {
+            } else {
                 next();
             }
         }
     }
 
-    protected boolean string()
-    {
+    protected boolean string() {
         next();
-        for (; !eof; ) {
+        while (!eof) {
             if (ch == '\\') {
                 next();
 
@@ -374,12 +369,10 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                 } else {
                     next();
                 }
-            }
-            else if (ch == '"') {
+            } else if (ch == '"') {
                 next();
                 return true;
-            }
-            else {
+            } else {
                 next();
             }
         }
@@ -393,14 +386,8 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         }
     }
 
-    static final boolean isWhiteSpace(char ch) {
-        return ch == ' '
-                || ch == '\t'
-                || ch == '\r'
-                || ch == '\n'
-                || ch == '\f'
-                || ch == '\b'
-                ;
+    static boolean isWhiteSpace(char ch) {
+        return com.alibaba.fastjson.parser.JSONLexerBase.isWhitespace(ch);
     }
 
     static class UTF8Validator extends JSONValidator {
@@ -408,20 +395,16 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         public UTF8Validator(byte[] bytes) {
             this.bytes = bytes;
+            this.end = bytes.length;
             next();
             skipWhiteSpace();
         }
 
-        void next() {
-            ++pos;
-
-            if (pos >= bytes.length) {
-                ch = '\0';
-                eof = true;
-            } else {
-                ch = (char) bytes[pos];
-            }
+        @Override
+        char charAt(int index) {
+            return (char) bytes[index];
         }
+
     }
 
     static class UTF8InputStreamValidator extends JSONValidator {
@@ -429,7 +412,6 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         private final InputStream is;
         private byte[] buf;
-        private int end = -1;
         private int readCount = 0;
 
         public UTF8InputStreamValidator(InputStream is) {
@@ -445,40 +427,16 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
-        void next() {
-            if (pos < end) {
-                ch = (char) buf[++pos];
-            } else {
-                if (!eof) {
-                    int len;
-                    try {
-                        len = is.read(buf, 0, buf.length);
-                        readCount++;
-                    } catch (IOException ex) {
-                        throw new JSONException("read error");
-                    }
+        @Override
+        char charAt(int index) {
+            return (char) buf[index];
+        }
 
-                    if (len > 0) {
-                        ch = (char) buf[0];
-                        pos = 0;
-                        end = len - 1;
-                    }
-                    else if (len == -1) {
-                        pos = 0;
-                        end = 0;
-                        buf = null;
-                        ch = '\0';
-                        eof = true;
-                    } else {
-                        pos = 0;
-                        end = 0;
-                        buf = null;
-                        ch = '\0';
-                        eof = true;
-                        throw new JSONException("read error");
-                    }
-                }
-            }
+        @Override
+        int read() throws IOException {
+            int len = is.read(buf);
+            readCount++;
+            return len;
         }
 
         public void close() throws IOException {
@@ -492,29 +450,23 @@ public abstract class JSONValidator implements Cloneable, Closeable {
 
         public UTF16Validator(String str) {
             this.str = str;
+            this.end = str.length();
             next();
             skipWhiteSpace();
         }
 
-        void next() {
-            ++pos;
-
-            if (pos >= str.length()) {
-                ch = '\0';
-                eof = true;
-            } else {
-                ch = str.charAt(pos);
-            }
+        @Override
+        char charAt(int index) {
+            return str.charAt(index);
         }
 
-        protected final void fieldName()
-        {
+        protected final void fieldName() {
             for (int i = pos + 1; i < str.length(); ++i) {
                 char ch = str.charAt(i);
                 if (ch == '\\') {
                     break;
                 }
-                if (ch == '\"') {
+                if (ch == '"') {
                     this.ch = str.charAt(i + 1);
                     pos = i + 1;
                     return;
@@ -536,14 +488,12 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                     } else {
                         next();
                     }
-                }
-                else if (ch == '"') {
+                } else if (ch == '"') {
                     next();
                     break;
-                }
-                else if(eof){
+                } else if (eof) {
                     break;
-                }else {
+                } else {
                     next();
                 }
             }
@@ -557,7 +507,6 @@ public abstract class JSONValidator implements Cloneable, Closeable {
         final Reader r;
 
         private char[] buf;
-        private int end = -1;
         private int readCount = 0;
 
         ReaderValidator(Reader r) {
@@ -573,40 +522,16 @@ public abstract class JSONValidator implements Cloneable, Closeable {
             skipWhiteSpace();
         }
 
-        void next() {
-            if (pos < end) {
-                ch = buf[++pos];
-            } else {
-                if (!eof) {
-                    int len;
-                    try {
-                        len = r.read(buf, 0, buf.length);
-                        readCount++;
-                    } catch (IOException ex) {
-                        throw new JSONException("read error");
-                    }
+        @Override
+        char charAt(int index) {
+            return buf[index];
+        }
 
-                    if (len > 0) {
-                        ch = buf[0];
-                        pos = 0;
-                        end = len - 1;
-                    }
-                    else if (len == -1) {
-                        pos = 0;
-                        end = 0;
-                        buf = null;
-                        ch = '\0';
-                        eof = true;
-                    } else {
-                        pos = 0;
-                        end = 0;
-                        buf = null;
-                        ch = '\0';
-                        eof = true;
-                        throw new JSONException("read error");
-                    }
-                }
-            }
+        @Override
+        int read() throws IOException {
+            int len = r.read(buf);
+            readCount++;
+            return len;
         }
 
         public void close() throws IOException {

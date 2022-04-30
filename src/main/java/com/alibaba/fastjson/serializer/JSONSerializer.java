@@ -203,10 +203,7 @@ public class JSONSerializer extends SerializeFilterable {
         }
 
         SerialContext rootContext = context;
-        for (;;) {
-            if (rootContext.parent == null) {
-                break;
-            }
+        while (rootContext.parent != null) {
             rootContext = rootContext.parent;
         }
 
@@ -227,7 +224,7 @@ public class JSONSerializer extends SerializeFilterable {
                || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
                || out.writeNonStringValueAsString;
     }
-    
+
     public boolean hasNameFilters(SerializeFilterable filterable) {
         return (nameFilters != null && nameFilters.size() > 0) //
                || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
@@ -451,5 +448,5 @@ public class JSONSerializer extends SerializeFilterable {
     public void close() {
         this.out.close();
     }
-   
+
 }

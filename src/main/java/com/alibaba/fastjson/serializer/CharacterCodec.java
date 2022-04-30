@@ -39,11 +39,12 @@ public class CharacterCodec implements ObjectSerializer, ObjectDeserializer {
             return;
         }
 
-        char c = value.charValue();
+        char c = value;
         if (c == 0) {
             out.writeString("\u0000");
         } else {
-            out.writeString(value.toString());
+            // 避免自动装箱的开销
+            out.writeString(Character.toString(value));
         }
     }
 

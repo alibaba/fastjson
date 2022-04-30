@@ -21,15 +21,8 @@ public class ClassReader {
         {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[1024];
-            for (; ; ) {
-                int len = is.read(buf);
-                if (len == -1) {
-                    break;
-                }
-
-                if (len > 0) {
-                    out.write(buf, 0, len);
-                }
+            for (int len; (len = is.read(buf)) != -1; ) {
+                out.write(buf, 0, len);
             }
             is.close();
             this.b = out.toByteArray();
@@ -82,122 +75,86 @@ public class ClassReader {
     }
 
     public void accept(final TypeCollector classVisitor) {
-        char[] c = new char[maxStringLength]; // buffer used to read strings
-        int i, j; // loop variables
-        int u, v; // indexes in b
-        int anns = 0;
+        // visits the header ( next is field area )
+        final int offset = moveToEndOfHeader();
+        // skip fields ( next is method area )
+        final int methodStartPos = skipNextFieldOrMethodArea(offset);
+        // skip methods ( next is attribute area )
+        final int attrStartPos = skipNextFieldOrMethodArea(methodStartPos);
 
-        //read annotations
+        // buffer used to read strings
+        final char[] buffer = new char[maxStringLength];
+
+        // read annotations
         if (readAnnotations) {
-            u = getAttributes();
-            for (i = readUnsignedShort(u); i > 0; --i) {
-                String attrName = readUTF8(u + 2, c);
+            int annotationsPos = 0;
+
+            // annotation is an attribute
+            for (int pos = attrStartPos, attrCount = readUnsignedShort(pos); attrCount > 0; --attrCount) {
+                String attrName = readUTF8(pos + 2, buffer);
                 if ("RuntimeVisibleAnnotations".equals(attrName)) {
-                    anns = u + 8;
+                    annotationsPos = pos + 8;
                     break;
                 }
-                u += 6 + readInt(u + 4);
+                pos += 6 + readInt(pos + 4);
             }
-        }
 
-        // visits the header
-        u = header;
-        int len = readUnsignedShort(u + 6);
-        u += 8;
-        for (i = 0; i < len; ++i) {
-            u += 2;
-        }
-        v = u;
-        i = readUnsignedShort(v);
-        v += 2;
-        for (; i > 0; --i) {
-            j = readUnsignedShort(v + 6);
-            v += 8;
-            for (; j > 0; --j) {
-                v += 6 + readInt(v + 2);
-            }
-        }
-        i = readUnsignedShort(v);
-        v += 2;
-        for (; i > 0; --i) {
-            j = readUnsignedShort(v + 6);
-            v += 8;
-            for (; j > 0; --j) {
-                v += 6 + readInt(v + 2);
-            }
-        }
-
-        i = readUnsignedShort(v);
-        v += 2;
-        for (; i > 0; --i) {
-            v += 6 + readInt(v + 2);
-        }
-
-        if (anns != 0) {
-            for (i = readUnsignedShort(anns), v = anns + 2; i > 0; --i) {
-                String name = readUTF8(v, c);
-                classVisitor.visitAnnotation(name);
-            }
-        }
-
-        // visits the fields
-        i = readUnsignedShort(u);
-        u += 2;
-        for (; i > 0; --i) {
-            j = readUnsignedShort(u + 6);
-            u += 8;
-            for (; j > 0; --j) {
-                u += 6 + readInt(u + 2);
+            // visit annotations
+            if (annotationsPos != 0) {
+                for (int pos = annotationsPos + 2, i = readUnsignedShort(annotationsPos); i > 0; --i) {
+                    // FIXME 此处 pos 的值在循环中不变，是否存在问题？
+                    String name = readUTF8(pos, buffer);
+                    classVisitor.visitAnnotation(name);
+                }
             }
         }
 
         // visits the methods
-        i = readUnsignedShort(u);
-        u += 2;
-        for (; i > 0; --i) {
+        for (int pos = methodStartPos + 2, methodCount = readUnsignedShort(methodStartPos); methodCount > 0; --methodCount) {
             // inlined in original ASM source, now a method call
-            u = readMethod(classVisitor, c, u);
+            pos = readMethod(classVisitor, buffer, pos);
         }
     }
 
     private int getAttributes() {
         // skips the header
-        int u = header + 8 + readUnsignedShort(header + 6) * 2;
+        int index = moveToEndOfHeader();
+
         // skips fields and methods
-        for (int i = readUnsignedShort(u); i > 0; --i) {
-            for (int j = readUnsignedShort(u + 8); j > 0; --j) {
-                u += 6 + readInt(u + 12);
-            }
-            u += 8;
-        }
-        u += 2;
-        for (int i = readUnsignedShort(u); i > 0; --i) {
-            for (int j = readUnsignedShort(u + 8); j > 0; --j) {
-                u += 6 + readInt(u + 12);
-            }
-            u += 8;
-        }
+        index = skipNextFieldOrMethodArea(index);
+        index = skipNextFieldOrMethodArea(index);
+
         // the attribute_info structure starts just after the methods
-        return u + 2;
+        return index;
+    }
+
+    private int skipNextFieldOrMethodArea(int index) {
+        for (int i = readUnsignedShort(index); i > 0; --i) {
+            for (int j = readUnsignedShort(index + 8); j > 0; --j) {
+                index += 6 + readInt(index + 12);
+            }
+            index += 8;
+        }
+        return index + 2;
+    }
+
+    private int moveToEndOfHeader() {
+        int index = header + 6;
+        int count = readUnsignedShort(index);
+        return index + 2 + count * 2;
     }
 
     private int readMethod(TypeCollector classVisitor, char[] c, int u) {
-        int v;
-        int w;
-        int j;
-        String attrName;
-        int k;
         int access = readUnsignedShort(u);
         String name = readUTF8(u + 2, c);
         String desc = readUTF8(u + 4, c);
-        v = 0;
-        w = 0;
 
         // looks for Code and Exceptions attributes
-        j = readUnsignedShort(u + 6);
+        int j = readUnsignedShort(u + 6);
         u += 8;
+        int v = 0;
         for (; j > 0; --j) {
-            attrName = readUTF8(u, c);
+            String attrName = readUTF8(u, c);
             int attrSize = readInt(u + 2);
             u += 6;
             // tests are sorted in decreasing frequency order
@@ -208,24 +165,15 @@ public class ClassReader {
             u += attrSize;
         }
         // reads declared exceptions
-        if (w == 0) {
-        } else {
-            w += 2;
-            for (j = 0; j < readUnsignedShort(w); ++j) {
-                w += 2;
-            }
-        }
+        // 原代码中此处的 w 必定为 0，所以此处的代码无效
 
         // visits the method's code, if any
         MethodCollector mv = classVisitor.visitMethod(access, name, desc);
 
         if (mv != null && v != 0) {
             int codeLength = readInt(v + 4);
-            v += 8;
-
-            int codeStart = v;
-            int codeEnd = v + codeLength;
-            v = codeEnd;
+            // 此处声明的 codeStart、codeEnd 在下面并未被有效使用
+            v += 8 + codeLength;
 
             j = readUnsignedShort(v);
             v += 2;
@@ -239,7 +187,7 @@ public class ClassReader {
             j = readUnsignedShort(v);
             v += 2;
             for (; j > 0; --j) {
-                attrName = readUTF8(v, c);
+                String attrName = readUTF8(v, c);
                 if (attrName.equals("LocalVariableTable")) {
                     varTable = v + 6;
                 } else if (attrName.equals("LocalVariableTypeTable")) {
@@ -248,12 +196,13 @@ public class ClassReader {
                 v += 6 + readInt(v + 2);
             }
 
-            v = codeStart;
             // visits the local variable tables
             if (varTable != 0) {
+                int k, w;
                 if (varTypeTable != 0) {
                     k = readUnsignedShort(varTypeTable) * 3;
                     w = varTypeTable + 2;
+                    // FIXME Contents of array 'typeTable' are written to, but never read
                     int[] typeTable = new int[k];
                     while (k > 0) {
                         typeTable[--k] = w + 6; // signature

@@ -32,7 +32,7 @@ import java.nio.charset.CoderResult;
  */
 public class UTF8Decoder extends CharsetDecoder {
 
-    private final static Charset charset = Charset.forName("UTF-8");
+    private final static Charset charset = IOUtils.UTF8;
 
     public UTF8Decoder(){
         super(charset, 1.0f, 1.0f);
@@ -173,7 +173,7 @@ public class UTF8Decoder extends CharsetDecoder {
                 int b2 = srcArray[srcPosition + 1];
                 int b3 = srcArray[srcPosition + 2];
                 int b4 = srcArray[srcPosition + 3];
-                int uc = ((b1 & 0x07) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 06) | (b4 & 0x3f);
+                int uc = ((b1 & 0x07) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f);
                 if (isMalformed4(b2, b3, b4) || !((uc >= 0x10000) && (uc <= 1114111))) {
                     return malformed(src, srcPosition, dst, destPosition, 4);
                 }

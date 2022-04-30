@@ -24,9 +24,9 @@ public class ParseContext {
                 path = "$";
             } else {
                 if (fieldName instanceof Integer) {
-                    path = parent.toString() + "[" + fieldName + "]";
+                    path = parent + "[" + fieldName + "]";
                 } else {
-                    path = parent.toString() + "." + fieldName;
+                    path = parent + "." + fieldName;
                 }
             }
         }

@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -229,15 +229,12 @@ public class Label {
             int reference = srcAndRefPositions[i++];
             int handle = reference & FORWARD_REFERENCE_HANDLE_MASK;
             int offset = position - source;
-            if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_SHORT) {
-                data[handle++] = (byte) (offset >>> 8);
-                data[handle] = (byte) offset;
-            } else {
+            if ((reference & FORWARD_REFERENCE_TYPE_MASK) != FORWARD_REFERENCE_TYPE_SHORT) {
                 data[handle++] = (byte) (offset >>> 24);
                 data[handle++] = (byte) (offset >>> 16);
-                data[handle++] = (byte) (offset >>> 8);
-                data[handle] = (byte) offset;
             }
+            data[handle++] = (byte) (offset >>> 8);
+            data[handle] = (byte) offset;
         }
     }
 

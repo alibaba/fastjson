@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -31,7 +31,7 @@ package com.alibaba.fastjson.asm;
 
 /**
  * An FieldWriter that generates Java fields in bytecode form.
- * 
+ *
  * @author Eric Bruneton
  */
 public final class FieldWriter {
@@ -82,7 +82,7 @@ public final class FieldWriter {
 
     /**
      * Returns the size of this field.
-     * 
+     *
      * @return the size of this field.
      */
     int getSize() {
@@ -91,7 +91,7 @@ public final class FieldWriter {
 
     /**
      * Puts the content of this field into the given byte vector.
-     * 
+     *
      * @param out where the content of this field must be put.
      */
     void put(final ByteVector out) {

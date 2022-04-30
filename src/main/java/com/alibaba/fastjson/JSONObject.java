@@ -183,33 +183,19 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
 
     public Boolean getBoolean(String key) {
         Object value = get(key);
-
-        if (value == null) {
-            return null;
-        }
-
+        // castToBoolean() supports null check
         return castToBoolean(value);
     }
 
     public byte[] getBytes(String key) {
         Object value = get(key);
-
-        if (value == null) {
-            return null;
-        }
-
+        // castToBytes() supports null check
         return castToBytes(value);
     }
 
     public boolean getBooleanValue(String key) {
-        Object value = get(key);
-
-        Boolean booleanVal = castToBoolean(value);
-        if (booleanVal == null) {
-            return false;
-        }
-
-        return booleanVal.booleanValue();
+        Boolean booleanVal = getBoolean(key);
+        return booleanVal != null && booleanVal;
     }
 
     public Byte getByte(String key) {
@@ -219,14 +205,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public byte getByteValue(String key) {
-        Object value = get(key);
-
-        Byte byteVal = castToByte(value);
-        if (byteVal == null) {
-            return 0;
-        }
-
-        return byteVal.byteValue();
+        Byte byteVal = getByte(key);
+        return byteVal == null ? 0 : byteVal;
     }
 
     public Short getShort(String key) {
@@ -236,14 +216,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public short getShortValue(String key) {
-        Object value = get(key);
-
-        Short shortVal = castToShort(value);
-        if (shortVal == null) {
-            return 0;
-        }
-
-        return shortVal.shortValue();
+        Short shortVal = getShort(key);
+        return shortVal == null ? 0 : shortVal;
     }
 
     public Integer getInteger(String key) {
@@ -253,14 +227,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public int getIntValue(String key) {
-        Object value = get(key);
-
-        Integer intVal = castToInt(value);
-        if (intVal == null) {
-            return 0;
-        }
-
-        return intVal.intValue();
+        Integer intVal = getInteger(key);
+        return intVal == null ? 0 : intVal;
     }
 
     public Long getLong(String key) {
@@ -270,14 +238,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public long getLongValue(String key) {
-        Object value = get(key);
-
-        Long longVal = castToLong(value);
-        if (longVal == null) {
-            return 0L;
-        }
-
-        return longVal.longValue();
+        Long longVal = getLong(key);
+        return longVal == null ? 0L : longVal;
     }
 
     public Float getFloat(String key) {
@@ -287,14 +249,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public float getFloatValue(String key) {
-        Object value = get(key);
-
-        Float floatValue = castToFloat(value);
-        if (floatValue == null) {
-            return 0F;
-        }
-
-        return floatValue.floatValue();
+        Float floatValue = getFloat(key);
+        return floatValue == null ? 0F : floatValue;
     }
 
     public Double getDouble(String key) {
@@ -304,14 +260,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
     }
 
     public double getDoubleValue(String key) {
-        Object value = get(key);
-
-        Double doubleValue = castToDouble(value);
-        if (doubleValue == null) {
-            return 0D;
-        }
-
-        return doubleValue.doubleValue();
+        Double doubleValue = getDouble(key);
+        return doubleValue == null ? 0D : doubleValue;
     }
 
     public BigDecimal getBigDecimal(String key) {
@@ -529,7 +479,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         in.defaultReadObject();
-        for (Entry entry : map.entrySet()) {
+        for (Entry<String, Object> entry : map.entrySet()) {
             final Object key = entry.getKey();
             if (key != null) {
                 ParserConfig.global.checkAutoType(key.getClass());
@@ -550,12 +500,12 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             if (fields == null && !fields_error) {
                 try {
                     final Field[] declaredFields = ObjectInputStream.class.getDeclaredFields();
-                    String[] fieldnames = new String[]{"bin", "passHandle", "handles", "curContext"};
-                    Field[] array = new Field[fieldnames.length];
-                    for (int i = 0; i < fieldnames.length; i++) {
+                    String[] fieldNames = new String[]{"bin", "passHandle", "handles", "curContext"};
+                    Field[] array = new Field[fieldNames.length];
+                    for (int i = 0; i < fieldNames.length; i++) {
                         Field field = TypeUtils
                                 .getField(ObjectInputStream.class
-                                        , fieldnames[i]
+                                        , fieldNames[i]
                                         , declaredFields
                                 );
                         field.setAccessible(true);
@@ -571,8 +521,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         public SecureObjectInputStream(ObjectInputStream in) throws IOException {
             super(in);
             try {
-                for (int i = 0; i < fields.length; i++) {
-                    final Field field = fields[i];
+                for (final Field field : fields) {
                     final Object value = field.get(in);
                     field.set(this, value);
                 }
@@ -612,7 +561,8 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         }
 
         //Hack:默认构造方法会调用这个方法，重写此方法使用反射还原部分关键属性
-        protected void readStreamHeader() throws IOException, StreamCorruptedException {
+        // StreamCorruptedException inherits IOException
+        protected void readStreamHeader() throws IOException {
 
         }
     }

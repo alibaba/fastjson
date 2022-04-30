@@ -504,8 +504,7 @@ public class JavaBeanInfo {
                             continue;
                         }
 
-                        if (creatorConstructor != null
-                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
+                        if (creatorConstructor != null && lookupParameterNames.length <= paramNames.length) {
                             continue;
                         }
 
@@ -641,7 +640,7 @@ public class JavaBeanInfo {
                         if (methodName.length() <= withPrefix.length()) {
                             continue;
                         }
-                        
+
                         properNameBuilder = new StringBuilder(methodName.substring(withPrefix.length()));
                     }
                 }
@@ -659,42 +658,41 @@ public class JavaBeanInfo {
                         annotation, null, null, genericInfo));
             }
 
-            if (builderClass != null) {
-                JSONPOJOBuilder builderAnnotation = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
+            // builderClass 在此处不可能为 null
+            JSONPOJOBuilder builderAnnotation = TypeUtils.getAnnotation(builderClass, JSONPOJOBuilder.class);
 
-                String buildMethodName = null;
-                if (builderAnnotation != null) {
-                    buildMethodName = builderAnnotation.buildMethod();
-                }
+            String buildMethodName = null;
+            if (builderAnnotation != null) {
+                buildMethodName = builderAnnotation.buildMethod();
+            }
 
-                if (buildMethodName == null || buildMethodName.length() == 0) {
-                    buildMethodName = "build";
-                }
+            if (buildMethodName == null || buildMethodName.length() == 0) {
+                buildMethodName = "build";
+            }
 
+            try {
+                buildMethod = builderClass.getMethod(buildMethodName);
+            } catch (NoSuchMethodException e) {
+                // skip
+            } catch (SecurityException e) {
+                // skip
+            }
+
+            if (buildMethod == null) {
                 try {
-                    buildMethod = builderClass.getMethod(buildMethodName);
+                    buildMethod = builderClass.getMethod("create");
                 } catch (NoSuchMethodException e) {
                     // skip
                 } catch (SecurityException e) {
                     // skip
                 }
-
-                if (buildMethod == null) {
-                    try {
-                        buildMethod = builderClass.getMethod("create");
-                    } catch (NoSuchMethodException e) {
-                        // skip
-                    } catch (SecurityException e) {
-                        // skip
-                    }
-                }
-
-                if (buildMethod == null) {
-                    throw new JSONException("buildMethod not found.");
-                }
-
-                TypeUtils.setAccessible(buildMethod);
             }
+
+            if (buildMethod == null) {
+                throw new JSONException("buildMethod not found.");
+            }
+
+            TypeUtils.setAccessible(buildMethod);
         }
 
         for (Method method : methods) { //
@@ -772,10 +770,10 @@ public class JavaBeanInfo {
             List<String> getMethodNameList = null;
 
             if (kotlin) {
-                getMethodNameList = new ArrayList();
-                for (int i = 0; i < methods.length; i++) {
-                    if (methods[i].getName().startsWith("get")) {
-                        getMethodNameList.add(methods[i].getName());
+                getMethodNameList = new ArrayList<String>();
+                for (Method value : methods) {
+                    if (value.getName().startsWith("get")) {
+                        getMethodNameList.add(value.getName());
                     }
                 }
             }

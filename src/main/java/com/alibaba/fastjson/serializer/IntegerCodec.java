@@ -39,18 +39,18 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
         SerializeWriter out = serializer.out;
 
         Number value = (Number) object;
-        
+
         if (value == null) {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
             return;
         }
-        
+
         if (object instanceof Long) {
             out.writeLong(value.longValue());
         } else {
             out.writeInt(value.intValue());
         }
-        
+
         if (out.isEnabled(SerializerFeature.WriteClassName)) {
             Class<?> clazz = value.getClass();
             if (clazz == Byte.class) {
@@ -60,7 +60,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -78,7 +78,7 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             if (token == JSONToken.LITERAL_INT) {
                 int val = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);
-                intObj = Integer.valueOf(val);
+                intObj = val;
             } else if (token == JSONToken.LITERAL_FLOAT) {
                 BigDecimal number = lexer.decimalValue();
                 intObj = TypeUtils.intValue(number);
@@ -101,11 +101,10 @@ public class IntegerCodec implements ObjectSerializer, ObjectDeserializer {
             throw new JSONException(message, ex);
         }
 
-        
         if (clazz == AtomicInteger.class) {
-            return (T) new AtomicInteger(intObj.intValue());
+            return (T) new AtomicInteger(intObj);
         }
-        
+
         return (T) intObj;
     }
 

@@ -15,18 +15,19 @@ import java.util.Map;
  * Created by wenshao on 10/05/2017.
  */
 public class AnnotationSerializer implements ObjectSerializer {
-    private static volatile Class sun_AnnotationType = null;
+    private static volatile Class<?> sun_AnnotationType = null;
     private static volatile boolean sun_AnnotationType_error = false;
     private static volatile Method sun_AnnotationType_getInstance = null;
     private static volatile Method sun_AnnotationType_members = null;
 
     public static AnnotationSerializer instance = new AnnotationSerializer();
 
+    @SuppressWarnings("unchecked")
     public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
-        Class objClass = object.getClass();
-        Class[] interfaces = objClass.getInterfaces();
+        Class<?> objClass = object.getClass();
+        Class<?>[] interfaces = objClass.getInterfaces();
         if (interfaces.length == 1 && interfaces[0].isAnnotation()) {
-            Class annotationClass = interfaces[0];
+            Class<?> annotationClass = interfaces[0];
 
             if (sun_AnnotationType == null && !sun_AnnotationType_error) {
                 try {
@@ -95,7 +96,6 @@ public class AnnotationSerializer implements ObjectSerializer {
                 json.put(entry.getKey(), JSON.toJSON(val));
             }
             serializer.write(json);
-            return;
         }
     }
 }

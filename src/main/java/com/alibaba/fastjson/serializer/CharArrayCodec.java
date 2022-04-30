@@ -13,12 +13,10 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 public class CharArrayCodec implements ObjectDeserializer {
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-        return (T) deserialze(parser);
+        return deserialze(parser);
     }
-    
-    @SuppressWarnings("unchecked")
+
     public static <T> T deserialze(DefaultJSONParser parser) {
         final JSONLexer lexer = parser.lexer;
         if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -26,7 +24,7 @@ public class CharArrayCodec implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
             return (T) val.toCharArray();
         }
-        
+
         if (lexer.token() == JSONToken.LITERAL_INT) {
             Number val = lexer.integerValue();
             lexer.nextToken(JSONToken.COMMA);
@@ -40,7 +38,7 @@ public class CharArrayCodec implements ObjectDeserializer {
         }
 
         if (value instanceof Collection) {
-            Collection<?> collection = (Collection) value;
+            Collection<?> collection = (Collection<?>) value;
 
             boolean accept = true;
             for (Object item : collection) {

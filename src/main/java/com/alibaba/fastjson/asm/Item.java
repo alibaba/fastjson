@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -31,7 +31,7 @@ package com.alibaba.fastjson.asm;
 
 /**
  * A constant pool item. Constant pool items can be created with the 'newXXX' methods in the {@link ClassWriter} class.
- * 
+ *
  * @author Eric Bruneton
  */
 final class Item {
@@ -86,7 +86,7 @@ final class Item {
 
     /**
      * Constructs a copy of the given item.
-     * 
+     *
      * @param index index of the item to be constructed.
      * @param i the item that must be copied into the item to be constructed.
      */
@@ -103,7 +103,7 @@ final class Item {
 
     /**
      * Sets this item to an item that do not hold a primitive value.
-     * 
+     *
      * @param type the type of this item.
      * @param strVal1 first part of the value of this item.
      * @param strVal2 second part of the value of this item.
@@ -131,7 +131,7 @@ final class Item {
                 hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
         }
     }
-    
+
     /**
      * Sets this item to an integer item.
      *
@@ -146,7 +146,7 @@ final class Item {
     /**
      * Indicates if the given item is equal to this one. <i>This method assumes that the two items have the same
      * {@link #type}</i>.
-     * 
+     *
      * @param i the item to be compared to this one. Both items must have the same {@link #type}.
      * @return <tt>true</tt> if the given item if equal to this one, <tt>false</tt> otherwise.
      */

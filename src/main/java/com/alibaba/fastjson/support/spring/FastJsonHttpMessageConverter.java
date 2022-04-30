@@ -60,10 +60,10 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
     public static final MediaType APPLICATION_JAVASCRIPT = new MediaType("application", "javascript");
 
     @Deprecated
-    protected SerializerFeature[] features = new SerializerFeature[0];
+    protected SerializerFeature[] features = SerializerFeature.EMPTY;
 
     @Deprecated
-    protected SerializeFilter[] filters = new SerializeFilter[0];
+    protected SerializeFilter[] filters = SerializeFilter.EMPTY_FILTERS;
 
     @Deprecated
     protected String dateFormat;

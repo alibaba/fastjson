@@ -79,12 +79,12 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 Class<?> clazz = item.getClass();
 
                 if (clazz == Integer.class) {
-                    out.writeInt(((Integer) item).intValue());
+                    out.writeInt((Integer) item);
                     continue;
                 }
 
                 if (clazz == Long.class) {
-                    out.writeLong(((Long) item).longValue());
+                    out.writeLong((Long) item);
 
                     if (out.isEnabled(SerializerFeature.WriteClassName)) {
                         out.write('L');
@@ -113,7 +113,7 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
             parser.lexer.nextToken(JSONToken.COMMA);
             return null;
         }
-        
+
         if (type == JSONArray.class) {
             JSONArray array = new JSONArray();
             parser.parseArray(array);
@@ -134,9 +134,8 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
         return (T) list;
     }
 
-  
-
     public int getFastMatchToken() {
         return JSONToken.LBRACKET;
     }
+
 }

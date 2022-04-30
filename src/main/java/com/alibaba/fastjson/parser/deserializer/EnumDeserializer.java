@@ -29,8 +29,7 @@ public class EnumDeserializer implements ObjectDeserializer {
         ordinalEnums = (Enum[]) enumClass.getEnumConstants();
 
         Map<Long, Enum> enumMap = new HashMap<Long, Enum>();
-        for (int i = 0; i < ordinalEnums.length; ++i) {
-            Enum e = ordinalEnums[i];
+        for (Enum e : ordinalEnums) {
             String name = e.name();
 
             JSONField jsonField = null;
@@ -39,7 +38,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                 jsonField = TypeUtils.getAnnotation(field, JSONField.class);
                 if (jsonField != null) {
                     String jsonFieldName = jsonField.name();
-                    if (jsonFieldName != null && jsonFieldName.length() > 0) {
+                    if (jsonFieldName.length() > 0) {
                         name = jsonFieldName;
                     }
                 }
@@ -109,7 +108,7 @@ public class EnumDeserializer implements ObjectDeserializer {
 
         return enums[enumIndex];
     }
-    
+
     public Enum<?> valueOf(int ordinal) {
         return ordinalEnums[ordinal];
     }
@@ -134,7 +133,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                 lexer.nextToken(JSONToken.COMMA);
 
                 if (name.length() == 0) {
-                    return (T) null;
+                    return null;
                 }
 
                 long hash = fnv1a_64_magic_hashcode;
@@ -159,9 +158,7 @@ public class EnumDeserializer implements ObjectDeserializer {
                 }
                 return (T) e;
             } else if (token == JSONToken.NULL) {
-                value = null;
                 lexer.nextToken(JSONToken.COMMA);
-
                 return null;
             } else {
                 value = parser.parse();

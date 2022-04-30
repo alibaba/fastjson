@@ -42,7 +42,6 @@ import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -300,7 +299,7 @@ public class TypeUtils {
         }
 
         if (value instanceof Boolean) {
-            return ((Boolean) value).booleanValue() ? (short) 1 : (short) 0;
+            return (Boolean) value ? (short) 1 : (short) 0;
         }
 
         throw new JSONException("can not cast to short, value : " + value);
@@ -346,17 +345,17 @@ public class TypeUtils {
         }
 
         if (value instanceof Float) {
-            Float floatValue = (Float) value;
+            float floatValue = (Float) value;
             if (Float.isNaN(floatValue) || Float.isInfinite(floatValue)) {
                 return null;
             }
-            return BigInteger.valueOf(floatValue.longValue());
+            return BigInteger.valueOf((long) floatValue);
         } else if (value instanceof Double) {
-            Double doubleValue = (Double) value;
+            double doubleValue = (Double) value;
             if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
                 return null;
             }
-            return BigInteger.valueOf(doubleValue.longValue());
+            return BigInteger.valueOf((long) doubleValue);
         } else if (value instanceof BigInteger) {
             return (BigInteger) value;
         } else if (value instanceof BigDecimal) {
@@ -568,7 +567,7 @@ public class TypeUtils {
                 return null;
             }
             if (value instanceof java.sql.Date) {
-                return (java.sql.Date) value;
+                return value;
             }
             if (value instanceof Date) {
                 return new java.sql.Date(((Date) value).getTime());
@@ -627,7 +626,7 @@ public class TypeUtils {
                 return null;
             }
             if (value instanceof java.sql.Time) {
-                return (java.sql.Time) value;
+                return value;
             }
             if (value instanceof java.util.Date) {
                 return new java.sql.Time(((java.util.Date) value).getTime());
@@ -686,7 +685,7 @@ public class TypeUtils {
                 return new java.sql.Timestamp(((Calendar) value).getTimeInMillis());
             }
             if (value instanceof java.sql.Timestamp) {
-                return (java.sql.Timestamp) value;
+                return value;
             }
             if (value instanceof java.util.Date) {
                 return new java.sql.Timestamp(((java.util.Date) value).getTime());
@@ -1013,6 +1012,10 @@ public class TypeUtils {
     }
 
     public static byte[] castToBytes(Object value) {
+        // 应该和其它 cast*() 保持一致，都兼容 null 入参
+        if (value == null){
+            return null;
+        }
         if (value instanceof byte[]) {
             return (byte[]) value;
         }
@@ -1323,7 +1326,7 @@ public class TypeUtils {
             return cast(obj, (Class<T>) type, mapping);
         }
         if (type instanceof ParameterizedType) {
-            return (T) cast(obj, (ParameterizedType) type, mapping);
+            return cast(obj, (ParameterizedType) type, mapping);
         }
         if (obj instanceof String) {
             String strVal = (String) obj;
@@ -1424,7 +1427,7 @@ public class TypeUtils {
         if (actualTypeArguments.length == 1) {
             Type argType = type.getActualTypeArguments()[0];
             if (argType instanceof WildcardType) {
-                return (T) cast(obj, rawTye, mapping);
+                return cast(obj, rawTye, mapping);
             }
         }
 
@@ -1448,7 +1451,7 @@ public class TypeUtils {
             if (deserializer != null) {
                 String str = JSON.toJSONString(obj);
                 DefaultJSONParser parser = new DefaultJSONParser(str, mapping);
-                return (T) deserializer.deserialze(parser, type, null);
+                return deserializer.deserialze(parser, type, null);
             }
         }
 
@@ -1578,10 +1581,7 @@ public class TypeUtils {
                             java.sql.Date.class,
                             java.sql.Timestamp.class
                     };
-                    for (Class clazz : classes) {
-                        if (clazz == null) {
-                            continue;
-                        }
+                    for (Class<?> clazz : classes) {
                         mappings.put(clazz.getName(), clazz);
                     }
                     return null;
@@ -1956,10 +1956,10 @@ public class TypeUtils {
             if (kotlin && isKotlinIgnore(clazz, methodName)) {
                 continue;
             }
-            /**
+            /*
              *  如果在属性或者方法上存在JSONField注解，并且定制了name属性，不以类上的propertyNamingStrategy设置为准，以此字段的JSONField的name定制为准。
              */
-            Boolean fieldAnnotationAndNameExists = false;
+            boolean fieldAnnotationAndNameExists = false;
             JSONField annotation = TypeUtils.getAnnotation(method, JSONField.class);
             if (annotation == null) {
                 annotation = getSuperMethodAnnotation(clazz, method);
@@ -2879,8 +2879,7 @@ public class TypeUtils {
         }
         if (method_HibernateIsInitialized != null) {
             try {
-                Boolean initialized = (Boolean) method_HibernateIsInitialized.invoke(null, object);
-                return initialized;
+                return (Boolean) method_HibernateIsInitialized.invoke(null, object);
             } catch (Throwable e) {
                 // skip
             }
@@ -3137,10 +3136,9 @@ public class TypeUtils {
         try {
             Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
-            Iterable it = (Iterable) kotlin_kclass_getConstructors.invoke(kclassImpl);
-            for (Iterator iterator = it.iterator(); iterator.hasNext(); iterator.hasNext()) {
-                Object item = iterator.next();
-                List parameters = (List) kotlin_kfunction_getParameters.invoke(item);
+            Iterable<Object> it = (Iterable<Object>) kotlin_kclass_getConstructors.invoke(kclassImpl);
+            for (Object item : it) {
+                List<Object> parameters = (List<Object>) kotlin_kfunction_getParameters.invoke(item);
                 if (constructor != null && parameters.size() == 0) {
                     continue;
                 }
@@ -3303,7 +3301,6 @@ public class TypeUtils {
         Annotation[][] targetAnnotations = method.getParameterAnnotations();
 
         Class<?> clazz = method.getDeclaringClass();
-        Annotation[][] mixInAnnotations;
         Class<?> mixInClass = null;
         Type type = JSON.getMixInAnnotations(clazz);
         if (type instanceof Class<?>) {
@@ -3321,16 +3318,12 @@ public class TypeUtils {
                     mixInMethod = currClass.getDeclaredMethod(methodName, parameterTypes);
                     break;
                 } catch (NoSuchMethodException e) {
-                    continue;
                 }
             }
             if (mixInMethod == null) {
                 return targetAnnotations;
             }
-            mixInAnnotations = mixInMethod.getParameterAnnotations();
-            if (mixInAnnotations != null) {
-                return mixInAnnotations;
-            }
+            return mixInMethod.getParameterAnnotations();
         }
         return targetAnnotations;
     }
@@ -3339,7 +3332,6 @@ public class TypeUtils {
         Annotation[][] targetAnnotations = constructor.getParameterAnnotations();
 
         Class<?> clazz = constructor.getDeclaringClass();
-        Annotation[][] mixInAnnotations;
         Class<?> mixInClass = null;
         Type type = JSON.getMixInAnnotations(clazz);
         if (type instanceof Class<?>) {
@@ -3377,10 +3369,7 @@ public class TypeUtils {
             if (mixInConstructor == null) {
                 return targetAnnotations;
             }
-            mixInAnnotations = mixInConstructor.getParameterAnnotations();
-            if (mixInAnnotations != null) {
-                return mixInAnnotations;
-            }
+            return mixInConstructor.getParameterAnnotations();
         }
         return targetAnnotations;
     }
@@ -3409,7 +3398,7 @@ public class TypeUtils {
             return null;
         }
 
-        Class clazz = getClass(type);
+        Class<?> clazz = getClass(type);
         if (clazz == null) {
             return null;
         }

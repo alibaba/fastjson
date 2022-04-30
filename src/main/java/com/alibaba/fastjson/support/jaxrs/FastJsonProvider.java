@@ -6,6 +6,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -31,8 +32,8 @@ import java.util.List;
  */
 
 @Provider
-@Consumes({MediaType.WILDCARD})
-@Produces({MediaType.WILDCARD})
+@Consumes //  default value == MediaType.WILDCARD
+@Produces
 public class FastJsonProvider //
         implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
@@ -55,13 +56,13 @@ public class FastJsonProvider //
     };
 
     @Deprecated
-    protected Charset charset = Charset.forName("UTF-8");
+    protected Charset charset = IOUtils.UTF8;
 
     @Deprecated
-    protected SerializerFeature[] features = new SerializerFeature[0];
+    protected SerializerFeature[] features = SerializerFeature.EMPTY;
 
     @Deprecated
-    protected SerializeFilter[] filters = new SerializeFilter[0];
+    protected SerializeFilter[] filters = SerializeFilter.EMPTY_FILTERS;
 
     @Deprecated
     protected String dateFormat;

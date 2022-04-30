@@ -48,13 +48,13 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         }
     }
 
-    @Override
+    @Override // 只有 Java 6+ 才支持在接口的实现类上使用该注解
     public T deserialize(byte[] bytes) throws SerializationException {
         if (bytes == null || bytes.length == 0) {
             return null;
         }
         try {
-            return (T) JSON.parseObject(
+            return JSON.parseObject(
                     bytes,
                     fastJsonConfig.getCharset(),
                     type,

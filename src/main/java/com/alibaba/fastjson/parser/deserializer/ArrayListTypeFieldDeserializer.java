@@ -86,24 +86,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
         if (objectType instanceof ParameterizedType) {
             if (itemType instanceof TypeVariable) {
-                TypeVariable typeVar = (TypeVariable) itemType;
                 ParameterizedType paramType = (ParameterizedType) objectType;
 
-                Class<?> objectClass = null;
-                if (paramType.getRawType() instanceof Class) {
-                    objectClass = (Class<?>) paramType.getRawType();
-                }
-
-                int paramIndex = -1;
-                if (objectClass != null) {
-                    for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
-                        TypeVariable item = objectClass.getTypeParameters()[i];
-                        if (item.getName().equals(typeVar.getName())) {
-                            paramIndex = i;
-                            break;
-                        }
-                    }
-                }
+                int paramIndex = indexOfTypeVariable(paramType, (TypeVariable) itemType);
 
                 if (paramIndex != -1) {
                     itemType = paramType.getActualTypeArguments()[paramIndex];
@@ -115,25 +100,9 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 ParameterizedType parameterizedItemType = (ParameterizedType) itemType;
                 Type[] itemActualTypeArgs = parameterizedItemType.getActualTypeArguments();
                 if (itemActualTypeArgs.length == 1 && itemActualTypeArgs[0] instanceof TypeVariable) {
-                    TypeVariable typeVar = (TypeVariable) itemActualTypeArgs[0];
                     ParameterizedType paramType = (ParameterizedType) objectType;
 
-                    Class<?> objectClass = null;
-                    if (paramType.getRawType() instanceof Class) {
-                        objectClass = (Class<?>) paramType.getRawType();
-                    }
-
-                    int paramIndex = -1;
-                    if (objectClass != null) {
-                        for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
-                            TypeVariable item = objectClass.getTypeParameters()[i];
-                            if (item.getName().equals(typeVar.getName())) {
-                                paramIndex = i;
-                                break;
-                            }
-                        }
-
-                    }
+                    int paramIndex = indexOfTypeVariable(paramType, (TypeVariable) itemActualTypeArgs[0]);
 
                     if (paramIndex != -1) {
                         itemActualTypeArgs[0] = paramType.getActualTypeArguments()[paramIndex];
@@ -146,10 +115,8 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
         } else if (itemType instanceof TypeVariable && objectType instanceof Class) {
             Class objectClass = (Class) objectType;
             TypeVariable typeVar = (TypeVariable) itemType;
-            objectClass.getTypeParameters();
 
-            for (int i = 0, size = objectClass.getTypeParameters().length; i < size; ++i) {
-                TypeVariable item = objectClass.getTypeParameters()[i];
+            for (TypeVariable item : objectClass.getTypeParameters()) {
                 if (item.getName().equals(typeVar.getName())) {
                     Type[] bounds = item.getBounds();
                     if (bounds.length == 1) {
@@ -175,7 +142,6 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
                 if (lexer.isEnabled(Feature.AllowArbitraryCommas)) {
                     while (lexer.token() == JSONToken.COMMA) {
                         lexer.nextToken();
-                        continue;
                     }
                 }
 
@@ -190,7 +156,6 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 
                 if (lexer.token() == JSONToken.COMMA) {
                     lexer.nextToken(itemFastMatchToken);
-                    continue;
                 }
             }
 
@@ -209,4 +174,20 @@ public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
             parser.checkListResolve(array);
         }
     }
+
+    private int indexOfTypeVariable(ParameterizedType paramType, TypeVariable<?> typeVar) {
+        if (paramType.getRawType() instanceof Class) {
+            Class<?> clazz = (Class<?>) paramType.getRawType();
+            // getTypeParameters() 内部每次都是返回新数组，因此需要抽取成变量
+            TypeVariable<? extends Class<?>>[] typeParameters = clazz.getTypeParameters();
+            for (int i = 0, size = typeParameters.length; i < size; ++i) {
+                if (typeParameters[i].getName().equals(typeVar.getName())) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+
 }

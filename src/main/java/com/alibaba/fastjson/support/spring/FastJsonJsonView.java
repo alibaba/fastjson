@@ -46,16 +46,16 @@ public class FastJsonJsonView extends AbstractView {
     /**
      * Pattern for validating jsonp callback parameter values.
      */
-    private static final Pattern CALLBACK_PARAM_PATTERN = Pattern.compile("[0-9A-Za-z_\\.]*");
+    public static final Pattern CALLBACK_PARAM_PATTERN = Pattern.compile("[0-9A-Za-z_.]*");
 
     @Deprecated
-    protected Charset charset = Charset.forName("UTF-8");
+    protected Charset charset = IOUtils.UTF8;
 
     @Deprecated
-    protected SerializerFeature[] features = new SerializerFeature[0];
+    protected SerializerFeature[] features = SerializerFeature.EMPTY;
 
     @Deprecated
-    protected SerializeFilter[] filters = new SerializeFilter[0];
+    protected SerializeFilter[] filters = SerializeFilter.EMPTY_FILTERS;
 
     @Deprecated
     protected String dateFormat;

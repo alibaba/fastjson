@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -31,7 +31,7 @@ package com.alibaba.fastjson.asm;
 
 /**
  * A Java type. This class can be used to make it easier to manipulate type and method descriptors.
- * 
+ *
  * @author Eric Bruneton
  * @author Chris Nokleberg
  */
@@ -120,7 +120,7 @@ public class Type {
 
     /**
      * Returns the Java type corresponding to the given type descriptor.
-     * 
+     *
      * @param typeDescriptor a type descriptor.
      * @return the Java type corresponding to the given type descriptor.
      */
@@ -157,7 +157,7 @@ public class Type {
 
     /**
      * Returns the Java type corresponding to the given type descriptor.
-     * 
+     *
      * @param buf a buffer containing a type descriptor.
      * @param off the offset of this descriptor in the previous buffer.
      * @return the Java type corresponding to the given type descriptor.

@@ -75,7 +75,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                         out.write(',');
                         serializer.println();
                     }
-                    serializer.writeWithFieldName(array[i], Integer.valueOf(i));
+                    serializer.writeWithFieldName(array[i], i);
                 }
                 serializer.decrementIdent();
                 serializer.println();
@@ -94,14 +94,12 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
                     } else {
                         Class<?> clazz = item.getClass();
 
-                        if (clazz == preClazz) {
-                            preWriter.write(serializer, item, i, null, 0);
-                        } else {
+                        if (clazz != preClazz) {
                             preClazz = clazz;
                             preWriter = serializer.getObjectWriter(clazz);
-
-                            preWriter.write(serializer, item, i, null, 0);
                         }
+
+                        preWriter.write(serializer, item, i, null, 0);
                     }
                     out.append(',');
                 }
@@ -123,8 +121,8 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
             serializer.context = context;
         }
     }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+
+    @SuppressWarnings("rawtypes")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
         int token = lexer.token();
@@ -182,7 +180,7 @@ public class ObjectArrayCodec implements ObjectSerializer, ObjectDeserializer {
         JSONArray array = new JSONArray();
         parser.parseArray(componentType, array, fieldName);
 
-        return (T) toObjectArray(parser, componentClass, array);
+        return toObjectArray(parser, componentClass, array);
     }
 
     @SuppressWarnings("unchecked")

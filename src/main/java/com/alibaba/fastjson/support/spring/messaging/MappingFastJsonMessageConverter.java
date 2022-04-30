@@ -2,12 +2,11 @@ package com.alibaba.fastjson.support.spring.messaging;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.AbstractMessageConverter;
 import org.springframework.util.MimeType;
-
-import java.nio.charset.Charset;
 
 /**
  * Fastjson for Spring Messaging Json Converter.
@@ -43,7 +42,7 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
     }
 
     public MappingFastJsonMessageConverter() {
-        super(new MimeType("application", "json", Charset.forName("UTF-8")));
+        super(new MimeType("application", "json", IOUtils.UTF8));
     }
 
     protected boolean supports(Class<?> clazz) {
@@ -82,7 +81,8 @@ public class MappingFastJsonMessageConverter extends AbstractMessageConverter {
         Object obj;
         if (byte[].class == getSerializedPayloadClass()) {
             if (payload instanceof String && JSON.isValid((String) payload)) {
-                obj = ((String) payload).getBytes(fastJsonConfig.getCharset());
+                // String.getBytes(Charset) 是 Java 6+ 才有的 API
+                obj = IOUtils.getBytes((String) payload, fastJsonConfig.getCharset());
             } else {
                 obj = JSON.toJSONBytesWithFastJsonConfig(fastJsonConfig.getCharset(), payload, fastJsonConfig.getSerializeConfig(), fastJsonConfig.getSerializeFilters(),
                         fastJsonConfig.getDateFormat(), JSON.DEFAULT_GENERATE_FEATURE, fastJsonConfig.getSerializerFeatures());

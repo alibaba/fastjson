@@ -6,11 +6,10 @@ public class PascalNameFilter implements NameFilter {
         if (name == null || name.length() == 0) {
             return name;
         }
-        
+
         char[] chars = name.toCharArray();
         chars[0]= Character.toUpperCase(chars[0]);
-        
-        String pascalName = new String(chars);
-        return pascalName;
+
+        return new String(chars);
     }
 }

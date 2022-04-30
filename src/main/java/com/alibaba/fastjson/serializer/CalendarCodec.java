@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -38,9 +37,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         }
 
         DateFormat dateFormat = new SimpleDateFormat(format);
-        if (dateFormat == null) {
-            dateFormat = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT, serializer.locale);
-        }
+        // dateFormat is always not null
         dateFormat.setTimeZone(serializer.timeZone);
         String text = dateFormat.format(calendar.getTime());
         out.writeString(text);
@@ -66,7 +63,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         if (out.isEnabled(SerializerFeature.UseISO8601DateFormat)) {
             final char quote = out.isEnabled(SerializerFeature.UseSingleQuotes) //
                 ? '\'' //
-                : '\"';
+                : '"';
             out.append(quote);
 
             int year = calendar.get(Calendar.YEAR);
@@ -84,26 +81,19 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
                 IOUtils.getChars(second, 19, buf);
                 IOUtils.getChars(minute, 16, buf);
                 IOUtils.getChars(hour, 13, buf);
-                IOUtils.getChars(day, 10, buf);
-                IOUtils.getChars(month, 7, buf);
-                IOUtils.getChars(year, 4, buf);
-
             } else {
                 if (second == 0 && minute == 0 && hour == 0) {
                     buf = "0000-00-00".toCharArray();
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 } else {
                     buf = "0000-00-00T00:00:00".toCharArray();
                     IOUtils.getChars(second, 19, buf);
                     IOUtils.getChars(minute, 16, buf);
                     IOUtils.getChars(hour, 13, buf);
-                    IOUtils.getChars(day, 10, buf);
-                    IOUtils.getChars(month, 7, buf);
-                    IOUtils.getChars(year, 4, buf);
                 }
             }
+            IOUtils.getChars(day, 10, buf);
+            IOUtils.getChars(month, 7, buf);
+            IOUtils.getChars(year, 4, buf);
 
             out.write(buf);
 
@@ -164,7 +154,7 @@ public class CalendarCodec extends ContextObjectDeserializer implements ObjectSe
         calendar.setTime(date);
 
         if (type == XMLGregorianCalendar.class) {
-            return (T) createXMLGregorianCalendar((GregorianCalendar) calendar);
+            return (T) createXMLGregorianCalendar(calendar);
         }
 
         return (T) calendar;

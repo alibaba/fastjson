@@ -1,4 +1,4 @@
-/***
+/*
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2007 INRIA, France Telecom
  * All rights reserved.
@@ -30,7 +30,7 @@
 package com.alibaba.fastjson.asm;
 
 /**
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassWriter {
@@ -182,7 +182,7 @@ public class ClassWriter {
 
     /**
      * Returns the bytecode of the class that was build with this class writer.
-     * 
+     *
      * @return the bytecode of the class that was build with this class writer.
      */
     public byte[] toByteArray() {
@@ -238,14 +238,14 @@ public class ClassWriter {
     /**
      * Adds a number or string constant to the constant pool of the class being build. Does nothing if the constant pool
      * already contains a similar item.
-     * 
+     *
      * @param cst the value of the constant to be added to the constant pool. This parameter must be an {@link Integer},
      * a {@link Float}, a {@link Long}, a {@link Double}, a {@link String} or a {@link Type}.
      * @return a new or already existing constant item with the given value.
      */
     Item newConstItem(final Object cst) {
         if (cst instanceof Integer) {
-            int val = ((Integer) cst).intValue();
+            int val = (Integer) cst;
             // return newInteger(val);
             key.set(val);
             Item result = get(key);
@@ -290,7 +290,7 @@ public class ClassWriter {
     /**
      * Adds a field reference to the constant pool of the class being build. Does nothing if the constant pool already
      * contains a similar item.
-     * 
+     *
      * @param owner the internal name of the field's owner class.
      * @param name the field's name.
      * @param desc the field's descriptor.
@@ -312,7 +312,7 @@ public class ClassWriter {
     /**
      * Adds a method reference to the constant pool of the class being build. Does nothing if the constant pool already
      * contains a similar item.
-     * 
+     *
      * @param owner the internal name of the method's owner class.
      * @param name the method's name.
      * @param desc the method's descriptor.

@@ -96,7 +96,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
+                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class)
                         && map.containsKey(typeKey);
                 if (!containsKey) {
                     out.writeFieldName(typeKey);
@@ -110,100 +110,30 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                 Object entryKey = entry.getKey();
 
-                {
-                    List<PropertyPreFilter> preFilters = serializer.propertyPreFilters;
-                    if (preFilters != null && preFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!this.applyName(serializer, object, (String) entryKey)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!this.applyName(serializer, object, strKey)) {
-                                continue;
-                            }
-                        }
-                    }
-                }
-                {
-                    List<PropertyPreFilter> preFilters = this.propertyPreFilters;
-                    if (preFilters != null && preFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!this.applyName(serializer, object, (String) entryKey)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!this.applyName(serializer, object, strKey)) {
-                                continue;
-                            }
-                        }
-                    }
-                }
-                
-                {
-                    List<PropertyFilter> propertyFilters = serializer.propertyFilters;
-                    if (propertyFilters != null && propertyFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!this.apply(serializer, object, (String) entryKey, value)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!this.apply(serializer, object, strKey, value)) {
-                                continue;
-                            }
-                        }
-                    }
-                }
-                {
-                    List<PropertyFilter> propertyFilters = this.propertyFilters;
-                    if (propertyFilters != null && propertyFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            if (!this.apply(serializer, object, (String) entryKey, value)) {
-                                continue;
-                            }
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            if (!this.apply(serializer, object, strKey, value)) {
-                                continue;
-                            }
-                        }
-                    }
-                }
-                
-                {
-                    List<NameFilter> nameFilters = serializer.nameFilters;
-                    if (nameFilters != null && nameFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            entryKey = this.processKey(serializer, object, strKey, value);
-                        }
-                    }
-                }
-                {
-                    List<NameFilter> nameFilters = this.nameFilters;
-                    if (nameFilters != null && nameFilters.size() > 0) {
-                        if (entryKey == null || entryKey instanceof String) {
-                            entryKey = this.processKey(serializer, object, (String) entryKey, value);
-                        } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            entryKey = this.processKey(serializer, object, strKey, value);
-                        }
-                    }
+                // apply propertyPreFilters
+                if (!applyPreFilters(serializer, object, entryKey, serializer.propertyPreFilters)
+                        || !applyPreFilters(serializer, object, entryKey, this.propertyPreFilters)) {
+                    continue;
                 }
 
-                {
-                    if (entryKey == null || entryKey instanceof String) {
-                        value = this.processValue(serializer, null, object, (String) entryKey, value, features);
-                    } else {
-                        boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
-                        if (!objectOrArray) {
-                            String strKey = JSON.toJSONString(entryKey);
-                            value = this.processValue(serializer, null, object, strKey, value, features);
-                        }
+                // apply propertyFilters
+                if (!applyFilters(serializer, object, entryKey, value, serializer.propertyFilters)
+                        || !applyFilters(serializer, object, entryKey, value, this.propertyFilters)) {
+                    continue;
+                }
+
+                // apply nameFilters
+                entryKey = applyNameFilters(serializer, object, entryKey, value, serializer.nameFilters);
+                entryKey = applyNameFilters(serializer, object, entryKey, value, this.nameFilters);
+
+                // processValue
+                if (entryKey == null || entryKey instanceof String) {
+                    value = this.processValue(serializer, null, object, (String) entryKey, value, features);
+                } else {
+                    boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
+                    if (!objectOrArray) {
+                        String strKey = JSON.toJSONString(entryKey);
+                        value = this.processValue(serializer, null, object, strKey, value, features);
                     }
                 }
 
@@ -283,6 +213,42 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         if (!unwrapped) {
             out.write('}');
         }
+    }
+
+    protected boolean applyPreFilters(JSONSerializer serializer, Object object, Object entryKey, List<PropertyPreFilter> preFilters) {
+        if (preFilters != null && preFilters.size() > 0) {
+            if (entryKey == null || entryKey instanceof String) {
+                return this.applyName(serializer, object, (String) entryKey);
+            } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                String strKey = JSON.toJSONString(entryKey);
+                return this.applyName(serializer, object, strKey);
+            }
+        }
+        return true;
+    }
+
+    protected boolean applyFilters(JSONSerializer serializer, Object object, Object entryKey, Object value, List<PropertyFilter> propertyFilters) {
+        if (propertyFilters != null && propertyFilters.size() > 0) {
+            if (entryKey == null || entryKey instanceof String) {
+                return this.apply(serializer, object, (String) entryKey, value);
+            } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                String strKey = JSON.toJSONString(entryKey);
+                return this.apply(serializer, object, strKey, value);
+            }
+        }
+        return true;
+    }
+
+    protected Object applyNameFilters(JSONSerializer serializer, Object object, Object entryKey, Object value, List<NameFilter> nameFilters) {
+        if (nameFilters != null && nameFilters.size() > 0) {
+            if (entryKey == null || entryKey instanceof String) {
+                entryKey = this.processKey(serializer, object, (String) entryKey, value);
+            } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
+                String strKey = JSON.toJSONString(entryKey);
+                entryKey = this.processKey(serializer, object, strKey, value);
+            }
+        }
+        return entryKey;
     }
 
 }

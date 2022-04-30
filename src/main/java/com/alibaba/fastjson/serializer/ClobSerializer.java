@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.util.IOUtils;
 
 public class ClobSerializer implements ObjectSerializer {
 
@@ -18,30 +18,26 @@ public class ClobSerializer implements ObjectSerializer {
                 serializer.writeNull();
                 return;
             }
-            
+
             Clob clob = (Clob) object;
             Reader reader = clob.getCharacterStream();
 
-            StringBuilder buf = new StringBuilder();
-            
+            long length;
+            // JDBC driver may not support clob.length()
             try {
-                char[] chars = new char[2048];
-                for (;;) {
-                    int len = reader.read(chars, 0, chars.length);
-                    if (len < 0) {
-                        break;
-                    }
-                    buf.append(chars, 0, len);
-                }
-            } catch(Exception ex) {
-                throw new JSONException("read string from reader error", ex);
+                length = clob.length();
+            } catch (SQLException e) {
+                length = 2048;
             }
-            
-            String text = buf.toString();
-            reader.close();
+
+            // initialize capacity
+            int capacity = (int) Math.min(length, Integer.MAX_VALUE);
+            String text = IOUtils.readAll(reader, capacity);
+
             serializer.write(text);
         } catch (SQLException e) {
-            throw new IOException("write clob error", e);
+            // constructor IOException(String, Throwable) requires Java 6+
+            throw IOUtils.newIOException("write clob error", e);
         }
     }
 

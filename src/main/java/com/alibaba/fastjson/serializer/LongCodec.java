@@ -41,9 +41,9 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
         if (object == null) {
             out.writeNull(SerializerFeature.WriteNullNumberAsZero);
         } else {
-            long value = ((Long) object).longValue();
+            long value = (Long) object;
             out.writeLong(value);
-    
+
             if (out.isEnabled(SerializerFeature.WriteClassName) //
                 && value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE //
                 && fieldType != Long.class
@@ -52,7 +52,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         final JSONLexer lexer = parser.lexer;
@@ -63,7 +63,7 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
             if (token == JSONToken.LITERAL_INT) {
                 long longValue = lexer.longValue();
                 lexer.nextToken(JSONToken.COMMA);
-                longObject = Long.valueOf(longValue);
+                longObject = longValue;
             } else if (token == JSONToken.LITERAL_FLOAT) {
                 BigDecimal number = lexer.decimalValue();
                 longObject = TypeUtils.longValue(number);
@@ -85,9 +85,9 @@ public class LongCodec implements ObjectSerializer, ObjectDeserializer {
         } catch (Exception ex) {
             throw new JSONException("parseLong error, field : " + fieldName, ex);
         }
-        
+
         return clazz == AtomicLong.class //
-            ? (T) new AtomicLong(longObject.longValue()) //
+            ? (T) new AtomicLong(longObject) //
             : (T) longObject;
     }
 

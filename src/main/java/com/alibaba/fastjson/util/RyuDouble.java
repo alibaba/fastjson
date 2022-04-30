@@ -235,9 +235,7 @@ public final class RyuDouble {
                     int pow5Factor_mv;
                     {
                         long v = mv;
-                        if ((v % 5) != 0) {
-                            pow5Factor_mv = 0;
-                        } else if ((v % 25) != 0) {
+                        if ((v % 25) != 0) {
                             pow5Factor_mv = 1;
                         } else if ((v % 125) != 0) {
                             pow5Factor_mv = 2;
@@ -246,10 +244,8 @@ public final class RyuDouble {
                         } else {
                             pow5Factor_mv = 4;
                             v /= 625;
-                            while (v > 0) {
-                                if (v % 5 != 0) {
-                                    break;
-                                }
+                            // 此处 v 必定 > 0
+                            while (v % 5 == 0) {
                                 v /= 5;
                                 pow5Factor_mv++;
                             }
@@ -271,10 +267,7 @@ public final class RyuDouble {
                         } else {
                             pow5Factor_mm = 4;
                             v /= 625;
-                            while (v > 0) {
-                                if (v % 5 != 0) {
-                                    break;
-                                }
+                            while (v % 5 == 0) {
                                 v /= 5;
                                 pow5Factor_mm++;
                             }
@@ -297,10 +290,7 @@ public final class RyuDouble {
                         } else {
                             pow5Factor_mp = 4;
                             v /= 625;
-                            while (v > 0) {
-                                if (v % 5 != 0) {
-                                    break;
-                                }
+                            while (v % 5 == 0) {
                                 v /= 5;
                                 pow5Factor_mp++;
                             }
@@ -532,7 +522,6 @@ public final class RyuDouble {
                 result[index++] = (char) ('0' + exp / 10);
             }
             result[index++] = (char) ('0' + exp % 10);
-            return index - off;
         } else {
             // Otherwise follow the Java spec for values in the interval [1E-3, 1E7).
             if (exp < 0) {
@@ -573,8 +562,8 @@ public final class RyuDouble {
                 }
                 index += olength + 1;
             }
-            return index - off;
         }
+        return index - off;
     }
 
 }

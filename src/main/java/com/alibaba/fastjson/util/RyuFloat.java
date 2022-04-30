@@ -201,8 +201,8 @@ public final class RyuFloat {
             int q = (int) (e2 * LOG10_2_NUMERATOR / 10000000L);
             int k = 59 + (q == 0 ? 1 : (int) ((q * 23219280L + 10000000L - 1) / 10000000L)) - 1;
             int i = -e2 + q + k;
-            long pis0 = (long) POW5_INV_SPLIT[q][0];
-            long pis1 = (long) POW5_INV_SPLIT[q][1];
+            long pis0 = POW5_INV_SPLIT[q][0];
+            long pis1 = POW5_INV_SPLIT[q][1];
             dv = (int) ((mv * pis0 + ((mv * pis1) >> 31)) >> (i - 31));
             dp = (int) ((mp * pis0 + ((mp * pis1) >> 31)) >> (i - 31));
             dm = (int) ((mm * pis0 + ((mm * pis1) >> 31)) >> (i - 31));
@@ -221,10 +221,7 @@ public final class RyuFloat {
             int pow5Factor_mp = 0;
             {
                 int v = mp;
-                while (v > 0) {
-                    if (v % 5 != 0) {
-                        break;
-                    }
+                while (v % 5 == 0) {
                     v /= 5;
                     pow5Factor_mp++;
                 }

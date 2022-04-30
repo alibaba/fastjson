@@ -71,10 +71,9 @@ public class BigDecimalCodec implements ObjectSerializer, ObjectDeserializer {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
         try {
-            return (T) deserialze(parser);
+            return deserialze(parser);
         } catch (Exception ex) {
             throw new JSONException("parseDecimal error, field : " + fieldName, ex);
         }

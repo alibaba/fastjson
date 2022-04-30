@@ -3,31 +3,32 @@ package com.alibaba.fastjson.serializer;
 public abstract class BeforeFilter implements SerializeFilter {
 
     private static final ThreadLocal<JSONSerializer> serializerLocal = new ThreadLocal<JSONSerializer>();
-    private static final ThreadLocal<Character>      seperatorLocal  = new ThreadLocal<Character>();
+    // private 修饰的变量，可以重命名
+    private static final ThreadLocal<Character> separatorLocal = new ThreadLocal<Character>();
 
-    private final static Character                   COMMA           = Character.valueOf(',');
+    private final static Character                   COMMA           = ',';
 
-    final char writeBefore(JSONSerializer serializer, Object object, char seperator) {
+    final char writeBefore(JSONSerializer serializer, Object object, char separator) {
         JSONSerializer last = serializerLocal.get();
         serializerLocal.set(serializer);
-        seperatorLocal.set(seperator);
+        separatorLocal.set(separator);
         writeBefore(object);
         serializerLocal.set(last);
-        return seperatorLocal.get();
+        return separatorLocal.get();
     }
 
     protected final void writeKeyValue(String key, Object value) {
         JSONSerializer serializer = serializerLocal.get();
-        char seperator = seperatorLocal.get();
+        char separator = separatorLocal.get();
 
         boolean ref = serializer.references.containsKey(value);
-        serializer.writeKeyValue(seperator, key, value);
+        serializer.writeKeyValue(separator, key, value);
         if (!ref) {
             serializer.references.remove(value);
         }
 
-        if (seperator != ',') {
-            seperatorLocal.set(COMMA);
+        if (separator != ',') {
+            separatorLocal.set(COMMA);
         }
     }
 

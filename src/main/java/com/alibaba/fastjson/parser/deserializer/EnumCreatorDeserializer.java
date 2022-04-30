@@ -9,13 +9,14 @@ import java.lang.reflect.Type;
 
 public class EnumCreatorDeserializer implements ObjectDeserializer {
     private final Method creator;
-    private final Class paramType;
+    private final Class<?> paramType;
 
     public EnumCreatorDeserializer(Method creator) {
         this.creator = creator;
         paramType = creator.getParameterTypes()[0];
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         Object arg = parser.parseObject(paramType);
         try {

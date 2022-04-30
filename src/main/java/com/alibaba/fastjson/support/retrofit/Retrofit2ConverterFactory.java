@@ -6,6 +6,7 @@ import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.util.IOUtils;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -227,7 +228,7 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
                         , fastJsonConfig.getFeatures()
                 );
             } catch (Exception e) {
-                throw new IOException("JSON parse error: " + e.getMessage(), e);
+                throw IOUtils.newIOException("JSON parse error: " + e.getMessage(), e);
             } finally {
                 value.close();
             }
@@ -250,7 +251,7 @@ public class Retrofit2ConverterFactory extends Converter.Factory {
                 );
                 return RequestBody.create(MEDIA_TYPE, content);
             } catch (Exception e) {
-                throw new IOException("Could not write JSON: " + e.getMessage(), e);
+                throw IOUtils.newIOException("Could not write JSON: " + e.getMessage(), e);
             }
         }
     }

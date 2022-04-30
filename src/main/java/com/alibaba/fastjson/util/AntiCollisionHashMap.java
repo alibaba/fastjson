@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-/**
- * @deprecated
- */
+@Deprecated
 public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         Map<K, V>, Cloneable, Serializable {
 
@@ -63,19 +61,6 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      */
     transient volatile int modCount;
 
-    /**
-     * Constructs an empty <tt>SafelyHashMap</tt> with the specified initial
-     * capacity and load factor.
-     *
-     * @param initialCapacity
-     *            the initial capacity
-     * @param loadFactor
-     *            the load factor
-     * @throws IllegalArgumentException
-     *             if the initial capacity is negative or the load factor is
-     *             nonpositive
-     */
-
     final static int M_MASK = 0x8765fed3;
     final static int SEED = -2128831035;
     final static int KEY = 16777619;
@@ -89,6 +74,18 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         return (hash ^ (hash >> 1)) & M_MASK;
     }
 
+    /**
+     * Constructs an empty <tt>SafelyHashMap</tt> with the specified initial
+     * capacity and load factor.
+     *
+     * @param initialCapacity
+     *            the initial capacity
+     * @param loadFactor
+     *            the load factor
+     * @throws IllegalArgumentException
+     *             if the initial capacity is negative or the load factor is
+     *             nonpositive
+     */
     public AntiCollisionHashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: "
@@ -225,7 +222,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     public V get(Object key) {
         if (key == null)
             return getForNullKey();
-        int hash = 0;
+        int hash;
         if (key instanceof String)
             hash = hash(hashString((String) key));
         else
@@ -270,9 +267,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Returns null if the SafelyHashMap contains no mapping for the key.
      */
     final Entry<K, V> getEntry(Object key) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
             Object k;
             if (e.hash == hash
@@ -299,7 +294,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     public V put(K key, V value) {
         if (key == null)
             return putForNullKey(value);
-        int hash = 0;
+        int hash;
         if (key instanceof String)
             hash = hash(hashString((String) key));
         else
@@ -341,12 +336,10 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * comodification, etc. It calls createEntry rather than addEntry.
      */
     private void putForCreate(K key, V value) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
 
-        /**
+        /*
          * Look for preexisting entry for key. This will never happen for clone
          * or deserialize. It will only happen for construction if the input Map
          * is a sorted map whose ordering is inconsistent w/ equals.
@@ -364,9 +357,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     }
 
     private void putAllForCreate(Map<? extends K, ? extends V> m) {
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m
-                .entrySet().iterator(); i.hasNext();) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
             putForCreate(e.getKey(), e.getValue());
         }
     }
@@ -402,8 +393,8 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
     /**
      * Transfers all entries from current table to newTable.
      */
-    void transfer(Entry[] newTable) {
-        Entry[] src = table;
+    void transfer(Entry<K, V>[] newTable) {
+        Entry<K, V>[] src = table;
         int newCapacity = newTable.length;
         for (int j = 0; j < src.length; j++) {
             Entry<K, V> e = src[j];
@@ -455,9 +446,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                 resize(newCapacity);
         }
 
-        for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m
-                .entrySet().iterator(); i.hasNext();) {
-            Map.Entry<? extends K, ? extends V> e = i.next();
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
             put(e.getKey(), e.getValue());
         }
     }
@@ -483,9 +472,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * this key.
      */
     final Entry<K, V> removeEntryForKey(Object key) {
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
         Entry<K, V> prev = table[i];
         Entry<K, V> e = prev;
@@ -519,9 +506,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
 
         Map.Entry<K, V> entry = (Map.Entry<K, V>) o;
         Object key = entry.getKey();
-        int hash = (key == null) ? 0
-                : (key instanceof String) ? hash(hashString((String) key))
-                : hash(key.hashCode());
+        int hash = calcFinalHash(key);
         int i = indexFor(hash, table.length);
         Entry<K, V> prev = table[i];
         Entry<K, V> e = prev;
@@ -544,15 +529,20 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         return e;
     }
 
+    protected int calcFinalHash(Object key) {
+        return (key == null) ? 0
+                : (key instanceof String) ? hash(hashString((String) key))
+                : hash(key.hashCode());
+    }
+
     /**
      * Removes all of the mappings from this map. The map will be empty after
      * this call returns.
      */
     public void clear() {
         modCount++;
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            tab[i] = null;
+        Entry<K, V>[] tab = table;
+        Arrays.fill(tab, null);
         size = 0;
     }
 
@@ -569,9 +559,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         if (value == null)
             return containsNullValue();
 
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
+        Entry<K,V>[] tab = table;
+        for (Entry<K,V> entry : tab)
+            for (Entry<K,V> e = entry; e != null; e = e.next)
                 if (value.equals(e.value))
                     return true;
         return false;
@@ -581,9 +571,9 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Special-case code for containsValue with null argument
      */
     private boolean containsNullValue() {
-        Entry[] tab = table;
-        for (int i = 0; i < tab.length; i++)
-            for (Entry e = tab[i]; e != null; e = e.next)
+        Entry<K,V>[] tab = table;
+        for (Entry<K,V> entry : tab)
+            for (Entry<K,V> e = entry; e != null; e = e.next)
                 if (e.value == null)
                     return true;
         return false;
@@ -595,6 +585,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      *
      * @return a shallow copy of this map
      */
+    @SuppressWarnings("unchecked")
     public Object clone() {
         AntiCollisionHashMap<K, V> result = null;
         try {
@@ -612,6 +603,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     static class Entry<K, V> implements Map.Entry<K, V> {
         final K key;
         V value;
@@ -645,7 +637,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         public final boolean equals(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
-            Map.Entry e = (Map.Entry) o;
+            Map.Entry<K, V> e = (Map.Entry<K, V>) o;
             Object k1 = getKey();
             Object k2 = e.getKey();
             if (k1 == k2 || (k1 != null && k1.equals(k2))) {
@@ -704,7 +696,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
         HashIterator() {
             expectedModCount = modCount;
             if (size > 0) { // advance to first entry
-                Entry[] t = table;
+                Entry<K, V>[] t = table;
                 while (index < t.length && (next = t[index++]) == null)
                     ;
             }
@@ -722,7 +714,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
                 throw new NoSuchElementException();
 
             if ((next = e.next) == null) {
-                Entry[] t = table;
+                Entry<K, V>[] t = table;
                 while (index < t.length && (next = t[index++]) == null)
                     ;
             }
@@ -880,6 +872,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
             return newEntryIterator();
         }
 
+        @SuppressWarnings("unchecked")
         public boolean contains(Object o) {
             if (!(o instanceof Map.Entry))
                 return false;
@@ -940,6 +933,7 @@ public class AntiCollisionHashMap<K, V> extends AbstractMap<K, V> implements
      * Reconstitute the <tt>SafelyHashMap</tt> instance from a stream (i.e.,
      * deserialize it).
      */
+    @SuppressWarnings("unchecked")
     private void readObject(java.io.ObjectInputStream s) throws IOException,
             ClassNotFoundException {
         // Read in the threshold, loadfactor, and any hidden stuff

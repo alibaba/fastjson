@@ -58,7 +58,7 @@ import com.alibaba.fastjson.serializer.ValueFilter;
 public class ASMClassLoader extends ClassLoader {
 
     private static java.security.ProtectionDomain DOMAIN;
-    
+
     private static Map<String, Class<?>> classMapping = new HashMap<String, Class<?>>();
 
     static {
@@ -68,7 +68,7 @@ public class ASMClassLoader extends ClassLoader {
                 return ASMClassLoader.class.getProtectionDomain();
             }
         });
-        
+
         Class<?>[] jsonClasses = new Class<?>[] {JSON.class,
             JSONObject.class,
             JSONArray.class,
@@ -80,14 +80,14 @@ public class ASMClassLoader extends ClassLoader {
             JSONStreamAware.class,
             JSONWriter.class,
             TypeReference.class,
-                    
+
             FieldInfo.class,
             TypeUtils.class,
             IOUtils.class,
             IdentityHashMap.class,
             ParameterizedTypeImpl.class,
             JavaBeanInfo.class,
-                    
+
             ObjectSerializer.class,
             JavaBeanSerializer.class,
             SerializeFilterable.class,
@@ -108,7 +108,7 @@ public class ASMClassLoader extends ClassLoader {
             ContextObjectSerializer.class,
             SerialContext.class,
             SerializeConfig.class,
-                    
+
             JavaBeanDeserializer.class,
             ParserConfig.class,
             DefaultJSONParser.class,
@@ -120,7 +120,7 @@ public class ASMClassLoader extends ClassLoader {
             Feature.class,
             JSONScanner.class,
             JSONReaderScanner.class,
-                    
+
             AutowiredObjectDeserializer.class,
             ObjectDeserializer.class,
             ExtraProcessor.class,
@@ -130,12 +130,12 @@ public class ASMClassLoader extends ClassLoader {
             FieldDeserializer.class,
             DefaultFieldDeserializer.class,
         };
-        
+
         for (Class<?> clazz : jsonClasses) {
             classMapping.put(clazz.getName(), clazz);
         }
     }
-    
+
     public ASMClassLoader(){
         super(getParentClassLoader());
     }
@@ -162,18 +162,12 @@ public class ASMClassLoader extends ClassLoader {
         if (mappingClass != null) {
             return mappingClass;
         }
-        
-        try {
-            return super.loadClass(name, resolve);
-        } catch (ClassNotFoundException e) {
-            throw e;
-        }
+
+        return super.loadClass(name, resolve);
     }
 
     public Class<?> defineClassPublic(String name, byte[] b, int off, int len) throws ClassFormatError {
-        Class<?> clazz = defineClass(name, b, off, len, DOMAIN);
-
-        return clazz;
+        return defineClass(name, b, off, len, DOMAIN);
     }
 
     public boolean isExternalClass(Class<?> clazz) {

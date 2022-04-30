@@ -192,7 +192,6 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             ++i;
         }
         out.write(']');
-        return;
     }
 
     @SuppressWarnings("unchecked")
@@ -241,29 +240,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             return (T) new InetSocketAddress(address, port);
         }
 
-        Object objVal;
-
-        if (parser.resolveStatus == DefaultJSONParser.TypeNameRedirect) {
-            parser.resolveStatus = DefaultJSONParser.NONE;
-            parser.accept(JSONToken.COMMA);
-
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                if (!"val".equals(lexer.stringVal())) {
-                    throw new JSONException("syntax error");
-                }
-                lexer.nextToken();
-            } else {
-                throw new JSONException("syntax error");
-            }
-
-            parser.accept(JSONToken.COLON);
-
-            objVal = parser.parse();
-
-            parser.accept(JSONToken.RBRACE);
-        } else {
-            objVal = parser.parse();
-        }
+        Object objVal = parser.parseFallback(lexer);
 
         String strVal;
 
@@ -339,7 +316,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
         }
 
         if (clazz == File.class) {
-            if (strVal.indexOf("..") >= 0 && !FILE_RELATIVE_PATH_SUPPORT) {
+            if (!FILE_RELATIVE_PATH_SUPPORT && strVal.contains("..")) {
                 throw new JSONException("file relative path not support.");
             }
 

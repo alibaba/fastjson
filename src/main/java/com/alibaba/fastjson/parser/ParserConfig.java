@@ -534,8 +534,7 @@ public class ParserConfig {
             return;
         }
 
-        for (int i = 0; i < items.length; ++i) {
-            String item = items[i];
+        for (String item : items) {
             this.addDenyInternal(item);
         }
     }
@@ -545,8 +544,7 @@ public class ParserConfig {
             return;
         }
 
-        for (int i = 0; i < items.length; ++i) {
-            String item = items[i];
+        for (String item : items) {
             this.addDeny(item);
         }
     }
@@ -556,8 +554,7 @@ public class ParserConfig {
             return;
         }
 
-        for (int i = 0; i < items.length; ++i) {
-            String item = items[i];
+        for (String item : items) {
             this.addAccept(item);
         }
     }
@@ -854,7 +851,7 @@ public class ParserConfig {
 
             Class mixInType = (Class) JSON.getMixInAnnotations(clazz);
 
-            Class<?> deserClass = null;
+            Class<?> deserClass;
             JSONType jsonType = TypeUtils.getAnnotation(mixInType != null ? mixInType : clazz, JSONType.class);
 
             if (jsonType != null) {
@@ -1211,7 +1208,7 @@ public class ParserConfig {
      * @param clazz
      * @param fieldCacheMap :map&lt;fieldName ,Field&gt;
      */
-    public static void  parserAllFieldToCache(Class<?> clazz,Map</**fieldName*/String , Field> fieldCacheMap){
+    public static void  parserAllFieldToCache(Class<?> clazz,Map</*fieldName*/String , Field> fieldCacheMap){
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             String fieldName = field.getName();
@@ -1368,21 +1365,16 @@ public class ParserConfig {
             expectClassFlag = false;
         } else {
             long expectHash = TypeUtils.fnv1a_64(expectClass.getName());
-            if (expectHash == 0x90a25f5baa21529eL
-                    || expectHash == 0x2d10a5801b9d6136L
-                    || expectHash == 0xaf586a571e302c6bL
-                    || expectHash == 0xed007300a7b227c6L
-                    || expectHash == 0x295c4605fd1eaa95L
-                    || expectHash == 0x47ef269aadc650b4L
-                    || expectHash == 0x6439c4dff712ae8bL
-                    || expectHash == 0xe3dd9875a2dc5283L
-                    || expectHash == 0xe2a8ddba03e69e0dL
-                    || expectHash == 0xd734ceb4c3e9d1daL
-            ) {
-                expectClassFlag = false;
-            } else {
-                expectClassFlag = true;
-            }
+            expectClassFlag = expectHash != 0x90a25f5baa21529eL
+                    && expectHash != 0x2d10a5801b9d6136L
+                    && expectHash != 0xaf586a571e302c6bL
+                    && expectHash != 0xed007300a7b227c6L
+                    && expectHash != 0x295c4605fd1eaa95L
+                    && expectHash != 0x47ef269aadc650b4L
+                    && expectHash != 0x6439c4dff712ae8bL
+                    && expectHash != 0xe3dd9875a2dc5283L
+                    && expectHash != 0xe2a8ddba03e69e0dL
+                    && expectHash != 0xd734ceb4c3e9d1daL;
         }
 
         String className = typeName.replace('$', '.');

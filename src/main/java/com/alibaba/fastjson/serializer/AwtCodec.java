@@ -18,7 +18,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
     public final static AwtCodec instance = new AwtCodec();
-    
+
     public static boolean support(Class<?> clazz) {
         return clazz == Point.class //
                || clazz == Rectangle.class //
@@ -40,33 +40,33 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
         if (object instanceof Point) {
             Point font = (Point) object;
-            
+
             sep = writeClassName(out, Point.class, sep);
-            
+
             out.writeFieldValue(sep, "x", font.x);
             out.writeFieldValue(',', "y", font.y);
         } else if (object instanceof Font) {
             Font font = (Font) object;
-            
+
             sep = writeClassName(out, Font.class, sep);
-            
+
             out.writeFieldValue(sep, "name", font.getName());
             out.writeFieldValue(',', "style", font.getStyle());
             out.writeFieldValue(',', "size", font.getSize());
         } else if (object instanceof Rectangle) {
             Rectangle rectangle = (Rectangle) object;
-            
+
             sep = writeClassName(out, Rectangle.class, sep);
-            
+
             out.writeFieldValue(sep, "x", rectangle.x);
             out.writeFieldValue(',', "y", rectangle.y);
             out.writeFieldValue(',', "width", rectangle.width);
             out.writeFieldValue(',', "height", rectangle.height);
         } else if (object instanceof Color) {
             Color color = (Color) object;
-            
+
             sep = writeClassName(out, Color.class, sep);
-            
+
             out.writeFieldValue(sep, "r", color.getRed());
             out.writeFieldValue(',', "g", color.getGreen());
             out.writeFieldValue(',', "b", color.getBlue());
@@ -92,7 +92,6 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
         JSONLexer lexer = parser.lexer;
 
@@ -125,26 +124,17 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
         return obj;
     }
-    
+
     protected Font parseFont(DefaultJSONParser parser) {
         JSONLexer lexer = parser.lexer;
-        
+
         int size = 0, style = 0;
         String name = null;
         for (;;) {
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken();
+            String key = tryExtractIntPropertyName(lexer);
+            if (key == null) {
                 break;
             }
-
-            String key;
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                key = lexer.stringVal();
-                lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-            } else {
-                throw new JSONException("syntax error");
-            }
-
 
             if (key.equalsIgnoreCase("name")) {
                 if (lexer.token() == JSONToken.LITERAL_STRING) {
@@ -154,19 +144,9 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
                     throw new JSONException("syntax error");
                 }
             } else if (key.equalsIgnoreCase("style")) {
-                if (lexer.token() == JSONToken.LITERAL_INT) {
-                    style = lexer.intValue();
-                    lexer.nextToken();
-                } else {
-                    throw new JSONException("syntax error");
-                }
+                style = extractIntValue(lexer);
             } else if (key.equalsIgnoreCase("size")) {
-                if (lexer.token() == JSONToken.LITERAL_INT) {
-                    size = lexer.intValue();
-                    lexer.nextToken();
-                } else {
-                    throw new JSONException("syntax error");
-                }
+                size = extractIntValue(lexer);
             } else {
                 throw new JSONException("syntax error, " + key);
             }
@@ -178,32 +158,42 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
         return new Font(name, style, size);
     }
-    
+
+    protected int extractIntValue(JSONLexer lexer) throws JSONException {
+        if (lexer.token() == JSONToken.LITERAL_INT) {
+            int val = lexer.intValue();
+            lexer.nextToken();
+            return val;
+        }
+        throw new JSONException("syntax error");
+    }
+
+    protected String tryExtractIntPropertyName(JSONLexer lexer) throws JSONException {
+        if (lexer.token() == JSONToken.RBRACE) {
+            lexer.nextToken();
+            return null;
+        }
+
+        if (lexer.token() == JSONToken.LITERAL_STRING) {
+            String key = lexer.stringVal();
+            lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
+            return key;
+        }
+
+        throw new JSONException("syntax error");
+    }
+
     protected Color parseColor(DefaultJSONParser parser) {
         JSONLexer lexer = parser.lexer;
-        
+
         int r = 0, g = 0, b = 0, alpha = 0;
-        for (;;) {
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken();
+        for (; ; ) {
+            String key = tryExtractIntPropertyName(lexer);
+            if (key == null) {
                 break;
             }
 
-            String key;
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                key = lexer.stringVal();
-                lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-            } else {
-                throw new JSONException("syntax error");
-            }
-
-            int val;
-            if (lexer.token() == JSONToken.LITERAL_INT) {
-                val = lexer.intValue();
-                lexer.nextToken();
-            } else {
-                throw new JSONException("syntax error");
-            }
+            int val = extractIntValue(lexer);
 
             if (key.equalsIgnoreCase("r")) {
                 r = val;
@@ -224,23 +214,15 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
         return new Color(r, g, b, alpha);
     }
-    
+
     protected Rectangle parseRectangle(DefaultJSONParser parser) {
         JSONLexer lexer = parser.lexer;
-        
+
         int x = 0, y = 0, width = 0, height = 0;
         for (;;) {
-            if (lexer.token() == JSONToken.RBRACE) {
-                lexer.nextToken();
+            String key = tryExtractIntPropertyName(lexer);
+            if (key == null) {
                 break;
-            }
-
-            String key;
-            if (lexer.token() == JSONToken.LITERAL_STRING) {
-                key = lexer.stringVal();
-                lexer.nextTokenWithColon(JSONToken.LITERAL_INT);
-            } else {
-                throw new JSONException("syntax error");
             }
 
             int val;
@@ -277,7 +259,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
 
     protected Point parsePoint(DefaultJSONParser parser, Object fieldName) {
         JSONLexer lexer = parser.lexer;
-        
+
         int x = 0, y = 0;
         for (;;) {
             if (lexer.token() == JSONToken.RBRACE) {
@@ -341,6 +323,7 @@ public class AwtCodec implements ObjectSerializer, ObjectDeserializer {
         parser.setResolveStatus(DefaultJSONParser.NeedToResolve);
         lexer.nextToken(JSONToken.RBRACE);
         parser.accept(JSONToken.RBRACE);
+        // FIXME always return null ?
         return null;
     }
 

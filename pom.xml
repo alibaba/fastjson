@@ -4,7 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.79.1_preview</version>
+    <version>1.2.81</version>
+
 
     <packaging>jar</packaging>
     <name>fastjson</name>
@@ -425,7 +426,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>2.4.1</version>
+            <version>2.4.8</version>
             <scope>test</scope>
         </dependency>
 

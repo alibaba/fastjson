@@ -179,6 +179,11 @@ public class SerializeConfig {
 		if (asm && beanInfo.beanType.isInterface()) {
 		    asm = false;
         }
+
+        // Record 类型的无法使用 ASM 编织对象
+        if (asm && TypeUtils.isRecord(beanInfo.beanType)) {
+            asm = false;
+        }
 		
 		if (asm) {
     		for(FieldInfo fieldInfo : beanInfo.fields){

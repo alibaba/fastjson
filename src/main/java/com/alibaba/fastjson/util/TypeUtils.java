@@ -42,11 +42,8 @@ import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.*;
+import java.util.regex.*;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -99,6 +96,9 @@ public class TypeUtils {
     private static volatile Method method_XmlAccessorType_value = null;
     private static volatile Field field_XmlAccessType_FIELD = null;
     private static volatile Object field_XmlAccessType_FIELD_VALUE = null;
+
+    private static volatile Class record_metadata = null;
+    private static volatile boolean record_metadata_error = false;
 
     private static Class class_deque = null;
 
@@ -170,6 +170,17 @@ public class TypeUtils {
         }
 
         return value == field_XmlAccessType_FIELD_VALUE;
+    }
+
+    public static boolean isRecord(Class clazz) {
+        if (record_metadata == null && !record_metadata_error) {
+            try {
+                record_metadata = Class.forName("java.lang.Record");
+            } catch (Throwable e) {
+                record_metadata_error = true;
+            }
+        }
+        return record_metadata != null && record_metadata.equals(clazz.getSuperclass());
     }
 
     public static Annotation getXmlAccessorType(Class clazz) {
@@ -1856,6 +1867,12 @@ public class TypeUtils {
         List<FieldInfo> fieldInfoList = fieldBased
                 ? computeGettersWithFieldBase(beanType, aliasMap, false, propertyNamingStrategy) //
                 : computeGetters(beanType, jsonType, aliasMap, fieldCacheMap, false, propertyNamingStrategy);
+
+        // 由于原来的实体类提取是使用 getter 方法来进行查找，如果是 record，直接从 fieldCacheMap 中提取其属性值。
+        if (TypeUtils.isRecord(beanType)) {
+            fieldInfoList = computeRecordFields(beanType, aliasMap, fieldCacheMap, propertyNamingStrategy, false);
+        }
+
         FieldInfo[] fields = new FieldInfo[fieldInfoList.size()];
         fieldInfoList.toArray(fields);
         FieldInfo[] sortedFields;
@@ -2308,6 +2325,16 @@ public class TypeUtils {
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
         }
+    }
+
+    /**
+     * 计算 Record 类中属性
+     */
+    private static List<FieldInfo> computeRecordFields(Class<?> clazz, Map<String, String> aliasMap, Map<String, Field> fieldCacheMap, PropertyNamingStrategy propertyNamingStrategy, boolean sorted) {
+        Map<String, FieldInfo> fieldInfoMap = new LinkedHashMap<String, FieldInfo>();
+        Field[] fields = fieldCacheMap.values().toArray(new Field[0]);
+        computeFields(clazz, aliasMap, propertyNamingStrategy, fieldInfoMap, fields);
+        return getFieldInfos(clazz, sorted, fieldInfoMap);
     }
 
     private static String getPropertyNameByCompatibleFieldName(Map<String, Field> fieldCacheMap, String methodName,

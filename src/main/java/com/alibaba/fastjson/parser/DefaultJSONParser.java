@@ -697,9 +697,9 @@ public class DefaultJSONParser implements Closeable {
 
         try {
             if (deserializer.getClass() == JavaBeanDeserializer.class) {
-                if (lexer.token()!= JSONToken.LBRACE && lexer.token()!=JSONToken.LBRACKET) {
-                throw new JSONException("syntax error,expect start with { or [,but actually start with "+ lexer.tokenName());
-            }
+                if (lexer.token() != JSONToken.LBRACE && lexer.token() != JSONToken.LBRACKET) {
+                    throw new JSONException("syntax error,expect start with { or [,but actually start with " + lexer.tokenName());
+                }
                 return (T) ((JavaBeanDeserializer) deserializer).deserialze(this, type, fieldName, 0);
             } else {
                 return (T) deserializer.deserialze(this, type, fieldName);

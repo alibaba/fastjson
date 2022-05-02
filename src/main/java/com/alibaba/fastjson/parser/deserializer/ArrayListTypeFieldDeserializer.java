@@ -18,7 +18,6 @@ import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
-import jdk.nashorn.internal.parser.JSONParser;
 
 public class ArrayListTypeFieldDeserializer extends FieldDeserializer {
 

@@ -208,8 +208,11 @@ public class ParserConfig {
     {
         denyHashCodes = new long[]{
                 0x80D0C70BCC2FEA02L,
+                0x868385095A22725FL,
                 0x86FC2BF9BEAF7AEFL,
                 0x87F52A1B07EA33A6L,
+                0x8872F29FD0B0B7A7L,
+                0x8BAAEE8F9BF77FA7L,
                 0x8EADD40CB2A94443L,
                 0x8F75F9FA0DF03F80L,
                 0x9172A53F157930AFL,
@@ -222,6 +225,7 @@ public class ParserConfig {
                 0xAA3DAFFDB10C4937L,
                 0xAAA9E6B7C1E1C6A7L,
                 0xAAAA0826487A3737L,
+                0xAB82562F53E6E48FL,
                 0xAC6262F52C98AA39L,
                 0xAD937A449831E8A0L,
                 0xAE50DA1FAD60A096L,
@@ -232,6 +236,7 @@ public class ParserConfig {
                 0xB98B6B5396932FE9L,
                 0xBCDD9DC12766F0CEL,
                 0xBCE0DEE34E726499L,
+                0xBE4F13E96A6796D0L,
                 0xBEBA72FB1CCBA426L,
                 0xC00BE1DEBAF2808BL,
                 0xC1086AFAE32E6258L,
@@ -242,6 +247,7 @@ public class ParserConfig {
                 0xC8D49E5601E661A9L,
                 0xC8F04B3A28909935L,
                 0xC963695082FD728EL,
+                0xCBF29CE484222325L,
                 0xD1EFCDF4B3316D34L,
                 0xD54B91CC77B239EDL,
                 0xD59EE91F0B09EA01L,
@@ -255,11 +261,14 @@ public class ParserConfig {
                 0xE1919804D5BF468FL,
                 0xE2EB3AC7E56C467EL,
                 0xE603D6A51FAD692BL,
+                0xE704FD19052B2A34L,
                 0xE9184BE55B1D962AL,
                 0xE9F20BAD25F60807L,
+                0xED13653CB45C4BEDL,
                 0xF2983D099D29B477L,
                 0xF3702A4A5490B8E8L,
                 0xF474E44518F26736L,
+                0xF4D93F4FB3E3D991L,
                 0xF5D77DCF8E4D71E6L,
                 0xF6C0340E73A36A69L,
                 0xF7E96E74DFA58DBCL,
@@ -276,10 +285,12 @@ public class ParserConfig {
                 0x55CFCA0F2281C07L,
                 0xA555C74FE3A5155L,
                 0xB6E292FA5955ADEL,
+                0xBEF8514D0B79293L,
                 0xEE6511B66FD5EF0L,
                 0x100150A253996624L,
                 0x10B2BDCA849D9B3EL,
                 0x10DBC48446E0DAE5L,
+                0x119B5B1F10210AFCL,
                 0x144277B467723158L,
                 0x14DB2E6FEAD04AF0L,
                 0x154B6CB22D294CFAL,
@@ -293,6 +304,7 @@ public class ParserConfig {
                 0x25E962F1C28F71A2L,
                 0x275D0732B877AF29L,
                 0x28AC82E44E933606L,
+                0x2A71CE2CC40A710CL,
                 0x2AD1CE3A112F015DL,
                 0x2ADFEFBBFE29D931L,
                 0x2B3A37467A344CDFL,
@@ -304,17 +316,22 @@ public class ParserConfig {
                 0x332F0B5369A18310L,
                 0x339A3E0B6BEEBEE9L,
                 0x33C64B921F523F2FL,
+                0x33E7F3E02571B153L,
                 0x34A81EE78429FDF1L,
+                0x37317698DCFCE894L,
                 0x378307CB0111E878L,
                 0x3826F4B2380C8B9BL,
                 0x398F942E01920CF0L,
                 0x3A31412DBB05C7FFL,
+                0x3A7EE0635EB2BC33L,
                 0x3ADBA40367F73264L,
                 0x3B0B51ECBF6DB221L,
+                0x3BF14094A524F0E2L,
                 0x42D11A560FC9FBA9L,
                 0x43320DC9D2AE0892L,
                 0x440E89208F445FB9L,
                 0x46C808A4B5841F57L,
+                0x470FD3A18BB39414L,
                 0x49312BDAFB0077D9L,
                 0x4A3797B30328202CL,
                 0x4BA3E254E758D70DL,
@@ -323,8 +340,10 @@ public class ParserConfig {
                 0x4DA972745FEB30C1L,
                 0x4EF08C90FF16C675L,
                 0x4FD10DDC6D13821FL,
+                0x521B4F573376DF4AL,
                 0x527DB6B46CE3BCBCL,
                 0x535E552D6F9700C1L,
+                0x54855E265FE1DAD5L,
                 0x5728504A6D454FFCL,
                 0x599B5C1213A099ACL,
                 0x5A5BD85C072E5EFEL,
@@ -336,6 +355,7 @@ public class ParserConfig {
                 0x5F215622FB630753L,
                 0x61C5BDD721385107L,
                 0x62DB241274397C34L,
+                0x636ECCA2A131B235L,
                 0x63A220E60A17C7B9L,
                 0x647AB0224E149EBEL,
                 0x65F81B84C1D920CDL,
@@ -349,9 +369,13 @@ public class ParserConfig {
                 0x74B50BB9260E31FFL,
                 0x75CC60F5871D0FD3L,
                 0x767A586A5107FEEFL,
+                0x78E5935826671397L,
+                0x793ADDDED7A967F5L,
                 0x7AA7EE3627A19CF3L,
+                0x7AFA070241B8CC4BL,
                 0x7ED9311D28BF1A65L,
-                0x7ED9481D28BF417AL
+                0x7ED9481D28BF417AL,
+                0x7EE6C477DA20BBE3L
         };
 
         long[] hashCodes = new long[AUTO_TYPE_ACCEPT_LIST.length];
@@ -1445,6 +1469,10 @@ public class ParserConfig {
             clazz = deserializers.findClass(typeName);
         }
 
+        if (expectClass == null && clazz != null && Throwable.class.isAssignableFrom(clazz) && !autoTypeSupport) {
+            clazz = null;
+        }
+
         if (clazz == null) {
             clazz = typeMapping.get(typeName);
         }
@@ -1552,6 +1580,10 @@ public class ParserConfig {
         }
 
         if (!autoTypeSupport) {
+            if (typeName.endsWith("Exception")) {
+                return null;
+            }
+
             throw new JSONException("autoType is not support. " + typeName);
         }
 

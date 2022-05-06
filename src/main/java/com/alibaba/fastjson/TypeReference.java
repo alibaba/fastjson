@@ -104,6 +104,15 @@ public class TypeReference<T> {
         return cachedType;
     }
 
+    /**
+     * 可以查询缓存的大小，为了方便单测校验，增加这个public方法
+     *
+     * @return
+     */
+    public static int getCacheSize() {
+        return classTypeCache.size();
+    }
+
     private Type handlerParameterizedType(ParameterizedType type, Type[] actualTypeArguments, int actualIndex) {
         Class<?> thisClass = this.getClass();
         Type rawType = type.getRawType();

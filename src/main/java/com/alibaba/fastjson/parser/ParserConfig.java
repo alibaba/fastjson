@@ -107,63 +107,10 @@ public class ParserConfig {
         }
 
         INTERNAL_WHITELIST_HASHCODES = new long[] {
-                0x82E8E13016B73F9EL,
-                0x863D2DD1E82B9ED9L,
-                0x8B2081CB3A50BD44L,
-                0x90003416F28ACD89L,
-                0x92F252C398C02946L,
-                0x9E404E583F254FD4L,
                 0x9F2E20FB6049A371L,
                 0xA8AAA929446FFCE4L,
-                0xAB9B8D073948CA9DL,
-                0xAFCB539973CEA3F7L,
-                0xB5114C70135C4538L,
-                0xC0FE32B8DC897DE9L,
-                0xC59AA84D9A94C640L,
-                0xC92D8F9129AF339BL,
-                0xCC720543DC5E7090L,
-                0xD0E71A6E155603C1L,
-                0xD11D2A941337A7BCL,
-                0xDB7BFFC197369352L,
-                0xDC9583F0087CC2C7L,
-                0xDDAAA11FECA77B5EL,
-                0xE08EE874A26F5EAFL,
-                0xE794F5F7DCD3AC85L,
-                0xEB7D4786C473368DL,
-                0xF4AA683928027CDAL,
-                0xF8C7EF9B13231FB6L,
                 0xD45D6F8C9017FAL,
-                0x6B949CE6C2FE009L,
-                0x76566C052E83815L,
-                0x9DF9341F0C76702L,
-                0xB81BA299273D4E6L,
-                0xD4788669A13AE74L,
-                0x111D12921C5466DAL,
-                0x178B0E2DC3AE9FE5L,
-                0x19DCAF4ADC37D6D4L,
-                0x1F10A70EE4065963L,
-                0x21082DFBF63FBCC1L,
-                0x24AE2D07FB5D7497L,
-                0x26C5D923AF21E2E1L,
-                0x34CC8E52316FA0CBL,
-                0x3F64BC3933A6A2DFL,
-                0x42646E60EC7E5189L,
-                0x44D57A1B1EF53451L,
-                0x4A39C6C7ACB6AA18L,
-                0x4BB3C59964A2FC50L,
-                0x4F0C3688E8A18F9FL,
-                0x5449EC9B0280B9EFL,
-                0x54DC66A59269BAE1L,
-                0x552D9FB02FFC9DEFL,
-                0x557F642131553498L,
-                0x604D6657082C1EE9L,
-                0x61D10AF54471E5DEL,
-                0x64DC636F343516DCL,
-                0x73A0BE903F2BCBF4L,
-                0x73FBA1E41C4C3553L,
-                0x7B606F16A261E1E6L,
-                0x7F36112F218143B6L,
-                0x7FE2B8E675DA0CEFL
+                0x64DC636F343516DCL
         };
     }
 
@@ -1383,6 +1330,11 @@ public class ParserConfig {
             throw new JSONException("safeMode not support autoType : " + typeName);
         }
 
+        final int mask = Feature.SupportAutoType.mask;
+        boolean autoTypeSupport = this.autoTypeSupport
+                || (features & mask) != 0
+                || (JSON.DEFAULT_PARSER_FEATURE & mask) != 0;
+
         if (typeName.length() >= 192 || typeName.length() < 3) {
             throw new JSONException("autoType is not support. " + typeName);
         }
@@ -1500,6 +1452,10 @@ public class ParserConfig {
                 hash *= fnv1a_64_magic_prime;
 
                 if (Arrays.binarySearch(denyHashCodes, hash) >= 0) {
+                    if (typeName.endsWith("Exception") || typeName.endsWith("Error")) {
+                        return null;
+                    }
+
                     throw new JSONException("autoType is not support. " + typeName);
                 }
 
@@ -1541,11 +1497,6 @@ public class ParserConfig {
             IOUtils.close(is);
         }
 
-        final int mask = Feature.SupportAutoType.mask;
-        boolean autoTypeSupport = this.autoTypeSupport
-                || (features & mask) != 0
-                || (JSON.DEFAULT_PARSER_FEATURE & mask) != 0;
-
         if (autoTypeSupport || jsonType || expectClassFlag) {
             boolean cacheClass = autoTypeSupport || jsonType;
             clazz = TypeUtils.loadClass(typeName, defaultClassLoader, cacheClass);
@@ -1553,7 +1504,9 @@ public class ParserConfig {
 
         if (clazz != null) {
             if (jsonType) {
-                TypeUtils.addMapping(typeName, clazz);
+                if (autoTypeSupport) {
+                    TypeUtils.addMapping(typeName, clazz);
+                }
                 return clazz;
             }
 
@@ -1566,7 +1519,9 @@ public class ParserConfig {
 
             if (expectClass != null) {
                 if (expectClass.isAssignableFrom(clazz)) {
-                    TypeUtils.addMapping(typeName, clazz);
+                    if (autoTypeSupport) {
+                        TypeUtils.addMapping(typeName, clazz);
+                    }
                     return clazz;
                 } else {
                     throw new JSONException("type not match. " + typeName + " -> " + expectClass.getName());
@@ -1580,7 +1535,7 @@ public class ParserConfig {
         }
 
         if (!autoTypeSupport) {
-            if (typeName.endsWith("Exception")) {
+            if (typeName.endsWith("Exception") || typeName.endsWith("Error")) {
                 return null;
             }
 
@@ -1588,7 +1543,9 @@ public class ParserConfig {
         }
 
         if (clazz != null) {
-            TypeUtils.addMapping(typeName, clazz);
+            if (autoTypeSupport) {
+                TypeUtils.addMapping(typeName, clazz);
+            }
         }
 
         return clazz;

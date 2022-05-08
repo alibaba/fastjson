@@ -636,9 +636,9 @@ public class ParserConfig {
 
     public ObjectDeserializer getDeserializer(Class<?> clazz, Type type) {
         ObjectDeserializer deserializer = get(type);
-        if (deserializer == null && type instanceof ParameterizedTypeImpl) {
-            Type innerType = TypeReference.intern((ParameterizedTypeImpl) type);
-            deserializer = get(innerType);
+        if (deserializer == null && type instanceof ParameterizedType) {
+            type = TypeReference.intern((ParameterizedType) type);
+            deserializer = get(type);
         }
 
         if (deserializer != null) {

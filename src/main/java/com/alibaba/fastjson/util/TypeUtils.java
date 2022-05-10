@@ -263,6 +263,9 @@ public class TypeUtils {
         if (value instanceof Character) {
             return (Character) value;
         }
+        if (value instanceof Number) {
+            value = value.toString();
+        }
         if (value instanceof String) {
             String strVal = (String) value;
             if (strVal.length() == 0) {

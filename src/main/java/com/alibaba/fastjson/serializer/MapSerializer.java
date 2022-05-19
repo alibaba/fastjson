@@ -44,6 +44,15 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
+    /**
+     * write() is used to write JSON object in String format
+     * @param serializer: the serializer of JSON, which contains output stream
+     * @param object: the object going to be write
+     * @param fieldName: the field name of serializer
+     * @param fieldType: type of the field
+     * @param features: the Hash combination of features which are set
+     * @param unwrapped: whether this String needs to be wrapped
+     */
     @SuppressWarnings({ "rawtypes"})
     public void write(JSONSerializer serializer
             , Object object
@@ -96,7 +105,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
+                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class)
                         && map.containsKey(typeKey);
                 if (!containsKey) {
                     out.writeFieldName(typeKey);
@@ -140,7 +149,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
@@ -171,7 +180,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
@@ -229,8 +238,14 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         out.write(',');
                     }
 
+                    /*
+                     * Fix issue #4009, which is caused by writing UUID in string mode for two times
+                     * The solution is to add it into checking condition
+                     * Fastjson Issue Link: https://github.com/alibaba/fastjson/issues/4009
+                     * */
                     if ((out.isEnabled(NON_STRINGKEY_AS_STRING) || SerializerFeature.isEnabled(features, SerializerFeature.WriteNonStringKeyAsString))
-                            && !(entryKey instanceof Enum)) {
+                            && !(entryKey instanceof Enum)
+                            && !(entryKey instanceof UUID)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

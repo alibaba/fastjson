@@ -1137,6 +1137,8 @@ public class ASMDeserializerFactory implements Opcodes {
             mw.visitInsn(IASTORE);
         }
 
+        mw.visitVarInsn(ALOAD, context.var("lexer"));
+        mw.visitMethodInsn(INVOKEVIRTUAL, JSONLexerBase, "reset", "()V");
         mw.visitMethodInsn(INVOKEVIRTUAL, type(JavaBeanDeserializer.class),
                            "parseRest", "(L" + DefaultJSONParser
                                         + ";Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;I[I)Ljava/lang/Object;");

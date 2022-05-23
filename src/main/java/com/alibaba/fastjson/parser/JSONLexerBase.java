@@ -817,6 +817,31 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.sp = 0;
     }
 
+    public final void reset() {
+        this.bp = -1;
+        this.eofPos = 0;
+        this.matchStat = 0;
+        this.nanos = 0;
+        this.np = 0;
+        this.pos = 0;
+        this.sp = 0;
+
+        next();
+        if (this.ch == 65279) {
+            next();
+        }
+
+        if (this.ch == '{') {
+            next();
+            this.token = JSONToken.LBRACE;
+        } else if (this.ch == '[') {
+            next();
+            this.token = JSONToken.LBRACKET;
+        } else {
+            nextToken();
+        }
+    }
+
     public String info() {
         return "";
     }

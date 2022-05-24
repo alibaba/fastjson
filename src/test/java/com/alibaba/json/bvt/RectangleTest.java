@@ -2,6 +2,7 @@ package com.alibaba.json.bvt;
 
 import java.awt.Rectangle;
 
+import com.alibaba.fastjson.parser.Feature;
 import org.junit.Assert;
 
 import com.alibaba.fastjson.JSON;
@@ -22,7 +23,7 @@ public class RectangleTest extends TestCase {
         
         System.out.println(text);
 
-        Rectangle v2 = (Rectangle) JSON.parse(text);
+        Rectangle v2 = (Rectangle) JSON.parse(text, Feature.SupportAutoType);
 
         Assert.assertEquals(v, v2);
     }

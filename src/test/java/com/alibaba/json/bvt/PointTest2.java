@@ -2,6 +2,8 @@ package com.alibaba.json.bvt;
 
 import java.awt.Point;
 
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -20,7 +22,7 @@ public class PointTest2 extends TestCase {
         String text = JSON.toJSONString(point, SerializerFeature.WriteClassName);
 
         System.out.println(text);
-        Object obj = JSON.parse(text);
+        Object obj = JSON.parse(text, Feature.SupportAutoType);
         Point point2 = (Point) obj;
 
         Assert.assertEquals(point, point2);

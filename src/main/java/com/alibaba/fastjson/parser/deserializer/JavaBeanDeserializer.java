@@ -1397,7 +1397,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 
                 if (fieldInfo.declaringClass != null
                         && ((!fieldClass.isInstance(value))
-                            || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
+                            || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class) )&& fieldClass!=Date.class
                 ) {
                     String input;
                     if (value instanceof String

@@ -1,5 +1,6 @@
 package com.alibaba.json.bvt.bug;
 
+import com.alibaba.fastjson.JSONObject;
 import junit.framework.TestCase;
 
 import com.alibaba.fastjson.JSON;
@@ -14,8 +15,12 @@ public class Bug_for_Exception extends TestCase {
 
 
 		Object obj = JSON.parse(text);
-		assertTrue(obj instanceof Map);
+		assertEquals(JSONObject.class, obj.getClass());
 
-		RuntimeException ex2 = (RuntimeException) JSON.parseObject(text, Throwable.class);
+		Throwable throwable = JSON.parseObject(text, Throwable.class);
+		assertEquals(RuntimeException.class, throwable.getClass());
+
+		Object obj2 = JSON.parse(text);
+		assertEquals(JSONObject.class, obj2.getClass());
 	}
 }

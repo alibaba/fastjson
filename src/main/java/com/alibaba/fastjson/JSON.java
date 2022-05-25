@@ -587,7 +587,16 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static <T> T parseObject(String text, Class<T> clazz) {
         return parseObject(text, clazz, new Feature[0]);
     }
-
+    /**
+     *
+     * This method deserializes the specified Json into an object of the specified class
+     * and can give a check on the enum value.
+     *
+     * @param text the string from which the object is to be deserialized
+     * @param clazz the class of T
+     * @param enumCheck if true,give a check on the enum value
+     * @return an object of type T from the string
+     */
     public static <T> T parseObject(String text, Class<T> clazz, boolean enumCheck) {
         if (enumCheck) {
             JSONObject jo = parseObject(text);

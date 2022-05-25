@@ -587,6 +587,8 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     public static <T> T parseObject(String text, Class<T> clazz) {
         return parseObject(text, clazz, new Feature[0]);
     }
+
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/1393
     /**
      *
      * This method deserializes the specified Json into an object of the specified class

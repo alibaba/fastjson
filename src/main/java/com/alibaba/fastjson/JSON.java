@@ -588,6 +588,33 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseObject(text, clazz, new Feature[0]);
     }
 
+    public static <T> T parseObject(String text, Class<T> clazz, boolean enumCheck) {
+        if (enumCheck) {
+            JSONObject jo = parseObject(text);
+            for (String s : jo.keySet()) {
+                try {
+                    Class<?> t = clazz.getDeclaredField(s).getType();
+                    if (t.isEnum()) {
+                        boolean exist = false;
+                        String v = jo.getString(s);
+                        for (Object o : t.getEnumConstants()) {
+                            if (o.toString().equals(v)) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (!exist) {
+                            throw new JSONException("Enum value " + v + " does not exist in " + t + ".");
+                        }
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return parseObject(text, clazz, new Feature[0]);
+    }
+
     public static JSONArray parseArray(String text) {
         return parseArray(text, ParserConfig.global);
     }

@@ -17,6 +17,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
 
@@ -1404,7 +1405,14 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             && JSONValidator.from(((String) value))
                                 .validate())
                     {
-                        input = (String) value;
+                        if(Date.class.getCanonicalName().equals(paramType.getTypeName()) &&
+                            TypeUtils.isNumber((String) value) &&
+                                isDateFormatAsNumber(fieldInfo.format))
+                        {
+                            input = wrapInQuotation((String) value);
+                        } else {
+                            input = (String) value;
+                        }
                     } else {
                         input = JSON.toJSONString(value);
                     }
@@ -1713,6 +1721,17 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
         }
 //        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
+    }
+
+    private boolean isDateFormatAsNumber(String format) {
+        if(format == null || "".equals(format)) {
+            return false;
+        }
+        return Pattern.compile("[yMdHms]*").matcher(format).matches();
+    }
+
+    private String wrapInQuotation(String value) {
+        return "\"" + value + "\"";
     }
     
 }

@@ -1413,9 +1413,10 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                         }
                         else if ("java.time.LocalDateTime".equals(fieldInfo.fieldClass.getCanonicalName()) &&
                             TypeUtils.isIntegerOrDecimal((String) value) &&
-                                isDateFormatAsNumber(fieldInfo.format)) {
+                                isDateFormatAsNumber(fieldInfo.format)) 
+						{
                             input = wrapInQuotation((String) value);
-                         }
+                        }
                         else {
                             input = (String) value;
                         }

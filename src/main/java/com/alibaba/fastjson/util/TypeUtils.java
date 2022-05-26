@@ -850,6 +850,31 @@ public class TypeUtils {
         return true;
     }
 
+    public static boolean isIntegerOrDecimal(String str) {
+        boolean findDecimalPoint = false;
+        for (int i = 0; i < str.length(); ++i) {
+            char ch = str.charAt(i);
+            if (ch == '.') {
+                if(i == 0 || i == str.length()-1) {
+                    return false;
+                }
+                if(findDecimalPoint) {
+                    return false;
+                }
+                findDecimalPoint = true;
+                continue;
+            }
+            if (ch == '+' || ch == '-') {
+                if (i != 0) {
+                    return false;
+                }
+            } else if (ch < '0' || ch > '9') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static Long castToLong(Object value) {
         if (value == null) {
             return null;

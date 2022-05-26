@@ -1405,12 +1405,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             && JSONValidator.from(((String) value))
                                 .validate())
                     {
-                        if(Date.class.getCanonicalName().equals(paramType.getTypeName()) &&
+                        if(Date.class.isAssignableFrom(fieldInfo.fieldClass) &&
                             TypeUtils.isNumber((String) value) &&
-                                isDateFormatAsNumber(fieldInfo.format))
+                                isDateFormatAsLong(fieldInfo.format))
                         {
                             input = wrapInQuotation((String) value);
-                        } else {
+                        }
+                        else if ("java.time.LocalDateTime".equals(fieldInfo.fieldClass.getCanonicalName()) &&
+                            TypeUtils.isIntegerOrDecimal((String) value) &&
+                                isDateFormatAsNumber(fieldInfo.format)) {
+                            input = wrapInQuotation((String) value);
+                         }
+                        else {
                             input = (String) value;
                         }
                     } else {
@@ -1723,11 +1729,18 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
 //        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
     }
 
+    private boolean isDateFormatAsLong(String format) {
+        if(format == null || "".equals(format)) {
+            return false;
+        }
+        return Pattern.compile("[yMdHmsS]*").matcher(format).matches();
+    }
+
     private boolean isDateFormatAsNumber(String format) {
         if(format == null || "".equals(format)) {
             return false;
         }
-        return Pattern.compile("[yMdHms]*").matcher(format).matches();
+        return Pattern.compile("[yMdHmsS]+(\\.[yMdHmsS]+)?").matcher(format).matches();
     }
 
     private String wrapInQuotation(String value) {

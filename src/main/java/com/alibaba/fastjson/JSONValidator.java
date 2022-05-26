@@ -238,7 +238,10 @@ public abstract class JSONValidator implements Cloneable, Closeable {
                             next();
                             next();
                             next();
-                        } else {
+                        } else if(ch != 't' && ch != 'n' && ch!='r' && ch!='b' && ch!='f' && ch!='v' && ch!='\''  ){
+                            //增加对java转义符 \t \n \r \b \f \v \' 的检测
+                            return false;
+                        } else{
                             next();
                         }
                     } else if (ch == '"') {

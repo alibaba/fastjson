@@ -571,8 +571,7 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
         public SecureObjectInputStream(ObjectInputStream in) throws IOException {
             super(in);
             try {
-                for (int i = 0; i < fields.length; i++) {
-                    final Field field = fields[i];
+                for (final Field field : fields) {
                     final Object value = field.get(in);
                     field.set(this, value);
                 }

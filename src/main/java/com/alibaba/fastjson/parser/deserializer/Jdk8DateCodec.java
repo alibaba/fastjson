@@ -174,7 +174,6 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 return (T) period;
             } else if (type == Duration.class) {
                 Duration duration = Duration.parse(text);
-
                 return (T) duration;
             } else if (type == Instant.class) {
                 boolean digit = true;
@@ -248,6 +247,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                 if (epochSecond instanceof Number) {
                     return (T) Instant.ofEpochSecond(
                             TypeUtils.longExtractValue((Number) epochSecond));
+                }
+            } else if (type == Duration.class) {
+                Long seconds = object.getLong("seconds");
+                if (seconds != null) {
+                    long nanos = object.getLongValue("nano");
+                    return (T) Duration.ofSeconds(seconds, nanos);
                 }
             }
         } else {

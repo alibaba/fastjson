@@ -1405,19 +1405,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             && JSONValidator.from(((String) value))
                                 .validate())
                     {
-                        if(Date.class.isAssignableFrom(fieldInfo.fieldClass) &&
-                            TypeUtils.isNumber((String) value) &&
-                                isDateFormatAsLong(fieldInfo.format))
+                        if((Date.class.isAssignableFrom(fieldInfo.fieldClass) ||
+                                "java.time.LocalDateTime".equals(fieldInfo.fieldClass.getCanonicalName())) &&
+                            TypeUtils.isIntegerOrDecimal((String) value) &&
+                                isDateFormatAsNumber(fieldInfo.format))
                         {
                             input = wrapInQuotation((String) value);
-                        }
-                        else if ("java.time.LocalDateTime".equals(fieldInfo.fieldClass.getCanonicalName()) &&
-                            TypeUtils.isIntegerOrDecimal((String) value) &&
-                                isDateFormatAsNumber(fieldInfo.format)) 
-						{
-                            input = wrapInQuotation((String) value);
-                        }
-                        else {
+                        } else {
                             input = (String) value;
                         }
                     } else {
@@ -1728,13 +1722,6 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
             lexer.nextToken(JSONToken.COMMA);
         }
 //        parser.accept(JSONToken.RBRACKET, JSONToken.COMMA);
-    }
-
-    private boolean isDateFormatAsLong(String format) {
-        if(format == null || "".equals(format)) {
-            return false;
-        }
-        return Pattern.compile("[yMdHmsS]*").matcher(format).matches();
     }
 
     private boolean isDateFormatAsNumber(String format) {

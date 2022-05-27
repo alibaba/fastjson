@@ -41,6 +41,9 @@ import java.math.BigInteger;
 import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -441,6 +444,12 @@ public class TypeUtils {
     public static Date castToDate(Object value, String format) {
         if (value == null) {
             return null;
+        }
+
+        if (value instanceof LocalDateTime){
+            Instant instant = ((LocalDateTime)value).toInstant(OffsetDateTime.now().getOffset());
+            Date date = Date.from(instant);
+            return date;
         }
 
         if (value instanceof Date) { // 使用频率最高的，应优先处理

@@ -26,4 +26,17 @@ public class JSONParseMapperTest {
         ObjectMapper jackson = new ObjectMapper();
         Assert.assertEquals(jackson.writeValueAsString(data),"{\"1\":\"2\"}");
     }
+
+    @Test(timeout = 4000)
+    public void testIfKeyIsString_2() throws JsonProcessingException {
+        Map<Integer, String> data = new HashMap<Integer, String>() {{ put(-1, "2"); }};
+
+        Assert.assertEquals(JSON.toJSONString(data),"{\"-1\":\"2\"}");
+
+        Gson gson = new GsonBuilder().create();
+        Assert.assertEquals(gson.toJson(data, Map.class),"{\"-1\":\"2\"}");
+
+        ObjectMapper jackson = new ObjectMapper();
+        Assert.assertEquals(jackson.writeValueAsString(data),"{\"-1\":\"2\"}");
+    }
 }

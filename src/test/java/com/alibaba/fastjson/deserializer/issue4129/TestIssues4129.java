@@ -9,16 +9,17 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 
+
 public class TestIssues4129 {
     @Test
-    public void test0() {
+    public void testForNormalJson() {
         Policy policy = new Policy();
         policy.setTime(new Date(1640966400000L));
         assertEquals(JSONObject.toJSONString(policy),"{\"time\":\"20220101000000\"}");
     }
 
     @Test
-    public void test1(){
+    public void testForJavaObject(){
         Policy policy = new Policy();
         policy.setTime(new Date(1640966400000L));
         String string = JSONObject.toJSONString(policy);

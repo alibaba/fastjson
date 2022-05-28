@@ -3801,7 +3801,9 @@ public class JSONPath implements JSONAware {
             }
             
             if (b instanceof BigInteger) {
-                BigInteger bigIntB = (BigInteger) a;
+                // Modified BigInteger bigIntB = (BigInteger) a to BigInteger bigIntB = (BigInteger) b
+                // Related to issue #4070 https://github.com/alibaba/fastjson/issues/4070
+                BigInteger bigIntB = (BigInteger) b;
                 BigInteger bigIntA = BigInteger.valueOf(a.longValue());
                 
                 return bigIntA.equals(bigIntB);

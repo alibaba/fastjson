@@ -480,8 +480,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                     if (type == 'B') {
                         return (byte) result;
                     }
-
-                    return (int) result;
+                    /*
+                     * Fix issue #3925, for type convert problem
+                     * Fastjson Issue Link: https://github.com/alibaba/fastjson/issues/3925
+                     * */
+                    return result;
                 }
                 return result;
             } else { /* Only got "-" */
@@ -497,8 +500,11 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
                 if (type == 'B') {
                     return (byte) result;
                 }
-
-                return (int) result;
+                /*
+                 * Fix issue #3925, for type convert problem
+                 * Fastjson Issue Link: https://github.com/alibaba/fastjson/issues/3925
+                 * */
+                return result;
             }
             return result;
         }

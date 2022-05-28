@@ -213,8 +213,13 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     }
                 }
 
-                if (entryKey instanceof String) {
-                    String key = (String) entryKey;
+                if (entryKey instanceof String || entryKey instanceof Number) {
+                    String key;
+                    if( entryKey instanceof Number){
+                         key = String.valueOf(entryKey);
+                    }else{
+                         key = (String) entryKey;
+                    }
 
                     if (!first) {
                         out.write(',');

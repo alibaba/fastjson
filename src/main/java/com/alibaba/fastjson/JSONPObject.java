@@ -11,8 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JSONPObject implements JSONSerializable {
-    public static String SECURITY_PREFIX = "/**/";
-    private String             function;
+
+    public static String SECURITY_PREFIX        = "/**/";
+    public static String SYMBOL_LEFT_BRACKET    = "(";
+    public static String SYMBOL_RIGHT_BRACKET   = ")";
+    public static String SYMBOL_COMMA           = ",";
+
+    private String function;
 
     private final List<Object> parameters = new ArrayList<Object>();
 
@@ -54,14 +59,14 @@ public class JSONPObject implements JSONSerializable {
         }
 
         writer.write(function);
-        writer.write('(');
+        writer.write(SYMBOL_LEFT_BRACKET);
         for (int i = 0; i < parameters.size(); ++i) {
             if (i != 0) {
-                writer.write(',');
+                writer.write(SYMBOL_COMMA);
             }
             serializer.write(parameters.get(i));
         }
-        writer.write(')');
+        writer.write(SYMBOL_RIGHT_BRACKET);
     }
 
     public String toString() {

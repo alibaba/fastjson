@@ -417,7 +417,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
         try {
             Map<String, Object> fieldValues = null;
 
-            if (token == JSONToken.RBRACE) {
+            if (token == JSONToken.RBRACE&&lexer.next()==JSONLexer.EOI) {
                 lexer.nextToken(JSONToken.COMMA);
                 if (object == null) {
                     object = createInstance(parser, type);

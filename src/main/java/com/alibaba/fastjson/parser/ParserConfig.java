@@ -59,8 +59,8 @@ import com.alibaba.fastjson.util.ServiceLoader;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1364,21 +1364,21 @@ public class ParserConfig {
         String className = typeName.replace('$', '.');
         Class<?> clazz;
 
-        final long h1 = (fnv1a_64_magic_hashcode ^ className.charAt(0)) * fnv1a_64_magic_prime;
+        final long h1 = (FNV1A_64_MAGIC_HASHCODE ^ className.charAt(0)) * FNV1A_64_MAGIC_PRIME;
         if (h1 == 0xaf64164c86024f1aL) { // [
             throw new JSONException("autoType is not support. " + typeName);
         }
 
-        if ((h1 ^ className.charAt(className.length() - 1)) * fnv1a_64_magic_prime == 0x9198507b5af98f0L) {
+        if ((h1 ^ className.charAt(className.length() - 1)) * FNV1A_64_MAGIC_PRIME == 0x9198507b5af98f0L) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
-        final long h3 = (((((fnv1a_64_magic_hashcode ^ className.charAt(0))
-                * fnv1a_64_magic_prime)
+        final long h3 = (((((FNV1A_64_MAGIC_HASHCODE ^ className.charAt(0))
+                * FNV1A_64_MAGIC_PRIME)
                 ^ className.charAt(1))
-                * fnv1a_64_magic_prime)
+                * FNV1A_64_MAGIC_PRIME)
                 ^ className.charAt(2))
-                * fnv1a_64_magic_prime;
+                * FNV1A_64_MAGIC_PRIME;
 
         long fullHash = TypeUtils.fnv1a_64(className);
         boolean internalWhite = Arrays.binarySearch(INTERNAL_WHITELIST_HASHCODES,  fullHash) >= 0;
@@ -1387,7 +1387,7 @@ public class ParserConfig {
             long hash = h3;
             for (int i = 3; i < className.length(); ++i) {
                 hash ^= className.charAt(i);
-                hash *= fnv1a_64_magic_prime;
+                hash *= FNV1A_64_MAGIC_PRIME;
                 if (Arrays.binarySearch(internalDenyHashCodes, hash) >= 0) {
                     throw new JSONException("autoType is not support. " + typeName);
                 }
@@ -1398,7 +1398,7 @@ public class ParserConfig {
             long hash = h3;
             for (int i = 3; i < className.length(); ++i) {
                 hash ^= className.charAt(i);
-                hash *= fnv1a_64_magic_prime;
+                hash *= FNV1A_64_MAGIC_PRIME;
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
                     clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
                     if (clazz != null) {
@@ -1449,7 +1449,7 @@ public class ParserConfig {
             for (int i = 3; i < className.length(); ++i) {
                 char c = className.charAt(i);
                 hash ^= c;
-                hash *= fnv1a_64_magic_prime;
+                hash *= FNV1A_64_MAGIC_PRIME;
 
                 if (Arrays.binarySearch(denyHashCodes, hash) >= 0) {
                     if (typeName.endsWith("Exception") || typeName.endsWith("Error")) {

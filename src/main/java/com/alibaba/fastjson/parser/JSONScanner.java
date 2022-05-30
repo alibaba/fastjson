@@ -24,8 +24,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 //这个类，为了性能优化做了很多特别处理，一切都是为了性能！！！
 
@@ -1226,7 +1226,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
         }
 
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (;;) {
             ch = charAt(index++);
             if (ch == '\"') {
@@ -1239,7 +1239,7 @@ public final class JSONScanner extends JSONLexerBase {
             }
 
             hash ^= ch;
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
         }
 
         for (;;) {
@@ -2593,7 +2593,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash;
             if (ch == '"') {
-                hash = fnv1a_64_magic_hashcode;
+                hash = FNV1A_64_MAGIC_HASHCODE;
 
                 for (int i = bp + 1; i < text.length(); ++i) {
                     char c = text.charAt(i);
@@ -2614,7 +2614,7 @@ public final class JSONScanner extends JSONLexerBase {
                     }
 
                     hash ^= c;
-                    hash *= fnv1a_64_magic_prime;
+                    hash *= FNV1A_64_MAGIC_PRIME;
                 }
             } else {
                 throw new UnsupportedOperationException();
@@ -2855,7 +2855,7 @@ public final class JSONScanner extends JSONLexerBase {
 
             long hash;
             if (ch == '"') {
-                hash = fnv1a_64_magic_hashcode;
+                hash = FNV1A_64_MAGIC_HASHCODE;
 
                 for (int i = bp + 1; i < text.length(); ++i) {
                     char c = text.charAt(i);
@@ -2876,7 +2876,7 @@ public final class JSONScanner extends JSONLexerBase {
                     }
 
                     hash ^= c;
-                    hash *= fnv1a_64_magic_prime;
+                    hash *= FNV1A_64_MAGIC_PRIME;
                 }
             } else {
                 throw new UnsupportedOperationException();

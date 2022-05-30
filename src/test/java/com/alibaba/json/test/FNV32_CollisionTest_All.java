@@ -4,14 +4,12 @@ import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.FilterWriter;
 import java.text.NumberFormat;
 import java.util.BitSet;
 import java.util.Random;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 /**
  * Created by wenshao on 08/01/2017.
@@ -63,14 +61,14 @@ public class FNV32_CollisionTest_All extends TestCase {
             long n = (long) Math.pow(digLetters.length, chars.length);
 
             for (; v < n; ++v) {
-                long hash = fnv1a_64_magic_hashcode;
+                long hash = FNV1A_64_MAGIC_HASHCODE;
                 for (int i = 0; i < chars.length; ++i) {
                     int power = powers[chars.length - i - 1];
                     int d = (int) ((v / power) % digLetters.length);
                     char c = digLetters[d];
 
                     hash ^= c;
-                    hash *= fnv1a_64_magic_prime;
+                    hash *= FNV1A_64_MAGIC_PRIME;
                 }
                 b[7] = (byte) (hash       );
                 b[6] = (byte) (hash >>>  8);
@@ -106,11 +104,11 @@ public class FNV32_CollisionTest_All extends TestCase {
     }
 
     static long fnv_hash(char[] chars) {
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < chars.length; ++i) {
             char c = chars[i];
             hash ^= c;
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
         }
         return hash;
     }

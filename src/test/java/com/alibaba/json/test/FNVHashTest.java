@@ -4,8 +4,8 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 /**
  * Created by wenshao on 05/01/2017.
@@ -71,11 +71,11 @@ public class FNVHashTest extends TestCase {
     }
 
     static long fnv_hash64(char[] chars) {
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < chars.length; ++i) {
             char c = chars[i];
             hash ^= c;
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
         }
         return hash;
     }

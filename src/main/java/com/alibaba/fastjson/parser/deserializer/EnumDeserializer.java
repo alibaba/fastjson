@@ -12,8 +12,8 @@ import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.util.TypeUtils;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 @SuppressWarnings("rawtypes")
 public class EnumDeserializer implements ObjectDeserializer {
@@ -47,16 +47,16 @@ public class EnumDeserializer implements ObjectDeserializer {
                 // skip
             }
 
-            long hash = fnv1a_64_magic_hashcode;
-            long hash_lower = fnv1a_64_magic_hashcode;
+            long hash = FNV1A_64_MAGIC_HASHCODE;
+            long hash_lower = FNV1A_64_MAGIC_HASHCODE;
             for (int j = 0; j < name.length(); ++j) {
                 char ch = name.charAt(j);
 
                 hash ^= ch;
                 hash_lower ^= ((ch >= 'A' && ch <= 'Z') ? (ch + 32) : ch);
 
-                hash *= fnv1a_64_magic_prime;
-                hash_lower *= fnv1a_64_magic_prime;
+                hash *= FNV1A_64_MAGIC_PRIME;
+                hash_lower *= FNV1A_64_MAGIC_PRIME;
             }
 
             enumMap.put(hash, e);
@@ -66,11 +66,11 @@ public class EnumDeserializer implements ObjectDeserializer {
 
             if (jsonField != null) {
                 for (String alterName : jsonField.alternateNames()) {
-                    long alterNameHash = fnv1a_64_magic_hashcode;
+                    long alterNameHash = FNV1A_64_MAGIC_HASHCODE;
                     for (int j = 0; j < alterName.length(); ++j) {
                         char ch = alterName.charAt(j);
                         alterNameHash ^= ch;
-                        alterNameHash *= fnv1a_64_magic_prime;
+                        alterNameHash *= FNV1A_64_MAGIC_PRIME;
                     }
                     if (alterNameHash != hash && alterNameHash != hash_lower) {
                         enumMap.put(alterNameHash, e);
@@ -137,16 +137,16 @@ public class EnumDeserializer implements ObjectDeserializer {
                     return (T) null;
                 }
 
-                long hash = fnv1a_64_magic_hashcode;
-                long hash_lower = fnv1a_64_magic_hashcode;
+                long hash = FNV1A_64_MAGIC_HASHCODE;
+                long hash_lower = FNV1A_64_MAGIC_HASHCODE;
                 for (int j = 0; j < name.length(); ++j) {
                     char ch = name.charAt(j);
 
                     hash ^= ch;
                     hash_lower ^= ((ch >= 'A' && ch <= 'Z') ? (ch + 32) : ch);
 
-                    hash *= fnv1a_64_magic_prime;
-                    hash_lower *= fnv1a_64_magic_prime;
+                    hash *= FNV1A_64_MAGIC_PRIME;
+                    hash_lower *= FNV1A_64_MAGIC_PRIME;
                 }
 
                 Enum e = getEnumByHashCode(hash);

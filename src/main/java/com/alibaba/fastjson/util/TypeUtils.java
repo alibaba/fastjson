@@ -3035,7 +3035,7 @@ public class TypeUtils {
         long hashCode = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
-            if(ch == '_' || ch == '-'){
+            if (ch == '_' || ch == '-') {
                 continue;
             }
             if (ch >= 'A' && ch <= 'Z') {

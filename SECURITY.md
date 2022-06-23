@@ -61,23 +61,23 @@ ASRC（Alibaba Security Response Center阿里安全响应中心）将尽快审�
 
 # Vulnerability Reward Program
 ## Reporting
-If you believe you have found any security (technical) vulnerability in the Program, you are welcomed to submit a vulnerability report to us at https://security.alibaba.com 
-In case of reporting any security vulnerability, please be noted that you may including following information (Qualified Reporting):
+If you believe you have found any security (technical) vulnerability in the Program, you are welcome to submit a vulnerability report to us at https://security.alibaba.com 
+In the case of reporting any security vulnerability, please note that you may include the following information (Qualified Reporting):
 * The git program URL and running version 
-* A detailed description with necessary screenshots
-* Steps to reappearance the vulnerability and your advice to fix it
+* A detailed description with applicable screenshots
+* Steps to reproduce the vulnerability/exploit and your advice to fix it
 * Other useful information
 
 
 ## Processing
-ASRC (Alibaba Security Response Center) will review and respond as quickly as possible to your submission, and keep you informed as we work to fix the vulnerability you submitted. We may contact you for further information if necessary.
+ASRC (Alibaba Security Response Center) will review and respond as quickly as possible to your submission, and keep you informed as we work to fix the vulnerability you submitted. We may contact you for further information, if necessary.
 
 
 ## Terms and Conditions
 1. ONLY technical vulnerabilities will be accepted and rated.
-2. With regarding to security reasons, reporters agree to cooperate with ASRC exclusively on the vulnerability he/she submitted and not disclose any information of vulnerability to any third-parties.
+2. For security reasons, reporters agree to cooperate with ASRC exclusively on the vulnerability he/she submitted and not disclose any information of vulnerability to any third-parties.
 3. In the case that more than one person report the same security vulnerability, the reward will be given to the first person who accomplish a Qualified Reporting.
-4. To protect users of the program, please do not directly submit issue on github or discuss anything with the community 
+4. To protect users of the program, please do not directly submit issue on github or discuss anything with the community. 
 5. All Rewards and Reputation Credits are given to the reporters who submit his/her security vulnerabilities ONLY to ASRC.
 6. All rights for the security vulnerability rewards are reserved by ASRC.
 

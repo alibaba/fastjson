@@ -7,13 +7,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.alibaba.json.demo.hibernate.data.*;
 
 import junit.framework.TestCase;
-import org.hibernate.Hibernate;
-import org.junit.Test;
 
 public class LazyLoadingTest extends TestCase {
     EntityManagerFactory emf;

@@ -19,7 +19,7 @@ public class AutoTypeCheckHandlerTest extends TestCase {
         assertNotNull(error);
 
         config.addAutoTypeCheckHandler(new ParserConfig.AutoTypeCheckHandler() {
-            @Override
+
             public Class<?> handler(String typeName, Class<?> expectClass, int features) {
                 if ("com.alibaba.json.bvt.parser.autoType.AutoTypeCheckHandlerTest$Model".equals(typeName)) {
                     return Model.class;

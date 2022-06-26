@@ -1,10 +1,12 @@
 package com.alibaba.json.bvt.support.spring.security;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import com.alibaba.json.bvt.serializer.JavaBeanSerializerTest;
 import junit.framework.TestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +35,11 @@ public class DefaultSavedRequestTest extends TestCase {
         field.setAccessible(true);
         config = (ParserConfig) field.get(null);
         config.addAccept("org.springframework.security.web.savedrequest.DefaultSavedRequest");
+        config.addAccept("org.springframework.security.core.context.SecurityContextImpl");
+        config.addAccept("org.springframework.security.core.userdetails.User");
+        config.addAccept("org.springframework.security.authentication.UsernamePasswordAuthenticationToken");
+        config.addAccept("org.springframework.security.core.authority.SimpleGrantedAuthority");
+        config.addAccept("org.springframework.security.web.authentication.WebAuthenticationDetails");
     }
     public void test_for_issue() throws Exception {
         MockHttpServletRequest mockReq = new MockHttpServletRequest();
@@ -47,7 +54,7 @@ public class DefaultSavedRequestTest extends TestCase {
 //        System.out.println(str);
 
 
-        JSON.parseObject(str, Object.class, config);
+        JSON.parseObject(str, Object.class, config, Feature.SupportAutoType);
 
         JSON.parseObject(str);
     }
@@ -97,14 +104,14 @@ public class DefaultSavedRequestTest extends TestCase {
 
     public void test_SecurityContextImpl() throws Exception {
         String json = "{\"@type\":\"org.springframework.security.core.context.SecurityContextImpl\"}";
-        JSON.parseObject(json, Object.class);
+        JSON.parseObject(json, Object.class, Feature.SupportAutoType);
 
         JSON.parseObject(json, Object.class, config);
     }
 
     public void test_UsernamePasswordAuthenticationToken() throws Exception {
         String json = "{\"@type\":\"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\",\"principal\":\"pp\"}";
-        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken)JSON.parseObject(json, Object.class);
+        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken)JSON.parseObject(json, Object.class, Feature.SupportAutoType);
 
         UsernamePasswordAuthenticationToken token1 = (UsernamePasswordAuthenticationToken) JSON.parseObject(json, Object.class, config);
 
@@ -115,7 +122,7 @@ public class DefaultSavedRequestTest extends TestCase {
 
     public void test_SimpleGrantedAuthority() throws Exception {
         String json = "{\"@type\":\"org.springframework.security.core.authority.SimpleGrantedAuthority\",\"authority\":\"xx\"}";
-        SimpleGrantedAuthority token = (SimpleGrantedAuthority)JSON.parseObject(json, Object.class);
+        SimpleGrantedAuthority token = (SimpleGrantedAuthority)JSON.parseObject(json, Object.class, Feature.SupportAutoType);
 
         SimpleGrantedAuthority token1 = (SimpleGrantedAuthority) JSON.parseObject(json, Object.class, config);
 
@@ -127,9 +134,10 @@ public class DefaultSavedRequestTest extends TestCase {
 
     public void test_User() throws Exception {
         String json = "{\"@type\":\"org.springframework.security.core.userdetails.User\",\"username\":\"xx\",\"authorities\":[]}";
+
         User token = (User)JSON.parseObject(json, Object.class);
 
-        User token1 = (User) JSON.parseObject(json, Object.class, config);
+        User token1 = (User) JSON.parseObject(json, Object.class, config, Feature.SupportAutoType);
 
         assertEquals("xx", token.getUsername());
         assertEquals("xx", token1.getUsername());
@@ -140,7 +148,8 @@ public class DefaultSavedRequestTest extends TestCase {
 
     public void test_SecurityContextImpl_x() throws Exception {
         String json = "{\"@type\":\"org.springframework.security.core.context.SecurityContextImpl\",\"authentication\":{\"@type\":\"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\",\"authenticated\":true,\"authorities\":[{\"@type\":\"org.springframework.security.core.authority.SimpleGrantedAuthority\",\"authority\":\"ROLE_ADMIN\"}],\"details\":{\"@type\":\"org.springframework.security.web.authentication.WebAuthenticationDetails\",\"remoteAddress\":\"0:0:0:0:0:0:0:1\",\"sessionId\":\"35dbb2c4-971c-4624-bd89-2e002180a2ca\"},\"name\":\"admin\",\"principal\":{\"@type\":\"org.springframework.security.core.userdetails.User\",\"accountNonExpired\":true,\"accountNonLocked\":true,\"authorities\":[{\"$ref\":\"$.authentication.authorities[0]\"}],\"credentialsNonExpired\":true,\"enabled\":true,\"username\":\"admin\"}}}";
-        SecurityContextImpl context = (SecurityContextImpl) JSON.parseObject(json, Object.class, config);
+
+        SecurityContextImpl context = (SecurityContextImpl) JSON.parseObject(json, Object.class, config, Feature.SupportAutoType);
     }
 
     //

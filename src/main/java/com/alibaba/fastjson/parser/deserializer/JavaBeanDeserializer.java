@@ -1395,7 +1395,7 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 Class<?> fieldClass = fieldInfo.fieldClass;
                 JSONField fieldAnnation = fieldInfo.getAnnotation();
 
-                if (fieldInfo.declaringClass != null
+                if (fieldInfo.declaringClass != null && paramType != Date.class
                         && ((!fieldClass.isInstance(value))
                             || (fieldAnnation != null && fieldAnnation.deserializeUsing() != Void.class))
                 ) {

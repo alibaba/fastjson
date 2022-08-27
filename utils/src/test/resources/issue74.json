@@ -1,0 +1,45 @@
+[{
+"dataType": {
+    "categoryType": {
+        "dataTypes": [{
+            "$ref": "$[0].dataType"
+        },
+        {
+            "categoryType": {
+                "$ref": "$[0].dataType.categoryType"
+            },
+            "id": 6
+        },
+        {
+            "categoryType": {
+                "$ref": "$[0].dataType.categoryType"
+            },
+            "id": 7
+        },
+        {
+            "categoryType": {
+                "$ref": "$[0].dataType.categoryType"
+            },
+            "id": 51
+        }]
+    }
+},
+"type": {
+    "$ref": "$[0].dataType.categoryType"
+},
+"version": {
+    "available": true,
+    "id": 6001
+}
+},
+{
+"dataType": {
+    "$ref": "$[0].dataType.categoryType.dataTypes[1]"
+},
+"type": {
+    "$ref": "$[0].dataType.categoryType"
+},
+"version": {
+    "$ref": "$[0].version"
+}
+}]

@@ -1,0 +1,33 @@
+// Short strings.
+{
+	Media = {
+		Uri = "g"
+		Title = Set: "J"
+		Width = 640
+		Height = 480
+		Format = "v"
+		Duration = 18000000    // half hour in milliseconds
+		Size = 58982400        // bitrate * duration in seconds / 8 bits per byte
+		Bitrate = Set: 262144  // 256k
+		Persons = ["B", "S"]
+		Player = Java
+		Copyright = None
+	}
+
+	Images = [
+		{
+			Uri = "h"
+			Title = Set: "J"
+			Width = 1024
+			Height = 768
+			Size = Large
+		}
+		{
+			Uri = "h"
+			Title = Set: "J"
+			Width = 320
+			Height = 240
+			Size = Small
+		}
+	]
+}

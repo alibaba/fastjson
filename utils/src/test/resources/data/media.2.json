@@ -1,0 +1,39 @@
+{
+	media : {
+		uri : "http://javaone.com/keynote.ogg",
+		title : null,
+		width : 641,
+		height : 481,
+		format : "video/theora",
+		duration : 18000001,
+		size : 58982401,
+		bitrate : null,
+		persons : ["Bill Gates, Jr.", "Steven Jobs"],
+		player : "Flash",
+		copyright : "2009, Scooby Doo",
+	},
+
+	images : [
+		{
+			uri : "http://javaone.com/keynote_huge.jpg",
+			title : "Javaone Keynote",
+			width : 32000,
+			height : 24000,
+			size : "Large",
+		},
+		{
+			uri : "http://javaone.com/keynote_large.jpg",
+			title : null,
+			width : 1024,
+			height : 768,
+			size : "Large"
+		},
+		{
+			uri : "http://javaone.com/keynote_small.jpg",
+			title : null,
+			width : 320,
+			height : 240,
+			size : "Small"
+		}
+	]
+}

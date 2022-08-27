@@ -1,0 +1,11 @@
+dontinline,*.*_all_jmhStub
+dontinline,*.*_avgt_jmhStub
+dontinline,*.*_sample_jmhStub
+dontinline,*.*_ss_jmhStub
+dontinline,*.*_thrpt_jmhStub
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark.prepare
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark.testParseJson
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark.testParseJsonComp
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark_jackson.prepare
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark_jackson.testParseJson
+inline,com/alibaba/json/test/benchmark/jdk10/StringBenchmark_jackson.testParseJsonComp

@@ -1,0 +1,17 @@
+{
+  "passengerSegmentItems": [
+    {
+      "rawAttributes": {
+        "originPrice": "43200"
+      },
+      "segment": {
+        "agentId": 1428,
+      }
+    }
+  ],
+  "segments": [
+    {
+      "$ref": "$.passengerSegmentItems[0].segment"
+    }
+  ]
+}

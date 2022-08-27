@@ -61,7 +61,7 @@ public class FastJsonProviderTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void test0() throws Exception {
 		
 		JSONObject json = new JSONObject();
@@ -77,7 +77,7 @@ public class FastJsonProviderTest {
 		System.out.println(response.readEntity(String.class));
 	}
 	
-	@Test
+	//@Test
 	public void test1() throws Exception {
 		
 		JSONObject json = new JSONObject();
@@ -93,7 +93,7 @@ public class FastJsonProviderTest {
 		System.out.println(response.readEntity(String.class));
 	}
 	
-	@Test
+	//@Test
 	public void test2() throws Exception {
 		
 		String jsonStr = "[{\"name\":\"p1\",\"sonList\":[{\"name\":\"s1\"}]},{\"name\":\"p2\",\"sonList\":[{\"name\":\"s2\"},{\"name\":\"s3\"}]}]";

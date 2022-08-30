@@ -1166,8 +1166,13 @@ public final class JSONScanner extends JSONLexerBase {
             token = JSONToken.COMMA;
             return dateVal;
         } else {
-            //condition ch == '}' is always 'true'
-            ch = charAt(++bp);
+            //去除空格换行符,tab等字符
+             for (; ; ) {
+                    ch = charAt(++bp);
+                    if(!isWhitespace(ch)){
+                       break;
+                    }
+             }
             if (ch == ',') {
                 token = JSONToken.COMMA;
                 this.ch = charAt(++bp);

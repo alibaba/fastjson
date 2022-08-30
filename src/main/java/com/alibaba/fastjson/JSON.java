@@ -1273,7 +1273,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
             } else {
                 chars = new byte[length];
             }
-        } else if (chars.length <= length) {
+        } else if (chars.length < length) {
             chars = new byte[length];
         }
 

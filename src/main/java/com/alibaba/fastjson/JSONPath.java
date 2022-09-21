@@ -4054,7 +4054,6 @@ public class JSONPath implements JSONAware {
                     } catch (IllegalAccessException ex) {
                         throw new JSONException("getFieldValue error." + propertyName, ex);
                     }
-                    return;
                 }
                 List<Object> fieldValues = beanSerializer.getFieldValues(currentObject);
                 for (Object val : fieldValues) {

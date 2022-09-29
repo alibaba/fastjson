@@ -125,7 +125,7 @@ public class JavaBeanInfo {
 
             kotlin = TypeUtils.isKotlin(clazz);
             if (kotlin) {
-                this.creatorConstructorParameters = TypeUtils.getKoltinConstructorParameters(clazz);
+                this.creatorConstructorParameters = TypeUtils.getKotlinConstructorParameters(clazz);
                 try {
                     this.kotlinDefaultConstructor = clazz.getConstructor();
                 } catch (Throwable ex) {
@@ -376,7 +376,7 @@ public class JavaBeanInfo {
                         if (field == null) {
                             if (lookupParameterNames == null) {
                                 if (kotlin) {
-                                    lookupParameterNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                                    lookupParameterNames = TypeUtils.getKotlinConstructorParameters(clazz);
                                 } else {
                                     lookupParameterNames = ASMUtils.lookupParameterNames(creatorConstructor);
                                 }
@@ -448,7 +448,7 @@ public class JavaBeanInfo {
 
                 String[] paramNames = null;
                 if (kotlin && constructors.length > 0) {
-                    paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                    paramNames = TypeUtils.getKotlinConstructorParameters(clazz);
                     creatorConstructor = TypeUtils.getKotlinConstructor(constructors, paramNames);
                     TypeUtils.setAccessible(creatorConstructor);
                 } else {

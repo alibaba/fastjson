@@ -388,6 +388,10 @@ public final class JSONScanner extends JSONLexerBase {
 
         char c8 = charAt(bp + 8);
         char c9 = charAt(bp + 9);
+        
+        if (rest == 9) {
+            c9 = ' ';
+        }
 
         int date_len = 10;
         char y0, y1, y2, y3, M0, M1, d0, d1;

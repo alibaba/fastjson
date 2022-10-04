@@ -332,7 +332,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.11.0</version>
+            <version>3.16.3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

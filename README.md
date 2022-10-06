@@ -8,10 +8,11 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/alibaba/fastjson) 
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/fastjson2.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:fastjson2)
-=======
 [![QualityGate](https://quality-gate.com/backend/api/timeline?branchName=master&projectName=alibaba_fastjson)](https://quality-gate.com/dashboard/branches/7816#overview)
 
 Fastjson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java object. Fastjson can work with arbitrary Java objects including pre-existing objects that you do not have source-code of.
+
+[FASTJSON 2.0.x](https://github.com/alibaba/fastjson/releases) has been released, faster and more secure, we recommend you [upgrade](https://github.com/alibaba/fastjson2/wiki/fastjson_1_upgrade_cn) to the latest version.
 
 ### Fastjson Goals
  * Provide the best performance on the server-side and android client
@@ -28,10 +29,13 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 - [Documentation Home](https://github.com/alibaba/fastjson/wiki)
 - [Contributing Code](https://github.com/nschaffner/fastjson/blob/master/CONTRIBUTING.md)
 - [Frequently Asked Questions](https://github.com/alibaba/fastjson/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
+- FASTJSON 1.x User Upgrade Guid [https://github.com/alibaba/fastjson2/wiki/fastjson_1_upgrade_cn](https://github.com/alibaba/fastjson2/wiki/fastjson_1_upgrade_cn
+)
 
 ## Benchmark
 
-https://github.com/eishay/jvm-serializers/wiki
+* Eishay benchmark https://github.com/eishay/jvm-serializers/wiki
+* fastjson2 benchmark [https://alibaba.github.io/fastjson2/benchmark_cn](https://alibaba.github.io/fastjson2/benchmark_cn)
 
 ## Download
 
@@ -47,7 +51,7 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.2.76</version>
+    <version>2.0.15</version>
 </dependency>
 ```
 
@@ -55,18 +59,18 @@ https://github.com/eishay/jvm-serializers/wiki
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>1.1.72.android</version>
+    <version>2.0.15.android</version>
 </dependency>
 ```
 
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.2.76'
+compile 'com.alibaba:fastjson:2.0.15'
 ```
 
 ``` groovy
-compile 'com.alibaba:fastjson:1.1.72.android'
+compile 'com.alibaba:fastjson:2.0.15.android'
 ```
 
 Please see this [Wiki Download Page][Wiki] for more repository info.

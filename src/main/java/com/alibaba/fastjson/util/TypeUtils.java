@@ -2683,11 +2683,11 @@ public class TypeUtils {
         Type clz = genericArrayType;
         Type genericComponentType = genericArrayType.getGenericComponentType();
 
-        String prefix = "[";
+        StringBuilder prefix = new StringBuilder("[");
         while (genericComponentType instanceof GenericArrayType) {
             genericComponentType = ((GenericArrayType) genericComponentType)
                     .getGenericComponentType();
-            prefix += prefix;
+            prefix.append(prefix);
         }
 
         if (genericComponentType instanceof Class<?>) {
@@ -2696,7 +2696,7 @@ public class TypeUtils {
                 try {
                     String postfix = (String) primitiveTypeMap.get(ck);
                     if (postfix != null) {
-                        clz = Class.forName(prefix + postfix);
+                        clz = Class.forName(prefix.toString() + postfix);
                     }
                 } catch (ClassNotFoundException ignored) {
                 }

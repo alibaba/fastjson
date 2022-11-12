@@ -35,7 +35,8 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 ## Benchmark
 
 * Eishay benchmark https://github.com/eishay/jvm-serializers/wiki
-* fastjson2 benchmark [https://alibaba.github.io/fastjson2/benchmark_cn](https://alibaba.github.io/fastjson2/benchmark_cn)
+* fastjson2 benchmark [https://github.com/alibaba/fastjson2/wiki/fastjson_benchmark](https://github.com/alibaba/fastjson2/wiki/fastjson_benchmark)
+
 
 ## Download
 

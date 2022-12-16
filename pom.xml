@@ -244,7 +244,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>4.3.7.RELEASE</version>
+            <version>5.2.20.RELEASE</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>

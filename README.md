@@ -52,15 +52,7 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>2.0.19</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.alibaba</groupId>
-    <artifactId>fastjson</artifactId>
-    <version>2.0.19.android</version>
+    <version>2.0.22</version>
 </dependency>
 ```
 
@@ -70,9 +62,6 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 compile 'com.alibaba:fastjson:2.0.19'
 ```
 
-``` groovy
-compile 'com.alibaba:fastjson:2.0.19.android'
-```
 
 Please see this [Wiki Download Page][Wiki] for more repository info.
 

@@ -59,7 +59,7 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 ## Gradle via JCenter
 
 ``` groovy
-compile 'com.alibaba:fastjson:2.0.19'
+compile 'com.alibaba:fastjson:2.0.22'
 ```
 
 

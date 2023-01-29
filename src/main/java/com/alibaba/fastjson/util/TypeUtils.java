@@ -59,7 +59,6 @@ public class TypeUtils {
      * 根据field name的大小写输出输入数据
      */
     public static boolean compatibleWithFieldName = false;
-    private static boolean setAccessibleEnable = true;
     private static boolean oracleTimestampMethodInited = false;
     private static Method oracleTimestampMethod;
     private static boolean oracleDateMethodInited = false;
@@ -2544,16 +2543,13 @@ public class TypeUtils {
     }
 
     static void setAccessible(AccessibleObject obj) {
-        if (!setAccessibleEnable) {
-            return;
-        }
         if (obj.isAccessible()) {
             return;
         }
         try {
             obj.setAccessible(true);
         } catch (Throwable error) {
-            setAccessibleEnable = false;
+            throw new JSONException("cannot access object", error);
         }
     }
 

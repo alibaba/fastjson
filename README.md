@@ -52,7 +52,7 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 <dependency>
     <groupId>com.alibaba</groupId>
     <artifactId>fastjson</artifactId>
-    <version>2.0.23</version>
+    <version>2.0.26</version>
 </dependency>
 ```
 

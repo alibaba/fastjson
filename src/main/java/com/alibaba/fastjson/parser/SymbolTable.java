@@ -24,19 +24,19 @@ public class SymbolTable {
 
     private final String[] symbols;
     private final int      indexMask;
-    
+
     public SymbolTable(int tableSize){
         this.indexMask = tableSize - 1;
         this.symbols = new String[tableSize];
-        
+
         this.addSymbol("$ref", 0, 4, "$ref".hashCode());
         this.addSymbol(JSON.DEFAULT_TYPE_KEY, 0, JSON.DEFAULT_TYPE_KEY.length(), JSON.DEFAULT_TYPE_KEY.hashCode());
     }
 
-    public String addSymbol(char[] buffer, int offset, int len) {
+    public String addSymbol(char[] buffer, int offset, int length) {
         // search for identical symbol
-        int hash = hash(buffer, offset, len);
-        return addSymbol(buffer, offset, len, hash);
+        int hash = hash(buffer, offset, length);
+        return addSymbol(buffer, offset, length, hash);
     }
 
     /**
@@ -46,54 +46,54 @@ public class SymbolTable {
      * 
      * @param buffer The buffer containing the new symbol.
      * @param offset The offset into the buffer of the new symbol.
-     * @param len The length of the new symbol in the buffer.
+     * @param length The length of the new symbol in the buffer.
      */
-    public String addSymbol(char[] buffer, int offset, int len, int hash) {
+    public String addSymbol(char[] buffer, int offset, int length, int hash) {
         final int bucket = hash & indexMask;
-        
+
         String symbol = symbols[bucket];
-        if (symbol != null) {
-            boolean eq = true;
-            if (hash == symbol.hashCode() // 
-                    && len == symbol.length()) {
-                for (int i = 0; i < len; i++) {
-                    if (buffer[offset + i] != symbol.charAt(i)) {
-                        eq = false;
-                        break;
-                    }
-                }
-            } else {
-                eq = false;
-            }
-            
-            if (eq) {
-                return symbol;
-            } else {
-                return new String(buffer, offset, len);    
-            }
+        if (symbol != null && areSymbolsEqual(buffer, offset, length, hash, symbol)) {
+            return symbol;
+        } else if (symbol != null) {
+            return createNewSymbol(buffer, offset, length);
         }
-        
-        symbol = new String(buffer, offset, len).intern();
+
+        symbol = createNewSymbol(buffer, offset, length).intern();
         symbols[bucket] = symbol;
         return symbol;
     }
 
-    public String addSymbol(String buffer, int offset, int len, int hash) {
-        return addSymbol(buffer, offset, len, hash, false);
+
+    private boolean areSymbolsEqual(char[] buffer, int offset, int length, int hash, String symbol) {
+        if (hash == symbol.hashCode() && length == symbol.length()) {
+            for (int i = 0; i < length; i++) {
+                if (buffer[offset + i] != symbol.charAt(i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
-    public String addSymbol(String buffer, int offset, int len, int hash, boolean replace) {
+    private String createNewSymbol(char[] buffer, int offset, int length) {
+        return new String(buffer, offset, length);
+    }
+
+    public String addSymbol(String buffer, int offset, int length, int hash) {
+        return addSymbol(buffer, offset, length, hash, false);
+    }
+
+    public String addSymbol(String buffer, int offset, int length, int hash, boolean replace) {
         final int bucket = hash & indexMask;
 
         String symbol = symbols[bucket];
         if (symbol != null) {
-            if (hash == symbol.hashCode() // 
-                    && len == symbol.length() //
-                    && buffer.startsWith(symbol, offset)) {
+            if (areSymbolsEqual(buffer.toCharArray(), offset, length, hash, symbol)) {
                 return symbol;
             }
 
-            String str = subString(buffer, offset, len);
+            String str = subString(buffer, offset, length);
 
             if (replace) {
                 symbols[bucket] = str;
@@ -101,26 +101,24 @@ public class SymbolTable {
 
             return str;
         }
-        
-        symbol = len == buffer.length() //
-            ? buffer //
-            : subString(buffer, offset, len);
+
+        symbol = length == buffer.length() ? buffer : subString(buffer, offset, length);
         symbol = symbol.intern();
         symbols[bucket] = symbol;
         return symbol;
     }
-    
-    private static String subString(String src, int offset, int len) {
-        char[] chars = new char[len];
-        src.getChars(offset, offset + len, chars, 0);
+
+    private static String subString(String src, int offset, int length) {
+        char[] chars = new char[length];
+        src.getChars(offset, offset + length, chars, 0);
         return new String(chars);
     }
 
-    public static int hash(char[] buffer, int offset, int len) {
+    public static int hash(char[] buffer, int offset, int length) {
         int h = 0;
         int off = offset;
 
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < length; i++) {
             h = 31 * h + buffer[off++];
         }
         return h;

@@ -6,6 +6,9 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/* Pull-up variable/method refactoring*/
+
 public abstract class BaseCollector {
     protected static final String JSON_TYPE = ASMUtils.desc(com.alibaba.fastjson.annotation.JSONType.class);
 

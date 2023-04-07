@@ -72,6 +72,6 @@ public class ArraySerializer implements ObjectSerializer {
                 return serializer;
             }
         }
-        throw new IllegalArgumentException("No serializer found for item: " + item);
+        throw new IllegalArgumentException("No Serializer found for item: " + item);
     }
 }

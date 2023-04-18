@@ -485,9 +485,9 @@ public class TypeUtils {
             if (strVal.indexOf('-') > 0 || strVal.indexOf('+') > 0 || format != null) {
                 if (format == null) {
                     final int len = strVal.length();
-                    if (len == JSON.DEFFAULT_DATE_FORMAT.length()
-                            || (len == 22 && JSON.DEFFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
-                        format = JSON.DEFFAULT_DATE_FORMAT;
+                    if (len == JSON.DEFAULT_DATE_FORMAT.length()
+                            || (len == 22 && JSON.DEFAULT_DATE_FORMAT.equals("yyyyMMddHHmmssSSSZ"))) {
+                        format = JSON.DEFAULT_DATE_FORMAT;
                     } else if (len == 10) {
                         format = "yyyy-MM-dd";
                     } else if (len == "yyyy-MM-dd HH:mm:ss".length()) {

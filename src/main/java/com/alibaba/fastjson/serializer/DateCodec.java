@@ -114,7 +114,7 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 // 如果是通过FastJsonConfig进行设置，优先从FastJsonConfig获取
                 String dateFormatPattern = serializer.getFastJsonConfigDateFormatPattern();
                 if(dateFormatPattern == null) {
-                    dateFormatPattern = JSON.DEFFAULT_DATE_FORMAT;
+                    dateFormatPattern = JSON.DEFAULT_DATE_FORMAT;
                 }
 
                 format = new SimpleDateFormat(dateFormatPattern, serializer.locale);

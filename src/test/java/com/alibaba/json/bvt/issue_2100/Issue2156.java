@@ -17,7 +17,7 @@ public class Issue2156 extends TestCase {
 //        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
 //        sf.setTimeZone(JSON.defaultTimeZone);
 //        java.sql.Date date = new java.sql.Date(sf.parse("2018-07-15").getTime());
-//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
+//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFAULT_DATE_FORMAT);
 //        assertEquals("\"2018-07-15\"", str);
 //    }
 //
@@ -25,7 +25,7 @@ public class Issue2156 extends TestCase {
 //        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
 //        sf.setTimeZone(JSON.defaultTimeZone);
 //        java.sql.Date date = new java.sql.Date(sf.parse("2018-07-15").getTime());
-//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
+//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFAULT_DATE_FORMAT);
 //        assertEquals("\"2018-07-15\"", str);
 //    }
 //
@@ -33,13 +33,13 @@ public class Issue2156 extends TestCase {
 //        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
 //        sf.setTimeZone(JSON.defaultTimeZone);
 //        java.sql.Date date = java.sql.Date.valueOf("2018-07-15");
-//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
+//        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFAULT_DATE_FORMAT);
 //        assertEquals("\"2018-07-15\"", str);
 //    }
 
     public void test_for_issue_time() throws Exception {
         java.sql.Time date = java.sql.Time.valueOf("12:13:14");
-        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFFAULT_DATE_FORMAT);
+        String str = JSON.toJSONStringWithDateFormat(date, JSON.DEFAULT_DATE_FORMAT);
         assertEquals("\"12:13:14\"", str);
     }
 }

@@ -156,6 +156,12 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
                 return dateFormat.format(propertyValue);
             }
         }
+        if (propertyValue == null) {
+            JSONField jsonField = fieldInfo.getAnnotation();
+            if (jsonField != null && !"".equals(jsonField.defaultValue())) {
+                propertyValue = jsonField.defaultValue();
+            }
+        }
         return propertyValue;
     }
     

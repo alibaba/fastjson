@@ -117,6 +117,20 @@ public class ParserConfig {
     public static ParserConfig getGlobalInstance() {
         return global;
     }
+
+    /**
+     * 设置全局默认的解析配置
+     * 提供一个可覆盖默认的解析配置的方法
+     * @author zhu.xiaojie
+     * @time 2020-5-20
+     */
+    public static void setGlobalInstance(ParserConfig parserConfig){
+        if(parserConfig == null){
+            throw new NullPointerException("parseConfig is null");
+        }
+        global = parserConfig;
+    }
+
     public static ParserConfig                              global                = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();

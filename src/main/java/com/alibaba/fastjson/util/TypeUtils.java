@@ -31,18 +31,47 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 import com.alibaba.fastjson.serializer.CalendarCodec;
 import com.alibaba.fastjson.serializer.SerializeBeanInfo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -1086,6 +1115,10 @@ public class TypeUtils {
         }
     };
 
+    public static <T> T cast(final Object obj, final Class<T> clazz) {
+        return cast(obj, clazz, null);
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> T cast(final Object obj, final Class<T> clazz, ParserConfig config) {
         if (obj == null) {
@@ -1313,7 +1346,9 @@ public class TypeUtils {
         }
         throw new JSONException("can not cast to : " + clazz.getName());
     }
-
+    public static <T> T cast(Object obj, Type type){
+        return cast(obj, type, null);
+    }
     @SuppressWarnings("unchecked")
     public static <T> T cast(Object obj, Type type, ParserConfig mapping) {
         if (obj == null) {

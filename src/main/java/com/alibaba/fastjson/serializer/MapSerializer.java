@@ -15,13 +15,18 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.TypeUtils;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -118,7 +123,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             if (!this.applyName(serializer, object, strKey)) {
                                 continue;
                             }
@@ -133,7 +138,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             if (!this.applyName(serializer, object, strKey)) {
                                 continue;
                             }
@@ -149,7 +154,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             if (!this.apply(serializer, object, strKey, value)) {
                                 continue;
                             }
@@ -164,7 +169,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                                 continue;
                             }
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             if (!this.apply(serializer, object, strKey, value)) {
                                 continue;
                             }
@@ -178,7 +183,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         if (entryKey == null || entryKey instanceof String) {
                             entryKey = this.processKey(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             entryKey = this.processKey(serializer, object, strKey, value);
                         }
                     }
@@ -189,7 +194,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         if (entryKey == null || entryKey instanceof String) {
                             entryKey = this.processKey(serializer, object, (String) entryKey, value);
                         } else if (entryKey.getClass().isPrimitive() || entryKey instanceof Number) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             entryKey = this.processKey(serializer, object, strKey, value);
                         }
                     }
@@ -201,7 +206,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                     } else {
                         boolean objectOrArray = entryKey instanceof Map || entryKey instanceof Collection;
                         if (!objectOrArray) {
-                            String strKey = JSON.toJSONString(entryKey);
+                            String strKey = TypeUtils.cast(entryKey, String.class);
                             value = this.processValue(serializer, null, object, strKey, value, features);
                         }
                     }
@@ -231,7 +236,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
 
                     if ((out.isEnabled(NON_STRINGKEY_AS_STRING) || SerializerFeature.isEnabled(features, SerializerFeature.WriteNonStringKeyAsString))
                             && !(entryKey instanceof Enum)) {
-                        String strEntryKey = JSON.toJSONString(entryKey);
+                        String strEntryKey = TypeUtils.cast(entryKey, String.class);
                         serializer.write(strEntryKey);
                     } else {
                         serializer.write(entryKey);

@@ -51,8 +51,8 @@ public class Issue3652 {
          PascalCase,
          SnakeCase,
          KebabCase,*/
+        String[] toStrings = new String[PropertyNamingStrategy.values().length];
         for (int i = 0; i < models.length; i++) {
-            String[] toStrings = new String[PropertyNamingStrategy.values().length];
             toStrings[i] = JSON.toJSONString(models[i]);
             Assert.assertEquals(JsonStrings[i], toStrings[i]);
         }

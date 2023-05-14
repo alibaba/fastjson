@@ -1820,7 +1820,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 variantIndex += increment;
             }
             i = variants.get(name);
-            return i.intValue();
+            return i;
         }
 
         public int var(String name) {
@@ -1829,7 +1829,7 @@ public class ASMDeserializerFactory implements Opcodes {
                 variants.put(name, variantIndex++);
             }
             i = variants.get(name);
-            return i.intValue();
+            return i;
         }
 
         public int var_asm(FieldInfo fieldInfo) {

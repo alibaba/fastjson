@@ -1520,13 +1520,13 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                 } else if (fieldClass == long.class) {
                     param = 0L;
                 } else if (fieldClass == short.class) {
-                    param = Short.valueOf((short) 0);
+                    param = (short) 0;
                 } else if (fieldClass == byte.class) {
-                    param = Byte.valueOf((byte) 0);
+                    param = (byte) 0;
                 } else if (fieldClass == float.class) {
-                    param = Float.valueOf(0);
+                    param = (float) 0;
                 } else if (fieldClass == double.class) {
-                    param = Double.valueOf(0);
+                    param = (double) 0;
                 } else if (fieldClass == char.class) {
                     param = '0';
                 } else if (fieldClass == boolean.class) {

@@ -4086,7 +4086,7 @@ public class JSONPath implements JSONAware {
             Map map = (Map) currentObject;
 
             if (map.containsKey(propertyName)) {
-                Object val = map.get(propertyName);
+                // Object val = map.get(propertyName);
                 map.put(propertyName, value);
                 return;
             }

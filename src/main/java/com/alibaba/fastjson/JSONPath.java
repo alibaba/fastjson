@@ -4031,7 +4031,7 @@ public class JSONPath implements JSONAware {
             Iterator iterator = ((Collection) currentObject).iterator();
             while (iterator.hasNext()) {
                 Object next = iterator.next();
-                if (ParserConfig.isPrimitive2(next.getClass())) {
+                if (next == null || ParserConfig.isPrimitive2(next.getClass())) {
                     continue;
                 }
                 deepScan(next, propertyName, results);

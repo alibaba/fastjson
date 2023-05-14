@@ -149,6 +149,12 @@ public class FieldSerializer implements Comparable<FieldSerializer> {
 
     public Object getPropertyValue(Object object) throws InvocationTargetException, IllegalAccessException {
         Object propertyValue =  fieldInfo.get(object);
+        if (propertyValue == null) {
+            JSONField jsonField = fieldInfo.getAnnotation();
+            if (jsonField != null && !"".equals(jsonField.defaultValue())) {
+                propertyValue = jsonField.defaultValue();
+            }
+        }
         if (format != null && propertyValue != null) {
             if (fieldInfo.fieldClass == java.util.Date.class || fieldInfo.fieldClass == java.sql.Date.class) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat(format, JSON.defaultLocale);

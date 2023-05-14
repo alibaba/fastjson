@@ -1,0 +1,41 @@
+// A test value where everything is different from media.1.cks.
+// This is mainly used to check if the serializers are "honest".
+{
+	Media = {
+		Uri = "http://javaone.com/keynote.ogg"
+		Title = None
+		Width = 641
+		Height = 481
+		Format = "video/theora"
+		Duration = 18000001
+		Size = 58982401
+		Bitrate = None
+		Persons = ["Bill Gates, Jr.", "Steven Jobs"]
+		Player = Flash
+		Copyright = Set: "2009, Scooby Doo"
+	}
+
+	Images = [
+		{
+			Uri = "http://javaone.com/keynote_huge.jpg"
+			Title = Set: "Javaone Keynote"
+			Width = 32000
+			Height = 24000
+			Size = Large
+		}
+		{
+			Uri = "http://javaone.com/keynote_large.jpg"
+			Title = None
+			Width = 1024
+			Height = 768
+			Size = Large
+		}
+		{
+			Uri = "http://javaone.com/keynote_small.jpg"
+			Title = None
+			Width = 320
+			Height = 240
+			Size = Small
+		}
+	]
+}

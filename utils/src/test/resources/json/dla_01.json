@@ -1,0 +1,585 @@
+{
+  "queryId": "20181024_040507_3_f32vb",
+  "session": {
+    "queryId": "20181024_040507_3_f32vb",
+    "transactionId": "e63395c8-1206-4145-9b57-269c46501fa0",
+    "clientTransactionSupport": true,
+    "user": "1013022312866336",
+    "principal": null,
+    "source": "172.17.246.55:9999",
+    "catalog": "dla",
+    "schema": "dla",
+    "timeZoneKey": 1980,
+    "locale": "en_US",
+    "remoteUserAddress": "127.0.0.1",
+    "userAgent": null,
+    "clientInfo": null,
+    "startTime": 1540353907429,
+    "systemProperties": {
+      "prefer_streaming_operators": "true",
+      "query_max_memory_per_node": "1GB",
+      "reorder_joins": "false",
+      "auto_delete_query_enable": "false",
+      "colocated_join": "true",
+      "mpp_metric_enable": "true",
+      "task_writer_count": "1",
+      "distributed_join": "true",
+      "task_concurrency": "16",
+      "small_table_threshold": "1000",
+      "task_max_running_seconds": "10800",
+      "join_distribution_type": "automatic",
+      "query_plan_cache": "false",
+      "connector_hint": "eyJkbGEiOnt9fQ==",
+      "execution_policy": "all-at-once",
+      "resource_overcommit": "false",
+      "hash_partition_count": "16",
+      "query_plan_cache_check": "false",
+      "query_max_memory": "400GB"
+    },
+    "catalogProperties": {
+      "hive": {
+        "oss_select_enabled": "false"
+      },
+      "ads": {
+        "insert_into_batch_size": "100"
+      }
+    },
+    "rootHint": {},
+    "preparedStatements": {}
+  },
+  "state": "FINISHED",
+  "memoryPool": "general",
+  "scheduled": true,
+  "self": "http://172.17.246.55:10001/v1/query/20181024_040507_3_f32vb",
+  "fieldNames": ["count(*)"],
+  "query": "SELECT count(*) AS \"count(*)\"\nFROM hive.oa1013022312866336_tpch_100m_text.lineitem",
+  "queryStats": {
+    "createTime": "2018-10-24T04:05:07.432Z",
+    "executionStartTime": "2018-10-24T04:05:07.570Z",
+    "lastHeartbeat": "2018-10-24T04:05:08.906Z",
+    "endTime": "2018-10-24T04:05:08.907Z",
+    "elapsedTime": "1.48s",
+    "queuedTime": "1.19ms",
+    "analysisTime": "28.00ms",
+    "hitPlanCache": false,
+    "distributedPlanningTime": "36.00ms",
+    "totalPlanningTime": "83.94ms",
+    "scheduleToRemoteTime": 303,
+    "finishingTime": "3.72ms",
+    "dataFinished": false,
+    "totalTasks": 3,
+    "runningTasks": 0,
+    "completedTasks": 3,
+    "totalDrivers": 20,
+    "queuedDrivers": 0,
+    "runningDrivers": 0,
+    "completedDrivers": 20,
+    "cumulativeMemory": 0.0,
+    "totalMemoryReservation": "0B",
+    "peakMemoryReservation": "0B",
+    "totalScheduledTime": "0.00ns",
+    "totalCpuTime": "5.16s",
+    "totalUserTime": "0.00ns",
+    "totalBlockedTime": "0.00ns",
+    "fullyBlocked": true,
+    "blockedReasons": [],
+    "rawInputDataSize": "70.81MB",
+    "rawInputPositions": 600572,
+    "processedInputDataSize": "0B",
+    "processedInputPositions": 600572,
+    "outputDataSize": "9B",
+    "outputPositions": 1,
+    "totalTableScanDataSize": 74246996,
+    "tableScanPosition": 600572,
+    "executionTime": "1.47s"
+  },
+  "setSessionProperties": {},
+  "resetSessionProperties": [],
+  "addedPreparedStatements": {},
+  "deallocatedPreparedStatements": [],
+  "startedTransactionId": null,
+  "clearTransactionId": false,
+  "outputStage": {
+    "stageId": "20181024_040507_3_f32vb.0",
+    "state": "FINISHED",
+    "self": "http://172.17.246.55:10001/v1/stage/20181024_040507_3_f32vb.0",
+    "plan": {
+      "id": "0",
+      "root": {
+        "@type": "output",
+        "id": "7",
+        "source": {
+          "@type": "aggregation",
+          "id": "18",
+          "source": {
+            "@type": "exchange",
+            "id": "17",
+            "type": "GATHER",
+            "scope": "LOCAL",
+            "partitioningScheme": {
+              "partitioning": {
+                "handle": {
+                  "connectorId": null,
+                  "transactionHandle": null,
+                  "connectorHandle": {
+                    "@type": "$remote",
+                    "partitioning": "SINGLE",
+                    "function": "SINGLE"
+                  }
+                },
+                "arguments": []
+              },
+              "outputLayout": ["count_0_3"],
+              "hashColumn": null,
+              "replicateNulls": false,
+              "bucketToPartition": null
+            },
+            "sources": [{
+              "@type": "remoteSource",
+              "id": "16",
+              "sourceFragmentIds": ["1"],
+              "outputs": ["count_0_3"],
+              "label": ""
+            }],
+            "inputs": [
+              ["count_0_3"]
+            ],
+            "label": ""
+          },
+          "aggregations": {
+            "count": "\"count\"(\"count_0_3\")"
+          },
+          "functions": {
+            "count": {
+              "name": "count",
+              "kind": "AGGREGATE",
+              "typeVariableConstraints": [],
+              "longVariableConstraints": [],
+              "returnType": "bigint",
+              "argumentTypes": [],
+              "variableArity": false
+            }
+          },
+          "masks": {},
+          "groupingSets": [
+            []
+          ],
+          "step": "FINAL",
+          "hashSymbol": null,
+          "groupIdSymbol": null,
+          "label": ""
+        },
+        "columns": ["count(*)"],
+        "outputs": ["count"],
+        "label": ""
+      },
+      "symbols": {
+        "count_0_3": "bigint",
+        "count": "bigint"
+      },
+      "partitioning": {
+        "connectorId": null,
+        "transactionHandle": null,
+        "connectorHandle": {
+          "@type": "$remote",
+          "partitioning": "SINGLE",
+          "function": "SINGLE"
+        }
+      },
+      "partitionedSources": [],
+      "partitioningScheme": {
+        "partitioning": {
+          "handle": {
+            "connectorId": null,
+            "transactionHandle": null,
+            "connectorHandle": {
+              "@type": "$remote",
+              "partitioning": "SINGLE",
+              "function": "SINGLE"
+            }
+          },
+          "arguments": []
+        },
+        "outputLayout": ["count"],
+        "hashColumn": null,
+        "replicateNulls": false,
+        "bucketToPartition": [0]
+      }
+    },
+    "types": ["bigint"],
+    "stageStats": {
+      "schedulingComplete": "2018-10-24T04:05:07.564Z",
+      "totalTasks": 1,
+      "runningTasks": 0,
+      "completedTasks": 1,
+      "totalDrivers": 17,
+      "queuedDrivers": 0,
+      "runningDrivers": 0,
+      "completedDrivers": 17,
+      "cumulativeMemory": 0.0,
+      "totalMemoryReservation": "0B",
+      "peakMemoryReservation": "0B",
+      "totalScheduledTime": "0.00ns",
+      "totalCpuTime": "2.58s",
+      "totalUserTime": "0.00ns",
+      "totalBlockedTime": "0.00ns",
+      "fullyBlocked": false,
+      "blockedReasons": [],
+      "rawInputDataSize": "93B",
+      "rawInputPositions": 3,
+      "processedInputDataSize": "27B",
+      "processedInputPositions": 3,
+      "outputDataSize": "9B",
+      "outputPositions": 1,
+      "totalTableScanDataSize": 0,
+      "tableScanPosition": 0
+    },
+    "tasks": [{
+      "taskStatus": {
+        "taskId": "20181024_040507_3_f32vb.0.0",
+        "taskInstanceId": "a1948577-62db-4a56-bb36-ab6b1d5d0853",
+        "version": 26,
+        "state": "FINISHED",
+        "self": "http://172.17.246.56:14005/v1/task/20181024_040507_3_f32vb.0.0?shufferNettyServerPort=39524&commandNettyServerPort=37207",
+        "failures": [],
+        "queuedPartitionedDrivers": 0,
+        "runningPartitionedDrivers": 0,
+        "needLoop": false,
+        "memoryReservation": "0B"
+      },
+      "lastHeartbeat": "2018-10-24T04:05:08.885Z",
+      "outputBuffers": {
+        "type": "PARTITIONED",
+        "state": "FINISHED",
+        "canAddBuffers": false,
+        "canAddPages": false,
+        "totalBufferedBytes": 0,
+        "totalBufferedPages": 0,
+        "totalRowsSent": 1,
+        "totalPagesSent": 1,
+        "buffers": []
+      },
+      "noMoreSplits": ["16"],
+      "stats": {
+        "createTime": "2018-10-24T04:05:07.557Z",
+        "firstStartTime": "2018-10-24T04:05:07.859Z",
+        "lastStartTime": "2018-10-24T04:05:07.863Z",
+        "lastEndTime": "2018-10-24T04:05:08.867Z",
+        "endTime": "2018-10-24T04:05:08.889Z",
+        "elapsedTime": 1031,
+        "queuedTime": 31,
+        "totalDrivers": 17,
+        "queuedDrivers": 0,
+        "queuedPartitionedDrivers": 0,
+        "runningDrivers": 0,
+        "runningPartitionedDrivers": 0,
+        "completedDrivers": 17,
+        "cumulativeMemory": 0.0,
+        "memoryReservation": "0B",
+        "systemMemoryReservation": "0B",
+        "totalScheduledTime": 0,
+        "totalCpuTime": 2584,
+        "totalUserTime": 0,
+        "totalBlockedTime": 0,
+        "fullyBlocked": false,
+        "blockedReasons": [],
+        "rawInputDataSize": "93B",
+        "rawInputPositions": 3,
+        "processedInputDataSize": "27B",
+        "processedInputPositions": 3,
+        "outputDataSize": "9B",
+        "outputPositions": 1,
+        "tableScanDataSize": 0,
+        "tableScanTimeCost": "0.00ms",
+        "tableScanPosition": 0
+      },
+      "needsPlan": false,
+      "complete": true,
+      "completedDrivers": 17,
+      "totalDrivers": 17,
+      "cumulativeMemory": 0.0,
+      "memoryReservation": 0,
+      "elapsedTime": 1031,
+      "totalCpuTime": 0
+    }],
+    "subStages": [{
+      "stageId": "20181024_040507_3_f32vb.1",
+      "state": "FINISHED",
+      "self": "http://172.17.246.55:10001/v1/stage/20181024_040507_3_f32vb.1",
+      "plan": {
+        "id": "1",
+        "root": {
+          "@type": "aggregation",
+          "id": "15",
+          "source": {
+            "@type": "tablescan",
+            "id": "0",
+            "table": {
+              "connectorId": "hive",
+              "connectorHandle": {
+                "@type": "hive-hadoop2",
+                "clientId": "hive",
+                "schemaName": "oa1013022312866336_tpch_100m_text",
+                "tableName": "lineitem"
+              }
+            },
+            "outputSymbols": [],
+            "assignments": {},
+            "layout": {
+              "connectorId": "hive",
+              "transactionHandle": {
+                "@type": "hive-hadoop2",
+                "uuid": "ee8f6b43-d456-4bba-907b-941a5c87da1b"
+              },
+              "connectorHandle": {
+                "@type": "hive-hadoop2",
+                "clientId": "hive",
+                "partitionColumns": [],
+                "promisedPredicate": {
+                  "columnDomains": null
+                },
+                "bucketHandle": null,
+                "tupleDomain": null,
+                "remainPredicate": []
+              }
+            },
+            "currentConstraint": {
+              "columnDomains": []
+            },
+            "originalConstraint": "true",
+            "label": "hive:hive:oa1013022312866336_tpch_100m_text:lineitem true"
+          },
+          "aggregations": {
+            "count_0_3": "\"count\"(*)"
+          },
+          "functions": {
+            "count_0_3": {
+              "name": "count",
+              "kind": "AGGREGATE",
+              "typeVariableConstraints": [],
+              "longVariableConstraints": [],
+              "returnType": "bigint",
+              "argumentTypes": [],
+              "variableArity": false
+            }
+          },
+          "masks": {},
+          "groupingSets": [
+            []
+          ],
+          "step": "PARTIAL",
+          "hashSymbol": null,
+          "groupIdSymbol": null,
+          "label": ""
+        },
+        "symbols": {
+          "count_0_3": "bigint"
+        },
+        "partitioning": {
+          "connectorId": null,
+          "transactionHandle": null,
+          "connectorHandle": {
+            "@type": "$remote",
+            "partitioning": "SOURCE",
+            "function": "UNKNOWN"
+          }
+        },
+        "partitionedSources": ["0"],
+        "partitioningScheme": {
+          "partitioning": {
+            "handle": {
+              "connectorId": null,
+              "transactionHandle": null,
+              "connectorHandle": {
+                "@type": "$remote",
+                "partitioning": "SINGLE",
+                "function": "SINGLE"
+              }
+            },
+            "arguments": []
+          },
+          "outputLayout": ["count_0_3"],
+          "hashColumn": null,
+          "replicateNulls": false,
+          "bucketToPartition": [0]
+        }
+      },
+      "types": ["bigint"],
+      "stageStats": {
+        "schedulingComplete": "2018-10-24T04:05:07.664Z",
+        "totalTasks": 2,
+        "runningTasks": 0,
+        "completedTasks": 2,
+        "totalDrivers": 3,
+        "queuedDrivers": 0,
+        "runningDrivers": 0,
+        "completedDrivers": 3,
+        "cumulativeMemory": 0.0,
+        "totalMemoryReservation": "0B",
+        "peakMemoryReservation": "0B",
+        "totalScheduledTime": "0.00ns",
+        "totalCpuTime": "2.58s",
+        "totalUserTime": "0.00ns",
+        "totalBlockedTime": "0.00ns",
+        "fullyBlocked": false,
+        "blockedReasons": [],
+        "rawInputDataSize": "70.81MB",
+        "rawInputPositions": 600572,
+        "processedInputDataSize": "0B",
+        "processedInputPositions": 600572,
+        "outputDataSize": "27B",
+        "outputPositions": 3,
+        "totalTableScanDataSize": 74246996,
+        "tableScanPosition": 600572
+      },
+      "tasks": [{
+        "taskStatus": {
+          "taskId": "20181024_040507_3_f32vb.1.0",
+          "taskInstanceId": "34d2e099-c622-4768-83ad-3443dcb9cde6",
+          "version": 25,
+          "state": "FINISHED",
+          "self": "http://172.17.246.55:14005/v1/task/20181024_040507_3_f32vb.1.0?shufferNettyServerPort=33921&commandNettyServerPort=45121",
+          "failures": [],
+          "queuedPartitionedDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "needLoop": false,
+          "memoryReservation": "0B"
+        },
+        "lastHeartbeat": "2018-10-24T04:05:08.817Z",
+        "outputBuffers": {
+          "type": "PARTITIONED",
+          "state": "FINISHED",
+          "canAddBuffers": false,
+          "canAddPages": false,
+          "totalBufferedBytes": 0,
+          "totalBufferedPages": 0,
+          "totalRowsSent": 1,
+          "totalPagesSent": 1,
+          "buffers": []
+        },
+        "noMoreSplits": ["0"],
+        "stats": {
+          "createTime": "2018-10-24T04:05:07.662Z",
+          "firstStartTime": "2018-10-24T04:05:07.832Z",
+          "lastStartTime": "2018-10-24T04:05:07.832Z",
+          "lastEndTime": "2018-10-24T04:05:08.711Z",
+          "endTime": "2018-10-24T04:05:08.836Z",
+          "elapsedTime": 1005,
+          "queuedTime": 3,
+          "totalDrivers": 1,
+          "queuedDrivers": 0,
+          "queuedPartitionedDrivers": 0,
+          "runningDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "completedDrivers": 1,
+          "cumulativeMemory": 0.0,
+          "memoryReservation": "0B",
+          "systemMemoryReservation": "0B",
+          "totalScheduledTime": 0,
+          "totalCpuTime": 879,
+          "totalUserTime": 0,
+          "totalBlockedTime": 0,
+          "fullyBlocked": false,
+          "blockedReasons": [],
+          "rawInputDataSize": "32MB",
+          "rawInputPositions": 271878,
+          "processedInputDataSize": "0B",
+          "processedInputPositions": 271878,
+          "outputDataSize": "9B",
+          "outputPositions": 1,
+          "tableScanDataSize": 33554432,
+          "tableScanTimeCost": "2.00ms",
+          "tableScanPosition": 271878
+        },
+        "needsPlan": false,
+        "complete": true,
+        "completedDrivers": 1,
+        "totalDrivers": 1,
+        "cumulativeMemory": 0.0,
+        "memoryReservation": 0,
+        "elapsedTime": 1005,
+        "totalCpuTime": 0
+      }, {
+        "taskStatus": {
+          "taskId": "20181024_040507_3_f32vb.1.1",
+          "taskInstanceId": "74fe82fd-f59d-4f39-b7b7-5399c769b1e8",
+          "version": 25,
+          "state": "FINISHED",
+          "self": "http://172.17.246.56:14005/v1/task/20181024_040507_3_f32vb.1.1?shufferNettyServerPort=39524&commandNettyServerPort=37207",
+          "failures": [],
+          "queuedPartitionedDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "needLoop": false,
+          "memoryReservation": "0B"
+        },
+        "lastHeartbeat": "2018-10-24T04:05:08.814Z",
+        "outputBuffers": {
+          "type": "PARTITIONED",
+          "state": "FINISHED",
+          "canAddBuffers": false,
+          "canAddPages": false,
+          "totalBufferedBytes": 0,
+          "totalBufferedPages": 0,
+          "totalRowsSent": 2,
+          "totalPagesSent": 2,
+          "buffers": []
+        },
+        "noMoreSplits": ["0"],
+        "stats": {
+          "createTime": "2018-10-24T04:05:07.665Z",
+          "firstStartTime": "2018-10-24T04:05:07.834Z",
+          "lastStartTime": "2018-10-24T04:05:07.834Z",
+          "lastEndTime": "2018-10-24T04:05:08.779Z",
+          "endTime": "2018-10-24T04:05:08.845Z",
+          "elapsedTime": 1011,
+          "queuedTime": 6,
+          "totalDrivers": 2,
+          "queuedDrivers": 0,
+          "queuedPartitionedDrivers": 0,
+          "runningDrivers": 0,
+          "runningPartitionedDrivers": 0,
+          "completedDrivers": 2,
+          "cumulativeMemory": 0.0,
+          "memoryReservation": "0B",
+          "systemMemoryReservation": "0B",
+          "totalScheduledTime": 0,
+          "totalCpuTime": 1700,
+          "totalUserTime": 0,
+          "totalBlockedTime": 0,
+          "fullyBlocked": false,
+          "blockedReasons": [],
+          "rawInputDataSize": "38.81MB",
+          "rawInputPositions": 328694,
+          "processedInputDataSize": "0B",
+          "processedInputPositions": 328694,
+          "outputDataSize": "18B",
+          "outputPositions": 2,
+          "tableScanDataSize": 40692564,
+          "tableScanTimeCost": "4.00ms",
+          "tableScanPosition": 328694
+        },
+        "needsPlan": false,
+        "complete": true,
+        "completedDrivers": 2,
+        "totalDrivers": 2,
+        "cumulativeMemory": 0.0,
+        "memoryReservation": 0,
+        "elapsedTime": 1011,
+        "totalCpuTime": 0
+      }],
+      "subStages": []
+    }]
+  },
+  "inputs": [{
+    "connectorId": "hive",
+    "schema": "oa1013022312866336_tpch_100m_text",
+    "table": "lineitem",
+    "connectorInfo": {
+      "partitionIds": ["<UNPARTITIONED>"]
+    },
+    "columns": []
+  }],
+  "output": null,
+  "resourceGroupName": null,
+  "finalQueryInfo": true
+}

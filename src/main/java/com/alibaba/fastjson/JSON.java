@@ -460,9 +460,6 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
                     IOUtils.close(gzipReader);
                 }
             }
-            if (strVal == null && chars_len < 0) {
-                return null;
-            }
 
             if (strVal == null) {
                 strVal = new String(chars, 0, chars_len);

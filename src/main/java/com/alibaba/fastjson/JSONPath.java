@@ -873,11 +873,8 @@ public class JSONPath implements JSONAware {
                 Map<String, Object> fieldValues = javaBeanSerializer.getFieldValuesMap(javaObject);
                 for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
                     String key = entry.getKey();
-
-                    if (key instanceof String) {
-                        String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
-                        paths(values, paths, path, entry.getValue(), config);
-                    }
+                    String path = parent.equals("/") ?  "/" + key : parent + "/" + key;
+                    paths(values, paths, path, entry.getValue(), config);
                 }
             } catch (Exception e) {
                 throw new JSONException("toJSON error", e);
@@ -4086,7 +4083,6 @@ public class JSONPath implements JSONAware {
             Map map = (Map) currentObject;
 
             if (map.containsKey(propertyName)) {
-                Object val = map.get(propertyName);
                 map.put(propertyName, value);
                 return;
             }

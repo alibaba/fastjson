@@ -21,11 +21,11 @@ package com.alibaba.fastjson.serializer;
 public enum SerializerFeature {
     QuoteFieldNames,
     /**
-     * 
+     *
      */
     UseSingleQuotes,
     /**
-     * 
+     *
      */
     WriteMapNullValue,
     /**
@@ -37,7 +37,7 @@ public enum SerializerFeature {
      */
     WriteEnumUsingName,
     /**
-     * 
+     *
      */
     UseISO8601DateFormat,
     /**
@@ -118,27 +118,27 @@ public enum SerializerFeature {
      * @since 1.1.37
      */
     WriteNonStringKeyAsString,
-    
+
     /**
      * @since 1.1.42
      */
     NotWriteDefaultValue,
-    
+
     /**
      * @since 1.2.6
      */
     BrowserSecure,
-    
+
     /**
      * @since 1.2.7
      */
     IgnoreNonFieldGetter,
-    
+
     /**
      * @since 1.2.9
      */
     WriteNonStringValueAsString,
-    
+
     /**
      * @since 1.2.11
      */
@@ -152,7 +152,11 @@ public enum SerializerFeature {
     /**
      * @since 1.2.27
      */
-    MapSortField;
+    MapSortField,
+
+    WriteLocalTimeUseLocalTimeFormat,
+
+    UseDefaultLocalTimeFormat;
 
     SerializerFeature(){
         mask = (1 << ordinal());
@@ -167,10 +171,10 @@ public enum SerializerFeature {
     public static boolean isEnabled(int features, SerializerFeature feature) {
         return (features & feature.mask) != 0;
     }
-    
+
     public static boolean isEnabled(int features, int featuresB, SerializerFeature feature) {
         int mask = feature.mask;
-        
+
         return (features & mask) != 0 || (featuresB & mask) != 0;
     }
 
@@ -183,28 +187,28 @@ public enum SerializerFeature {
 
         return features;
     }
-    
+
     public static int of(SerializerFeature[] features) {
         if (features == null) {
             return 0;
         }
-        
+
         int value = 0;
-        
+
         for (SerializerFeature feature: features) {
             value |= feature.mask;
         }
-        
+
         return value;
     }
-    
+
     public final static SerializerFeature[] EMPTY = new SerializerFeature[0];
 
     public static final int WRITE_MAP_NULL_FEATURES
-            = WriteMapNullValue.getMask()
-            | WriteNullBooleanAsFalse.getMask()
-            | WriteNullListAsEmpty.getMask()
-            | WriteNullNumberAsZero.getMask()
-            | WriteNullStringAsEmpty.getMask()
-            ;
+        = WriteMapNullValue.getMask()
+        | WriteNullBooleanAsFalse.getMask()
+        | WriteNullListAsEmpty.getMask()
+        | WriteNullNumberAsZero.getMask()
+        | WriteNullStringAsEmpty.getMask()
+        ;
 }

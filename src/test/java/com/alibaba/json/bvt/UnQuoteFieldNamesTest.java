@@ -18,10 +18,11 @@ public class UnQuoteFieldNamesTest extends TestCase {
         Map map = Collections.singletonMap("value", 123);
 
         String json = JSON.toJSONString(map
-                , SerializeConfig.globalInstance
-                , new SerializeFilter[0]
-                , null
-                , JSON.DEFAULT_GENERATE_FEATURE & ~SerializerFeature.QuoteFieldNames.mask
+            , SerializeConfig.globalInstance
+            , new SerializeFilter[0]
+            , null
+            ,null
+            , JSON.DEFAULT_GENERATE_FEATURE & ~SerializerFeature.QuoteFieldNames.mask
         );
         assertEquals("{value:123}", json);
     }

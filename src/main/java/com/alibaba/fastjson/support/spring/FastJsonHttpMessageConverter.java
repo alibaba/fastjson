@@ -55,7 +55,7 @@ import java.util.List;
  */
 
 public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<Object>//
-        implements GenericHttpMessageConverter<Object> {
+    implements GenericHttpMessageConverter<Object> {
 
     public static final MediaType APPLICATION_JAVASCRIPT = new MediaType("application", "javascript");
 
@@ -234,8 +234,8 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
      * @see org.springframework.http.converter.GenericHttpMessageConverter#read(java.lang.reflect.Type, java.lang.Class, org.springframework.http.HttpInputMessage)
      */
     public Object read(Type type, //
-                       Class<?> contextClass, //
-                       HttpInputMessage inputMessage //
+        Class<?> contextClass, //
+        HttpInputMessage inputMessage //
     ) throws IOException, HttpMessageNotReadableException {
         return readType(getType(type, contextClass), inputMessage);
     }
@@ -254,7 +254,7 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
      */
     @Override
     protected Object readInternal(Class<?> clazz, //
-                                  HttpInputMessage inputMessage //
+        HttpInputMessage inputMessage //
     ) throws IOException, HttpMessageNotReadableException {
         return readType(getType(clazz, null), inputMessage);
     }
@@ -264,12 +264,12 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
         try {
             InputStream in = inputMessage.getBody();
             return JSON.parseObject(in,
-                    fastJsonConfig.getCharset(),
-                    type,
-                    fastJsonConfig.getParserConfig(),
-                    fastJsonConfig.getParseProcess(),
-                    JSON.DEFAULT_PARSER_FEATURE,
-                    fastJsonConfig.getFeatures());
+                fastJsonConfig.getCharset(),
+                type,
+                fastJsonConfig.getParserConfig(),
+                fastJsonConfig.getParseProcess(),
+                JSON.DEFAULT_PARSER_FEATURE,
+                fastJsonConfig.getFeatures());
         } catch (JSONException ex) {
             throw new HttpMessageNotReadableException("JSON parse error: " + ex.getMessage(), ex);
         } catch (IOException ex) {
@@ -313,14 +313,15 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
 
 
             int len = JSON.writeJSONStringWithFastJsonConfig(outnew, //
-                    fastJsonConfig.getCharset(), //
-                    value, //
-                    fastJsonConfig.getSerializeConfig(), //
-                    //fastJsonConfig.getSerializeFilters(), //
-                    allFilters.toArray(new SerializeFilter[allFilters.size()]),
-                    fastJsonConfig.getDateFormat(), //
-                    JSON.DEFAULT_GENERATE_FEATURE, //
-                    fastJsonConfig.getSerializerFeatures());
+                fastJsonConfig.getCharset(), //
+                value, //
+                fastJsonConfig.getSerializeConfig(), //
+                //fastJsonConfig.getSerializeFilters(), //
+                allFilters.toArray(new SerializeFilter[allFilters.size()]),
+                fastJsonConfig.getDateFormat(), //
+                fastJsonConfig.getLocalTimeFormat(), //
+                JSON.DEFAULT_GENERATE_FEATURE, //
+                fastJsonConfig.getSerializerFeatures());
 
             if (isJsonp) {
                 headers.setContentType(APPLICATION_JAVASCRIPT);

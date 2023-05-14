@@ -32,11 +32,12 @@ public class Issue3361 extends TestCase {
         JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";
         config.setDateFormat(JSON.DEFFAULT_DATE_FORMAT);
         String string = JSON.toJSONString(model,
-                config.getSerializeConfig(),
-                config.getSerializeFilters(),
-                config.getDateFormat(),
-                JSON.DEFAULT_GENERATE_FEATURE,
-                config.getSerializerFeatures());
+            config.getSerializeConfig(),
+            config.getSerializeFilters(),
+            config.getDateFormat(),
+            config.getLocalTimeFormat(),
+            JSON.DEFAULT_GENERATE_FEATURE,
+            config.getSerializerFeatures());
         log.info("{}", string);
 
         Model model2 = JSON.parseObject(string, Model.class);

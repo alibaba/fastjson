@@ -285,8 +285,8 @@ public class FastJsonJsonView extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, //
-                                           HttpServletRequest request, //
-                                           HttpServletResponse response) throws Exception {
+        HttpServletRequest request, //
+        HttpServletResponse response) throws Exception {
         Object value = filterModel(model);
         String jsonpParameterValue = getJsonpParameterValue(request);
         if (jsonpParameterValue != null) {
@@ -298,13 +298,14 @@ public class FastJsonJsonView extends AbstractView {
         ByteArrayOutputStream outnew = new ByteArrayOutputStream();
 
         int len = JSON.writeJSONStringWithFastJsonConfig(outnew, //
-                fastJsonConfig.getCharset(), //
-                value, //
-                fastJsonConfig.getSerializeConfig(), //
-                fastJsonConfig.getSerializeFilters(), //
-                fastJsonConfig.getDateFormat(), //
-                JSON.DEFAULT_GENERATE_FEATURE, //
-                fastJsonConfig.getSerializerFeatures());
+            fastJsonConfig.getCharset(), //
+            value, //
+            fastJsonConfig.getSerializeConfig(), //
+            fastJsonConfig.getSerializeFilters(), //
+            fastJsonConfig.getDateFormat(), //
+            fastJsonConfig.getLocalTimeFormat(), //
+            JSON.DEFAULT_GENERATE_FEATURE, //
+            fastJsonConfig.getSerializerFeatures());
 
         if (this.updateContentLength) {
             // Write content length (determined via byte array).
@@ -320,7 +321,7 @@ public class FastJsonJsonView extends AbstractView {
 
     @Override
     protected void prepareResponse(HttpServletRequest request, //
-                                   HttpServletResponse response) {
+        HttpServletResponse response) {
 
         setResponseContentType(request, response);
         response.setCharacterEncoding(fastJsonConfig.getCharset().name());
@@ -366,12 +367,12 @@ public class FastJsonJsonView extends AbstractView {
     protected Object filterModel(Map<String, Object> model) {
         Map<String, Object> result = new HashMap<String, Object>(model.size());
         Set<String> renderedAttributes = !CollectionUtils.isEmpty(this.renderedAttributes) ? //
-                this.renderedAttributes //
-                : model.keySet();
+            this.renderedAttributes //
+            : model.keySet();
 
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             if (!(entry.getValue() instanceof BindingResult)
-                    && renderedAttributes.contains(entry.getKey())) {
+                && renderedAttributes.contains(entry.getKey())) {
                 result.put(entry.getKey(), entry.getValue());
             }
         }

@@ -48,7 +48,11 @@ public class JSONSerializer extends SerializeFilterable {
     private String                                   dateFormatPattern;
     private DateFormat                               dateFormat;
 
+    private String                                   localTimeFormatPattern;
+
     private String                                   fastJsonConfigDateFormatPattern;
+
+    private String                                   fastJsonConfigLocalTimeFormatPattern;
 
     protected IdentityHashMap<Object, SerialContext> references  = null;
     protected SerialContext                          context;
@@ -78,6 +82,10 @@ public class JSONSerializer extends SerializeFilterable {
             return ((SimpleDateFormat) dateFormat).toPattern();
         }
         return dateFormatPattern;
+    }
+
+    public String getLocalTimeFormatPattern() {
+        return localTimeFormatPattern;
     }
 
     public DateFormat getDateFormat() {
@@ -111,6 +119,10 @@ public class JSONSerializer extends SerializeFilterable {
         }
     }
 
+    public void setLocalTimeFormatPattern(String localTimeFormatPattern) {
+        this.localTimeFormatPattern = localTimeFormatPattern;
+    }
+
     /**
      * Set global date format pattern in FastJsonConfig
      *
@@ -120,8 +132,21 @@ public class JSONSerializer extends SerializeFilterable {
         this.fastJsonConfigDateFormatPattern = dateFormatPattern;
     }
 
+    /**
+     * Set global LocalTime format pattern in FastJsonConfig
+     *
+     * @param fastJsonConfigLocalTimeFormatPattern global LocalTime format pattern
+     */
+    public void setFastJsonConfigLocalTimeFormatPattern(String fastJsonConfigLocalTimeFormatPattern) {
+        this.fastJsonConfigLocalTimeFormatPattern = fastJsonConfigLocalTimeFormatPattern;
+    }
+
     public String getFastJsonConfigDateFormatPattern() {
         return this.fastJsonConfigDateFormatPattern;
+    }
+
+    public String getFastJsonConfigLocalTimeFormatPattern() {
+        return this.fastJsonConfigLocalTimeFormatPattern;
     }
 
     public SerialContext getContext() {
@@ -160,9 +185,9 @@ public class JSONSerializer extends SerializeFilterable {
 
     public final boolean isWriteClassName(Type fieldType, Object obj) {
         return out.isEnabled(SerializerFeature.WriteClassName) //
-               && (fieldType != null //
-                   || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
-                   || (context != null && (context.parent != null)));
+            && (fieldType != null //
+            || (!out.isEnabled(SerializerFeature.NotWriteRootClassName)) //
+            || (context != null && (context.parent != null)));
     }
 
     public boolean containsReference(Object value) {
@@ -222,20 +247,20 @@ public class JSONSerializer extends SerializeFilterable {
 
     public boolean checkValue(SerializeFilterable filterable) {
         return (valueFilters != null && valueFilters.size() > 0) //
-               || (contextValueFilters != null && contextValueFilters.size() > 0) //
-               || (filterable.valueFilters != null && filterable.valueFilters.size() > 0)
-               || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
-               || out.writeNonStringValueAsString;
+            || (contextValueFilters != null && contextValueFilters.size() > 0) //
+            || (filterable.valueFilters != null && filterable.valueFilters.size() > 0)
+            || (filterable.contextValueFilters != null && filterable.contextValueFilters.size() > 0)
+            || out.writeNonStringValueAsString;
     }
-    
+
     public boolean hasNameFilters(SerializeFilterable filterable) {
         return (nameFilters != null && nameFilters.size() > 0) //
-               || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
+            || (filterable.nameFilters != null && filterable.nameFilters.size() > 0);
     }
 
     public boolean hasPropertyFilters(SerializeFilterable filterable) {
         return (propertyFilters != null && propertyFilters.size() > 0) //
-                || (filterable.propertyFilters != null && filterable.propertyFilters.size() > 0);
+            || (filterable.propertyFilters != null && filterable.propertyFilters.size() > 0);
     }
 
     public int getIndentCount() {
@@ -451,5 +476,5 @@ public class JSONSerializer extends SerializeFilterable {
     public void close() {
         this.out.close();
     }
-   
+
 }

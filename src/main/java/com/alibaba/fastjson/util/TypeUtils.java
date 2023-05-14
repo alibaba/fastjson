@@ -83,7 +83,6 @@ public class TypeUtils {
     private static volatile Method kotlin_kclass_getConstructors;
     private static volatile Method kotlin_kfunction_getParameters;
     private static volatile Method kotlin_kparameter_getName;
-    private static volatile boolean kotlin_error;
     private static volatile Map<Class, String[]> kotlinIgnores;
     private static volatile boolean kotlinIgnores_error;
     private static ConcurrentMap<String, Class<?>> mappings = new ConcurrentHashMap<String, Class<?>>(256, 0.75f, 1);
@@ -1970,7 +1969,7 @@ public class TypeUtils {
                     Constructor creatorConstructor = TypeUtils.getKotlinConstructor(constructors);
                     if (creatorConstructor != null) {
                         paramAnnotationArrays = TypeUtils.getParameterAnnotations(creatorConstructor);
-                        paramNames = TypeUtils.getKoltinConstructorParameters(clazz);
+                        paramNames = TypeUtils.getKotlinConstructorParameters(clazz);
                         if (paramNames != null) {
                             String[] paramNames_sorted = new String[paramNames.length];
                             System.arraycopy(paramNames, 0, paramNames_sorted, 0, paramNames.length);
@@ -3090,7 +3089,7 @@ public class TypeUtils {
         return creatorConstructor;
     }
 
-    public static String[] getKoltinConstructorParameters(Class clazz) {
+    public static String[] getKotlinConstructorParameters(Class clazz) {
         if (kotlin_kclass_constructor == null && !kotlin_class_klass_error) {
             try {
                 Class class_kotlin_kclass = Class.forName("kotlin.reflect.jvm.internal.KClassImpl");
@@ -3130,10 +3129,6 @@ public class TypeUtils {
             }
         }
 
-        if (kotlin_error) {
-            return null;
-        }
-
         try {
             Object constructor = null;
             Object kclassImpl = kotlin_kclass_constructor.newInstance(clazz);
@@ -3160,7 +3155,6 @@ public class TypeUtils {
             return names;
         } catch (Throwable e) {
             e.printStackTrace();
-            kotlin_error = true;
         }
         return null;
     }

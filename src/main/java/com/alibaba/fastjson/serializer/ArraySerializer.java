@@ -18,21 +18,16 @@ package com.alibaba.fastjson.serializer;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-/**
- * @author wenshao[szujobs@hotmail.com]
- */
 public class ArraySerializer implements ObjectSerializer {
 
-	private final Class<?> componentType;
-    private final ObjectSerializer compObjectSerializer;
+    private final ArrayItemSerializer[] itemSerializers;
 
-    public ArraySerializer(Class<?> componentType, ObjectSerializer compObjectSerializer){
-        this.componentType = componentType;
-        this.compObjectSerializer = compObjectSerializer;
+    public ArraySerializer(ArrayItemSerializer[] itemSerializers){
+        this.itemSerializers = itemSerializers;
     }
 
     public final void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features)
-                                                                                                       throws IOException {
+            throws IOException {
         SerializeWriter out = serializer.out;
 
         if (object == null) {
@@ -49,9 +44,9 @@ public class ArraySerializer implements ObjectSerializer {
         try {
             out.append('[');
             for (int i = 0; i < size; ++i) {
-            	if (i != 0) {
-            		out.append(',');
-            	}
+                if (i != 0) {
+                    out.append(',');
+                }
                 Object item = array[i];
 
                 if (item == null) {
@@ -60,16 +55,23 @@ public class ArraySerializer implements ObjectSerializer {
                     } else {
                         out.append("null");
                     }
-                } else if (item.getClass() == componentType) {
-                	compObjectSerializer.write(serializer, item, i, null, 0);
                 } else {
-                	ObjectSerializer itemSerializer = serializer.getObjectWriter(item.getClass());
-                	itemSerializer.write(serializer, item, i, null, 0);
+                    ArrayItemSerializer itemSerializer = getItemSerializer(item);
+                    itemSerializer.serialize(serializer, item, i, null, 0);
                 }
             }
             out.append(']');
         } finally {
             serializer.context = context;
         }
+    }
+
+    private ArrayItemSerializer getItemSerializer(Object item) {
+        for (ArrayItemSerializer serializer : itemSerializers) {
+            if (serializer.canSerialize(item)) {
+                return serializer;
+            }
+        }
+        throw new IllegalArgumentException("No serializer found for item: " + item);
     }
 }

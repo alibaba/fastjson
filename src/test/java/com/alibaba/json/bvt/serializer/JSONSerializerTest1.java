@@ -56,14 +56,14 @@ public class JSONSerializerTest1 extends TestCase {
         Date date = calendar.getTime();
 
         String dateFormatPattern = "yyyy.MM.dd";
-        String temp = JSON.DEFFAULT_DATE_FORMAT;
-        JSON.DEFFAULT_DATE_FORMAT = dateFormatPattern;
+        String temp = JSON.DEFAULT_DATE_FORMAT;
+        JSON.DEFAULT_DATE_FORMAT = dateFormatPattern;
 
-        SimpleDateFormat sdf = new SimpleDateFormat(JSON.DEFFAULT_DATE_FORMAT);
-        //传入null时调用JSON.DEFFAULT_DATE_FORMAT
+        SimpleDateFormat sdf = new SimpleDateFormat(JSON.DEFAULT_DATE_FORMAT);
+        //传入null时调用JSON.DEFAULT_DATE_FORMAT
         serializer.writeWithFormat(date, null);
 
-        JSON.DEFFAULT_DATE_FORMAT = temp;
+        JSON.DEFAULT_DATE_FORMAT = temp;
 
         assertEquals("\"" + sdf.format(date) + "\"", serializer.out.toString());
     }

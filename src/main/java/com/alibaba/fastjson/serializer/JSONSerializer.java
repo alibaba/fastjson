@@ -388,7 +388,7 @@ public class JSONSerializer extends SerializeFilterable {
                 } else if (fastJsonConfigDateFormatPattern != null) {
                     dateFormat = this.generateDateFormat(fastJsonConfigDateFormatPattern);
                 } else {
-                    dateFormat = this.generateDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+                    dateFormat = this.generateDateFormat(JSON.DEFAULT_DATE_FORMAT);
                 }
             }
             String text = dateFormat.format((Date) object);

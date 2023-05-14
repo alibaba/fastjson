@@ -18,7 +18,7 @@ public class Issue3361 extends TestCase {
 
     @Override
     public void setUp() throws Exception {
-        ORIGIN_JSON_DEFAULT_DATE_FORMAT = JSON.DEFFAULT_DATE_FORMAT;
+        ORIGIN_JSON_DEFAULT_DATE_FORMAT = JSON.DEFAULT_DATE_FORMAT;
     }
 
     public void test_for_issue() throws Exception {
@@ -29,8 +29,8 @@ public class Issue3361 extends TestCase {
         FastJsonConfig config = new FastJsonConfig();
         config.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
         config.setWriteContentLength(false);
-        JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";
-        config.setDateFormat(JSON.DEFFAULT_DATE_FORMAT);
+        JSON.DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS";
+        config.setDateFormat(JSON.DEFAULT_DATE_FORMAT);
         String string = JSON.toJSONString(model,
                 config.getSerializeConfig(),
                 config.getSerializeFilters(),
@@ -49,7 +49,7 @@ public class Issue3361 extends TestCase {
 
     @Override
     public void tearDown() throws Exception {
-        JSON.DEFFAULT_DATE_FORMAT = ORIGIN_JSON_DEFAULT_DATE_FORMAT;
+        JSON.DEFAULT_DATE_FORMAT = ORIGIN_JSON_DEFAULT_DATE_FORMAT;
     }
 
     @Getter

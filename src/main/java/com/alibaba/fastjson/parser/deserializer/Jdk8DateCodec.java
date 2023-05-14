@@ -549,7 +549,7 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
                                 serializer.getFastJsonConfigDateFormatPattern().length() > 0){
                             format = serializer.getFastJsonConfigDateFormatPattern();
                         }else{
-                            format = JSON.DEFFAULT_DATE_FORMAT; 
+                            format = JSON.DEFAULT_DATE_FORMAT; 
                         }
                     } else {
                         int nano = dateTime.getNano();

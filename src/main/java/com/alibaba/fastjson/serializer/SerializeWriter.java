@@ -308,7 +308,7 @@ public final class SerializeWriter extends Writer {
         char newValue[] = new char[newCapacity];
         System.arraycopy(buf, 0, newValue, 0, count);
 
-        if (buf.length < BUFFER_THRESHOLD) {
+        if (buf.length * 2 < BUFFER_THRESHOLD) {
             char[] charsLocal = bufLocal.get();
             if (charsLocal == null || charsLocal.length < buf.length) {
                 bufLocal.set(buf);
@@ -511,7 +511,7 @@ public final class SerializeWriter extends Writer {
         if (writer != null && count > 0) {
             flush();
         }
-        if (buf.length <= BUFFER_THRESHOLD) {
+        if (buf.length * 2 <= BUFFER_THRESHOLD) {
             bufLocal.set(buf);
         }
 

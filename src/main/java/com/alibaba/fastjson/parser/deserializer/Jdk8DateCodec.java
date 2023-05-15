@@ -537,8 +537,12 @@ public class Jdk8DateCodec extends ContextObjectDeserializer implements ObjectSe
             }
 
             if (fieldType == LocalDateTime.class) {
-                final int mask = SerializerFeature.UseISO8601DateFormat.getMask();
                 LocalDateTime dateTime = (LocalDateTime) object;
+                if (serializer.isEnabled(SerializerFeature.WriteDateUseTimestamp)) {
+                    out.writeLong(dateTime.atZone(JSON.defaultTimeZone.toZoneId()).toInstant().toEpochMilli());
+                    return;
+                }
+                final int mask = SerializerFeature.UseISO8601DateFormat.getMask();
                 String format = serializer.getDateFormatPattern();
 
                 if (format == null) {

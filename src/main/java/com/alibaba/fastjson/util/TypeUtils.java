@@ -42,7 +42,6 @@ import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -53,6 +52,8 @@ import java.util.regex.Pattern;
  */
 public class TypeUtils {
     private static final Pattern NUMBER_WITH_TRAILING_ZEROS_PATTERN = Pattern.compile("\\.0*$");
+    public static final long FNV1A_64_MAGIC_HASHCODE = 0xcbf29ce484222325L;
+    public static final long FNV1A_64_MAGIC_PRIME = 0x100000001b3L;
 
     public static boolean compatibleWithJavaBean = false;
     /**
@@ -3014,11 +3015,8 @@ public class TypeUtils {
         return Float.parseFloat(str);
     }
 
-    public static final long fnv1a_64_magic_hashcode = 0xcbf29ce484222325L;
-    public static final long fnv1a_64_magic_prime = 0x100000001b3L;
-
     public static long fnv1a_64_extract(String key) {
-        long hashCode = fnv1a_64_magic_hashcode;
+        long hashCode = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
             if (ch == '_' || ch == '-') {
@@ -3028,30 +3026,33 @@ public class TypeUtils {
                 ch = (char) (ch + 32);
             }
             hashCode ^= ch;
-            hashCode *= fnv1a_64_magic_prime;
+            hashCode *= FNV1A_64_MAGIC_PRIME;
         }
         return hashCode;
     }
 
     public static long fnv1a_64_lower(String key) {
-        long hashCode = fnv1a_64_magic_hashcode;
+        long hashCode = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
+            if (ch == '_' || ch == '-') {
+                continue;
+            }
             if (ch >= 'A' && ch <= 'Z') {
                 ch = (char) (ch + 32);
             }
             hashCode ^= ch;
-            hashCode *= fnv1a_64_magic_prime;
+            hashCode *= FNV1A_64_MAGIC_PRIME;
         }
         return hashCode;
     }
 
     public static long fnv1a_64(String key) {
-        long hashCode = fnv1a_64_magic_hashcode;
+        long hashCode = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < key.length(); ++i) {
             char ch = key.charAt(i);
             hashCode ^= ch;
-            hashCode *= fnv1a_64_magic_prime;
+            hashCode *= FNV1A_64_MAGIC_PRIME;
         }
         return hashCode;
     }

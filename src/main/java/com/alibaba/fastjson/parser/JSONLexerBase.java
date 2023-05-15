@@ -26,8 +26,8 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.util.IOUtils;
 
 import static com.alibaba.fastjson.parser.JSONToken.*;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -1443,7 +1443,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
@@ -1452,7 +1452,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             hash ^= chLocal;
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;
@@ -1514,7 +1514,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             return 0;
         }
 
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (;;) {
             chLocal = charAt(bp + (offset++));
             if (chLocal == '\"') {
@@ -1523,7 +1523,7 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
             }
 
             hash ^= ((chLocal >= 'A' && chLocal <= 'Z') ? (chLocal + 32) : chLocal);
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
 
             if (chLocal == '\\') {
                 matchStat = NOT_MATCH;

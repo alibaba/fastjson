@@ -6,10 +6,9 @@ import junit.framework.TestCase;
 
 import com.alibaba.fastjson.parser.JSONScanner;
 import com.alibaba.fastjson.parser.JSONToken;
-import com.alibaba.fastjson.parser.SymbolTable;
 
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_hashcode;
-import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_HASHCODE;
+import static com.alibaba.fastjson.util.TypeUtils.FNV1A_64_MAGIC_PRIME;
 
 /**
  * 测试字符':'的处理
@@ -100,11 +99,11 @@ public class JSONScannerTest_scanSymbol extends TestCase {
     }
 
     static long fnv_hash(String text) {
-        long hash = fnv1a_64_magic_hashcode;
+        long hash = FNV1A_64_MAGIC_HASHCODE;
         for (int i = 0; i < text.length(); ++i) {
             char c = text.charAt(i);
             hash ^= c;
-            hash *= fnv1a_64_magic_prime;
+            hash *= FNV1A_64_MAGIC_PRIME;
         }
         return hash;
     }

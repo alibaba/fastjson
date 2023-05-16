@@ -18,10 +18,13 @@ package com.alibaba.fastjson;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
@@ -919,6 +922,61 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         }
 
         return toJSONString(object, SerializerFeature.PrettyFormat);
+    }
+
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
+    /**
+     * This method generate a JSON object that contains scientific notation to a JSON string in the specified format
+     *
+     * @param object     the object which contains scientific notation and needs to be generated
+     * @param key        the key of the value in form of scientific notation
+     * @param scientific true if the output string should be in form of scientific notation
+     *                   false if the output string should be in form of ordinary decimal
+     * @return a JSON string that contains values in form of scientific notation or ordinary decimal
+     */
+    public static String toJSONStringScientificNotation(JSONObject object, String key, boolean scientific) {
+        String decimalStr = object.get(key).toString();
+        BigDecimal bd = new BigDecimal(decimalStr);
+        if (scientific) {
+            String sym = "############################################################";
+            NumberFormat formatter = new DecimalFormat("#." + sym + "E0");
+            if (bd.scale() > 0) {
+                formatter.setMinimumFractionDigits(bd.precision());
+            } else {
+                formatter.setMinimumFractionDigits(bd.scale());
+            }
+            String result = formatter.format(bd.stripTrailingZeros());
+            int e = result.substring(0, result.lastIndexOf("E") + 1).lastIndexOf("0");
+            if (result.contains(".") && e == result.lastIndexOf("E") - 1) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < result.length(); i++) {
+                    if (i == e - 1 && result.charAt(i) == '.') {
+                        continue;
+                    }
+                    if (i != e) {
+                        sb.append(result.charAt(i));
+                    }
+                }
+                result = sb.toString();
+            }
+            object.put(key, result);
+        } else {
+            object.put(key, bd.stripTrailingZeros().toPlainString());
+        }
+        return JSON.toJSONString(object);
+    }
+
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/3968
+    /**
+     * This method generate a JSON object that contains scientific notation
+     * to a JSON string in form of scientific notation
+     *
+     * @param object the object which contains scientific notation and needs to be generated
+     * @param key    the key of the value in form of scientific notation
+     * @return a JSON string that contains values in form of scientific notation
+     */
+    public static String toJSONStringScientificNotation(JSONObject object, String key) {
+        return toJSONStringScientificNotation(object, key, true);
     }
 
     /**

@@ -1568,7 +1568,11 @@ public class JavaBeanDeserializer implements ObjectDeserializer {
                             }
                         }
                     } else if (param.getClass() != beanInfo.fields[i].fieldClass){
-                        params[i] = TypeUtils.cast(param, beanInfo.fields[i].fieldClass, config);
+                        if (beanInfo.fields[i].fieldType != null && beanInfo.fields[i].fieldType instanceof ParameterizedType) {
+                            params[i] = TypeUtils.cast(param, beanInfo.fields[i].fieldType, config);
+                        } else {
+                            params[i] = TypeUtils.cast(param, beanInfo.fields[i].fieldClass, config);
+                        }
                     }
                 }
             }

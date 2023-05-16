@@ -808,11 +808,13 @@ public class JavaBeanInfo {
                     }
                     field = TypeUtils.getField(clazz, propertyName, declaredFields);
                 } else {
-                    propertyName = methodName.substring(4);
+                    // 首先根据set_abc取字段名为_abc, 取不到时再判定为snake_case, 取字段名abc（向前兼容）
+                    // 避免类中同时存在字段名为_abc和abc, 导致字段丢失的情况
+                    propertyName = methodName.substring(3);
                     field = TypeUtils.getField(clazz, propertyName, declaredFields);
                     if (field == null) {
                         String temp = propertyName;
-                        propertyName = methodName.substring(3);
+                        propertyName = methodName.substring(4);
                         field = TypeUtils.getField(clazz, propertyName, declaredFields);
                         if (field == null) {
                             propertyName = temp; //减少修改代码带来的影响

@@ -101,18 +101,26 @@ public final class ListSerializer implements ObjectSerializer {
                     out.append("null");
                 } else {
                     Class<?> clazz = item.getClass();
-
+                    itemSerializer = serializer.getObjectWriter(item.getClass());
                     if (clazz == Integer.class) {
-                        out.writeInt(((Integer) item).intValue());
-                    } else if (clazz == Long.class) {
-                        long val = ((Long) item).longValue();
-                        if (writeClassName) {
-                            out.writeLong(val);
-                            out.write('L');
+                        if (itemSerializer == null) {
+                          out.writeInt(((Integer) item).intValue());
                         } else {
-                            out.writeLong(val);
+                            itemSerializer.write(serializer, item, i, elementType, features);
                         }
-                    } else {
+                    } else if ( clazz == Long.class) {
+                        if (itemSerializer == null) {
+                            long val = ((Long) item).longValue();
+                            if (writeClassName) {
+                                out.writeLong(val);
+                                out.write('L');
+                            } else {
+                                out.writeLong(val);
+                            }
+                        } else {
+                            itemSerializer.write(serializer, item, i, elementType, features); 
+                        }
+                      } else {
                         if ((SerializerFeature.DisableCircularReferenceDetect.mask & features) != 0){
                             itemSerializer = serializer.getObjectWriter(item.getClass());
                             itemSerializer.write(serializer, item, i, elementType, features);
@@ -124,8 +132,7 @@ public final class ListSerializer implements ObjectSerializer {
 
                             if (serializer.containsReference(item)) {
                                 serializer.writeReference(item);
-                            } else {
-                                itemSerializer = serializer.getObjectWriter(item.getClass());
+                            } else {                                
                                 if ((SerializerFeature.WriteClassName.mask & features) != 0
                                         && itemSerializer instanceof JavaBeanSerializer)
                                 {

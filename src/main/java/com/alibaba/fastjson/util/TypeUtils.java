@@ -42,7 +42,6 @@ import java.sql.Clob;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -1271,37 +1270,100 @@ public class TypeUtils {
         return new Locale(items[0], items[1], items[2]);
     }
 
+    /**
+     * Object convert to Enum, support register enum Deserializer.<br>
+     * e.g. <code>ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());</code><br>
+     * UserState is an enum;<br>
+     * <code>TypeUtils.castToEnum(1, UserState.class);</code><br>
+     * if UserStateDeserializer is an <code>ObjectDeserializer</code>,<br>
+     * -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)<br>
+     * if UserStateDeserializer is an <code>EnumDeserializer</code>,<br>
+     * -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)<br>
+     *
+     * @param obj source object
+     * @param clazz target enum type
+     * @param <T> class type
+     * @return Enum
+     */
+    public static <T> T castToEnum(Object obj, Class<T> clazz) {
+        return castToEnum(obj, clazz, null);
+    }
+
+    /**
+     * Object convert to Enum, support register enum Deserializer.<br>
+     * e.g. <code>ParserConfig.getGlobalInstance().putDeserializer(UserState.class, new UserStateDeserializer());</code><br>
+     * UserState is an enum;<br>
+     * <code>TypeUtils.castToEnum(1, UserState.class);</code><br>
+     * if UserStateDeserializer is an <code>ObjectDeserializer</code>,<br>
+     * -- then only if value is a string/number/boolean, eventually call deserializer.deserialze(...)<br>
+     * if UserStateDeserializer is an <code>EnumDeserializer</code>,<br>
+     * -- then only if value is a string, eventually call enumDeserializer.getEnumByHashCode(...)<br>
+     *
+     * @param obj source object
+     * @param clazz target enum type
+     * @param <T> class type
+     * @param mapping ParserConfig
+     * @return Enum
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping) {
+    public static <T> T castToEnum(Object obj, Class<T> clazz, ParserConfig mapping){
+        if (obj == null || (obj instanceof String && ((String) obj).length() == 0)) {
+            return null;
+        }
+
+        if (mapping == null) {
+            mapping = ParserConfig.getGlobalInstance();
+        }
+
+        // Issue#3372, zhaohuihua, 20211219
+        // Previously, deserializer was only checked if the object was a string.
+        // Change to no precondition, it will be called as soon as it is registered.
+        // Because the number are not necessarily 'enum.ordinal', it may also be necessary to call deserializer.
+
+        ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
+        if (deserializer != null && !(deserializer instanceof EnumDeserializer)) {
+            // EnumDeserializer is not actually an ObjectDeserializer, cannot enter this code,
+            // Because the EnumDeserializer only calls getEnumByHashCode(), deserialze() was not called.
+            try {
+                // Try to convert object to string, hand over to ObjectDeserializer for conversion to enum.
+                String string = JSON.toJSONString(tryCastToEnumString(obj, clazz));
+                DefaultJSONParser parser = new DefaultJSONParser(string, mapping);
+                return (T) deserializer.deserialze(parser, clazz, null);
+            } catch(JSONException ex){
+                throw ex;
+            } catch(Exception ex){
+                throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
+            }
+        }
+
         try {
             if (obj instanceof String) {
                 String name = (String) obj;
-                if (name.length() == 0) {
-                    return null;
+                if (isDigitString(name)) {
+                    // string is digital, search by ordinal
+                    // e.g. TypeUtils.castToEnum("1", UserState.class)
+                    int ordinal = Long.valueOf(name).intValue();
+                    Object[] values = clazz.getEnumConstants();
+                    if(ordinal < values.length){
+                        return (T) values[ordinal];
+                    }
+                } else {
+                    // string is not digital, search by name
+                    if (deserializer != null) {
+                        // If not an EnumDeserializer it will go to the ObjectDeserializer code above.
+                        EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
+                        return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
+                    } else {
+                        return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
+                    }
                 }
-
-                if (mapping == null) {
-                    mapping = ParserConfig.getGlobalInstance();
-                }
-
-                ObjectDeserializer deserializer = mapping.getDeserializer(clazz);
-                if (deserializer instanceof EnumDeserializer) {
-                    EnumDeserializer enumDeserializer = (EnumDeserializer) deserializer;
-                    return (T) enumDeserializer.getEnumByHashCode(TypeUtils.fnv1a_64(name));
-                }
-
-                return (T) Enum.valueOf((Class<? extends Enum>) clazz, name);
-            }
-
-            if (obj instanceof BigDecimal) {
+            } else if (obj instanceof BigDecimal) {
                 int ordinal = intValue((BigDecimal) obj);
                 Object[] values = clazz.getEnumConstants();
                 if (ordinal < values.length) {
                     return (T) values[ordinal];
                 }
-            }
-
-            if (obj instanceof Number) {
+            } else if (obj instanceof Number) {
                 int ordinal = ((Number) obj).intValue();
                 Object[] values = clazz.getEnumConstants();
                 if (ordinal < values.length) {
@@ -1309,9 +1371,42 @@ public class TypeUtils {
                 }
             }
         } catch (Exception ex) {
-            throw new JSONException("can not cast to : " + clazz.getName(), ex);
+            throw new JSONException("can not cast " + obj + " to : " + clazz.getName(), ex);
         }
-        throw new JSONException("can not cast to : " + clazz.getName());
+        throw new JSONException("can not cast " + obj + " to : " + clazz.getName());
+    }
+
+    // Try to convert object to string, hand over to ObjectDeserializer for conversion to enum.
+    // Only String/Number/Boolean conversions to enum are supported.
+    private static String tryCastToEnumString(Object obj, Class<?> clazz) {
+        if (obj instanceof String) {
+            return (String) obj;
+        } else if (obj instanceof Integer || obj instanceof Long || obj instanceof Short || obj instanceof Byte
+                || obj instanceof BigInteger || obj instanceof Boolean) {
+            return obj.toString();
+        } else if (obj instanceof BigDecimal) {
+            // new BigDecimal("20000.0000").toPlainString(); = 20000.0000
+            // new BigDecimal("20000.0000").stripTrailingZeros().toPlainString(); = 20000
+            return ((BigDecimal) obj).stripTrailingZeros().toPlainString();
+        } else if (obj instanceof Number) {
+            return new BigDecimal(obj.toString()).stripTrailingZeros().toPlainString();
+        } else {
+            // Other object types are not supported.
+            throw new JSONException("can not cast " + obj.getClass() + " to : " + clazz.getName());
+        }
+    }
+
+    private static boolean isDigitString(String string) {
+        if (string == null || string.length() == 0) {
+            return false;
+        }
+        for (int i = 0, z = string.length(); i < z; i++) {
+            char c = string.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")

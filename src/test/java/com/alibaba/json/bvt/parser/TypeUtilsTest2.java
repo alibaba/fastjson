@@ -30,6 +30,7 @@ public class TypeUtilsTest2 extends TestCase {
         Assert.assertNull(TypeUtils.castToChar(null));
         Assert.assertEquals('A', TypeUtils.castToChar('A').charValue());
         Assert.assertEquals('A', TypeUtils.castToChar("A").charValue());
+        Assert.assertEquals('0', TypeUtils.castToChar(0).charValue());
 
         Assert.assertNull(TypeUtils.castToBigDecimal(""));
         Assert.assertNull(TypeUtils.castToBigInteger(""));

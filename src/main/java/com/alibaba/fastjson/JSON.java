@@ -716,6 +716,19 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
+    *This method is designed to show the value of JsonObjet in the format of the scientific notation.
+     *@param JSONObject the JSONobject that extends Object for which json representation is to be created setting for fastjson
+     *@return Json representation in String data type.
+     **/
+
+
+    public static String toJSONStringScientificNotation(JSONObject object, String key) {
+        object.put(key, object.getFloat(key));
+        return JSON.toJSONString(object);
+    }
+
+
+    /**
      * @since 1.1.14
      */
     public static String toJSONStringWithDateFormat(Object object, String dateFormat,

@@ -317,7 +317,34 @@ public class JavaBeanSerializer extends SerializeFilterable implements ObjectSer
                     }
                     // beanInfo.jsonType
                     if (jsonField != null && !"".equals(jsonField.defaultValue())) {
-                        propertyValue = jsonField.defaultValue();
+                        //CS304 (manually written) Issue link: https://github.com/alibaba/fastjson/issues/3949
+                        //get the type of the variable first
+                        //because the defaultValue must be a string
+                        //we need to transfer the type according to the variable type
+                        //and then assign it to propertyValue
+                        String[] className = fieldClass.getName().split("\\.");
+                        String type = className[className.length-1];
+                        switch(type){
+                            case "Integer":
+                                propertyValue = Integer.parseInt(jsonField.defaultValue());
+                                break;
+                            case "Float":
+                                propertyValue = Float.parseFloat(jsonField.defaultValue());
+                                break;
+                            case "Double":
+                                propertyValue = Double.parseDouble(jsonField.defaultValue());
+                                System.out.println(propertyValue.getClass());
+                                break;
+                            case "Long":
+                                propertyValue = Long.parseLong(jsonField.defaultValue());
+                                break;
+                            case "Boolean":
+                                propertyValue = Boolean.parseBoolean(jsonField.defaultValue());
+                                break;
+                            default :
+                                propertyValue = jsonField.defaultValue();
+                                break;
+                        }
                     } else if (fieldClass == Boolean.class) {
                         int defaultMask = SerializerFeature.WriteNullBooleanAsFalse.mask;
                         final int mask = defaultMask | SerializerFeature.WriteMapNullValue.mask;

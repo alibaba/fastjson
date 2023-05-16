@@ -15,13 +15,13 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author wenshao[szujobs@hotmail.com]
@@ -31,7 +31,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
     public static MapSerializer instance = new MapSerializer();
 
     private static final int NON_STRINGKEY_AS_STRING = SerializerFeature.of(
-            new SerializerFeature[] {
+            new SerializerFeature[]{
                     SerializerFeature.BrowserCompatible,
                     SerializerFeature.WriteNonStringKeyAsString,
                     SerializerFeature.BrowserSecure});
@@ -44,7 +44,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
         write(serializer, object, fieldName, fieldType, features, false);
     }
 
-    @SuppressWarnings({ "rawtypes"})
+    @SuppressWarnings({"rawtypes"})
     public void write(JSONSerializer serializer
             , Object object
             , Object fieldName
@@ -96,7 +96,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
             if (out.isEnabled(SerializerFeature.WriteClassName)) {
                 String typeKey = serializer.config.typeKey;
                 Class<?> mapClass = map.getClass();
-                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class) 
+                boolean containsKey = (mapClass == JSONObject.class || mapClass == HashMap.class || mapClass == LinkedHashMap.class)
                         && map.containsKey(typeKey);
                 if (!containsKey) {
                     out.writeFieldName(typeKey);
@@ -140,7 +140,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
                     List<PropertyFilter> propertyFilters = serializer.propertyFilters;
                     if (propertyFilters != null && propertyFilters.size() > 0) {
@@ -171,7 +171,7 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         }
                     }
                 }
-                
+
                 {
                     List<NameFilter> nameFilters = serializer.nameFilters;
                     if (nameFilters != null && nameFilters.size() > 0) {
@@ -224,6 +224,13 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         serializer.println();
                     }
                     out.writeFieldName(key, true);
+                } else if (entryKey instanceof Number) {
+                    Number key = (Number) entryKey;
+                    if (!first) {
+                        out.write(',');
+                    }
+                    serializer.write(key.toString());
+                    out.write(':');
                 } else {
                     if (!first) {
                         out.write(',');

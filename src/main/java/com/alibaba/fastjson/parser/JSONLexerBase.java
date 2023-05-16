@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.alibaba.fastjson.parser;
+import static com.alibaba.fastjson.parser.DefaultJSONParser.*;
 
 import java.io.Closeable;
 import java.math.BigDecimal;
@@ -812,7 +813,176 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
 
         return value;
     }
+    /**
+     *
+     * @param symbolTable
+     * @param quote
+     * @return key_String
+     * find target string with Quotearray and Backslasharray, and remove whitespace by arraycopy
+     */
+    public final String scanSymbolByQuote(final SymbolTable symbolTable, final char quote){
+        int hash = 0;
+        bp = quoteIndexArray[idxQuote++];
+        np = bp;
+        char chLocal;
+        String value;
+        int charIndex = bp;
 
+        if((backslashIndexArray[idxBackslash] != 0) && (quoteIndexArray[idxQuote] > backslashIndexArray[idxBackslash]))   //if there is a backslash between two quote
+        {
+            for (;;) {
+                if ((backslashIndexArray[idxBackslash] == 0) || (quoteIndexArray[idxQuote] < backslashIndexArray[idxBackslash])) {  //if idxQuote less than idxBackslash, then move chars to the left to fill the empty produced by merge "\?" to '\?'
+                    if(charIndex != bp)
+                    {
+                        sp = quoteIndexArray[idxQuote] - bp - 1;
+                        System.arraycopy(charsArray, bp+1, charsArray, charIndex+1, sp);
+                        charIndex += sp;
+                    }
+                    break;
+                }
+                if(charIndex != bp) //if cur index of chars array not equal to base point of string, then move chars to the left to fill the empty produced by merge "\?" to '\?'
+                {
+                    sp = backslashIndexArray[idxBackslash] - bp - 1;
+                    System.arraycopy(charsArray, bp + 1, charsArray, charIndex+1, sp);
+                    charIndex += sp+1;
+                }
+                else
+                {
+                    charIndex = backslashIndexArray[idxBackslash];
+                }
+
+                bp = backslashIndexArray[idxBackslash++];
+                chLocal = next();
+
+                if (chLocal == EOI) {
+                    throw new JSONException("unclosed.str");
+                }
+
+                switch (chLocal) {
+                    case '0':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\0';
+                        break;
+                    case '1':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\1';
+                        break;
+                    case '2':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\2';
+                        break;
+                    case '3':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\3';
+                        break;
+                    case '4':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\4';
+                        break;
+                    case '5':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\5';
+                        break;
+                    case '6':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\6';
+                        break;
+                    case '7':
+                        hash = 31 * hash + (int) chLocal;
+                        charsArray[charIndex] = '\7';
+                        break;
+                    case 'b': // 8
+                        hash = 31 * hash + (int) '\b';
+                        charsArray[charIndex] = '\b';
+                        break;
+                    case 't': // 9
+                        hash = 31 * hash + (int) '\t';
+                        charsArray[charIndex] = '\t';
+                        break;
+                    case 'n': // 10
+                        hash = 31 * hash + (int) '\n';
+                        charsArray[charIndex] = '\n';
+                        break;
+                    case 'v': // 11
+                        hash = 31 * hash + (int) '\u000B';
+                        charsArray[charIndex] = '\u000B';
+                        break;
+                    case 'f': // 12
+                    case 'F':
+                        hash = 31 * hash + (int) '\f';
+                        charsArray[charIndex] = '\f';
+                        break;
+                    case 'r': // 13
+                        hash = 31 * hash + (int) '\r';
+                        charsArray[charIndex] = '\r';
+                        break;
+                    case '"': // 34
+                        idxQuote++;
+                        hash = 31 * hash + (int) '"';
+                        charsArray[charIndex] = '\"';
+                        break;
+                    case '\'': // 39
+                        hash = 31 * hash + (int) '\'';
+                        charsArray[charIndex] = '\'';
+                        break;
+                    case '/': // 47
+                        hash = 31 * hash + (int) '/';
+                        charsArray[charIndex] = '/';
+                        break;
+                    case '\\': // 92
+                        idxBackslash++;
+                        hash = 31 * hash + (int) '\\';
+                        charsArray[charIndex] = '\\';
+                        break;
+                    case 'x':
+                        char x1 = ch = next();
+                        char x2 = ch = next();
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        hash = 31 * hash + (int) x_char;
+                        charsArray[charIndex] = x_char;
+                        break;
+                    case 'u':
+                        char c1 = chLocal = next();
+                        char c2 = chLocal = next();
+                        char c3 = chLocal = next();
+                        char c4 = chLocal = next();
+                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
+                        hash = 31 * hash + val;
+                        charsArray[charIndex] = (char) val;
+                        break;
+                    default:
+                        this.ch = chLocal;
+                        throw new JSONException("unclosed.str.lit");
+                }
+            }
+            sp = charIndex - np;
+            bp = quoteIndexArray[idxQuote++];
+            value = symbolTable.addSymbol(charsArray, np+1, sp, hash);
+        }
+        else
+        {
+            sp = quoteIndexArray[idxQuote] - np - 1;
+            bp = quoteIndexArray[idxQuote++];
+            chLocal = charAt(bp);
+
+            hash = 31 * hash + chLocal;
+
+            int offset;
+            if (np == -1) {
+                offset = 0;
+            } else {
+                offset = np + 1;
+            }
+            value = addSymbol(offset, sp, hash, symbolTable);
+        }
+
+        token = LITERAL_STRING;
+        sp = 0;
+        this.next();
+        return value;
+    }
     public final void resetStringPosition() {
         this.sp = 0;
     }
@@ -1021,6 +1191,143 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
         this.ch = next();
     }
 
+    /**
+     * @return value_String
+     * find target string with Quotearray and Backslasharray, and remove whitespace by arraycopy
+     */
+    public final String scanStringByQuote() {
+        bp = quoteIndexArray[idxQuote++];
+        hasSpecial = false;
+        np = bp;
+        char ch;
+        int charIndex = bp; // the index of chars array
+
+        if((backslashIndexArray[idxBackslash] != 0) && (quoteIndexArray[idxQuote] > backslashIndexArray[idxBackslash]))             //if there is a backslash between two quote, then parse the backslash
+        {
+            for (;;) {
+                if ((backslashIndexArray[idxBackslash] == 0) || (quoteIndexArray[idxQuote] < backslashIndexArray[idxBackslash])) {  //if idxQuote less than idxBackslash, then move chars to the left to fill the empty produced by merge "\?" to '\?'
+                    if(charIndex != bp)
+                    {
+                        sp = quoteIndexArray[idxQuote] -bp -1;
+                        System.arraycopy(charsArray, bp+1, charsArray, charIndex+1, sp);
+                        charIndex += sp;
+                    }
+                    break;
+                }
+
+                if(charIndex != bp)   //if cur index of chars array not equal to base point of string, then move chars to the left to fill the empty produced by merge "\?" to '\?'
+                {
+                    sp = backslashIndexArray[idxBackslash] - bp - 1;
+                    System.arraycopy(charsArray, bp + 1, charsArray, charIndex+1, sp);
+                    charIndex += sp+1;
+                }
+                else
+                {
+                    charIndex = backslashIndexArray[idxBackslash];
+                }
+                bp = backslashIndexArray[idxBackslash++];
+
+                ch = next();
+
+                if (ch == EOI) {
+                    if (!isEOF()) {
+                        continue;
+                    }
+                    throw new JSONException("unclosed string : " + ch);
+                }
+
+                switch (ch) {
+                    case '0':
+                        charsArray[charIndex] = '\0';
+                        break;
+                    case '1':
+                        charsArray[charIndex] = '\1';
+                        break;
+                    case '2':
+                        charsArray[charIndex] = '\2';
+                        break;
+                    case '3':
+                        charsArray[charIndex] = '\3';
+                        break;
+                    case '4':
+                        charsArray[charIndex] = '\4';
+                        break;
+                    case '5':
+                        charsArray[charIndex] = '\5';
+                        break;
+                    case '6':
+                        charsArray[charIndex] = '\6';
+                        break;
+                    case '7':
+                        charsArray[charIndex] = '\7';
+                        break;
+                    case 'b': // 8
+                        charsArray[charIndex] = '\b';
+                        break;
+                    case 't': // 9
+                        charsArray[charIndex] = '\t';
+                        break;
+                    case 'n': // 10
+                        charsArray[charIndex] = '\n';
+                        break;
+                    case 'v': // 11
+                        charsArray[charIndex] = '\u000B';
+                        break;
+                    case 'f': // 12
+                    case 'F':
+                        charsArray[charIndex] = '\f';
+                        break;
+                    case 'r': // 13
+                        charsArray[charIndex] = '\r';
+                        break;
+                    case '"': // 34
+                        idxQuote++;
+                        charsArray[charIndex] = '\"';
+                        break;
+                    case '\'': // 39
+                        charsArray[charIndex] = '\'';
+                        break;
+                    case '/': // 47
+                        charsArray[charIndex] = '/';
+                        break;
+                    case '\\': // 92
+                        idxBackslash++;
+                        charsArray[charIndex] = '\\';
+                        break;
+                    case 'x':
+                        char x1 = ch = next();
+                        char x2 = ch = next();
+
+                        int x_val = digits[x1] * 16 + digits[x2];
+                        char x_char = (char) x_val;
+                        charsArray[charIndex] = x_char;
+                        break;
+                    case 'u':
+                        char c1 = ch = next();
+                        char c2 = ch = next();
+                        char c3 = ch = next();
+                        char c4 = ch = next();
+                        int val = Integer.parseInt(new String(new char[] { c1, c2, c3, c4 }), 16);
+                        charsArray[charIndex] = (char) val;
+                        break;
+                    default:
+                        this.ch = ch;
+                        throw new JSONException("unclosed.str.lit");
+                }
+            }
+            sp = charIndex - np;
+        }
+        else
+        {
+            sp = quoteIndexArray[idxQuote] - np -1;
+        }
+
+        bp = quoteIndexArray[idxQuote++];
+
+        token = JSONToken.LITERAL_STRING;
+        this.ch = next();
+        return String.valueOf(charsArray,np+1,sp);
+    }
     public Calendar getCalendar() {
         return this.calendar;
     }
@@ -5314,6 +5621,8 @@ public abstract class JSONLexerBase implements JSONLexer, Closeable {
     protected static final int   INT_MULTMIN_RADIX_TEN = Integer.MIN_VALUE / 10;
 
     protected final static int[] digits                = new int[(int) 'f' + 1];
+    protected              int   idxQuote                = 0; // index of quote array
+    protected              int   idxBackslash            = 0; // index of backslash array
 
     static {
         for (int i = '0'; i <= '9'; ++i) {

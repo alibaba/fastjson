@@ -31,6 +31,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import jdk.incubator.vector.*;
+
 import static com.alibaba.fastjson.parser.JSONLexer.EOI;
 import static com.alibaba.fastjson.parser.JSONToken.*;
 
@@ -66,6 +68,10 @@ public class DefaultJSONParser implements Closeable {
     private List<ExtraTypeProvider>    extraTypeProviders = null;
     private List<ExtraProcessor>       extraProcessors    = null;
     protected FieldTypeResolver        fieldTypeResolver  = null;
+    static char[]                      charsArray         = null;
+    static short[]                     offsets            = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};//new short[32];
+    static int[]                       quoteIndexArray     = new int[128];
+    static int[]                       backslashIndexArray = new int[32];  //backslash
 
     private int                        objectKeyLevel     = 0;
 
@@ -152,12 +158,109 @@ public class DefaultJSONParser implements Closeable {
     public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config){
         this(null, lexer, config);
     }
+    /**
+    * find Quote index by java ShortVector api -> compress() and store into array
+    */
+    private void myFindQuoteCompressCharArray(String text) {
+        charsArray = text.toCharArray();
+        int len = charsArray.length;
+
+        short[] compareResultArray = new short[32];
+        int idxQuote = 0;
+        int idxBackslash = 0;
+        int i = 0;
+        int lenVector = ShortVector.SPECIES_PREFERRED.length();
+
+        ShortVector shortVectorIndex = ShortVector.fromArray(ShortVector.SPECIES_PREFERRED, offsets, 0, ShortVector.SPECIES_PREFERRED.indexInRange(0,32));
+        for (i = 0; i < Math.floor(len/lenVector)*lenVector; i += lenVector) {
+            ShortVector shortVector = ShortVector.fromCharArray(ShortVector.SPECIES_PREFERRED, charsArray, i);  //load char array as short vector
+            VectorMask<Short> compare = shortVector.compare(VectorOperators.EQ, 0x22);                          //char array compare with '"'(ascii is 0x22)
+            ShortVector compareResult = shortVectorIndex.compress(compare);                                     //compress compare result by shortVector, the result is relative offset
+            compareResult.intoArray(compareResultArray,0);                                                //change compare result into array and store in stageOneListQuote
+            for(int j=0 ;j<lenVector ;j++)
+            {
+                if(compareResultArray[j] > 0)
+                {
+                    this.quoteIndexArray[idxQuote++] = (compareResultArray[j]+i-1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if(idxQuote > this.quoteIndexArray.length - lenVector)          //new double size int array if array size is not enough
+            {
+                int newCapcity = this.quoteIndexArray.length * 2;
+                int[] newsbuf = new int[newCapcity];
+                System.arraycopy(this.quoteIndexArray, 0, newsbuf, 0, this.quoteIndexArray.length);
+                this.quoteIndexArray = newsbuf;
+            }
+
+            compare = shortVector.compare(VectorOperators.EQ, 0x5C);        //char array compare with '\'(ascii is 0x5C)
+            compareResult = shortVectorIndex.compress(compare);
+            compareResult.intoArray(compareResultArray,0);
+            for(int j=0 ;j<lenVector ;j++)
+            {
+                if(compareResultArray[j] > 0)
+                {
+                    this.backslashIndexArray[idxBackslash++] = (compareResultArray[j]+i-1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if(idxBackslash > this.backslashIndexArray.length - lenVector)
+            {
+                int newCapcity = this.backslashIndexArray.length * 2;
+                int[] newsbuf = new int[newCapcity];
+                System.arraycopy(this.backslashIndexArray, 0, newsbuf, 0, this.backslashIndexArray.length);
+                this.backslashIndexArray = newsbuf;
+            }
+        }
+        if(i<len)
+        {
+            VectorMask<Short> m = ShortVector.SPECIES_PREFERRED.indexInRange(i, len - 1);
+            ShortVector shortVector = ShortVector.fromCharArray(ShortVector.SPECIES_PREFERRED, charsArray, i, m);
+            VectorMask<Short> compare = shortVector.compare(VectorOperators.EQ, 0x22);
+            ShortVector compareResult = shortVectorIndex.compress(compare);
+            compareResult.intoArray(compareResultArray,0);
+            for(int j=0 ;j<lenVector ;j++)
+            {
+                if(compareResultArray[j] > 0)
+                {
+                    this.quoteIndexArray[idxQuote++] = (compareResultArray[j]+i-1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            compare = shortVector.compare(VectorOperators.EQ, 0x5C);
+            compareResult = shortVectorIndex.compress(compare);
+            compareResult.intoArray(compareResultArray,0);
+            for(int j=0 ;j<lenVector ;j++)
+            {
+                if(compareResultArray[j] > 0)
+                {
+                    this.backslashIndexArray[idxBackslash++] = (compareResultArray[j]+i-1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
 
     public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
         this.lexer = lexer;
         this.input = input;
         this.config = config;
         this.symbolTable = config.symbolTable;
+
+        myFindQuoteCompressCharArray(input.toString()); // find Quote index by java ShortVector api -> compress() and store into array
+        lexer.nextToken(JSONToken.LBRACE);              // prime the pump
 
         int ch = lexer.getCurrent();
         if (ch == '{') {
@@ -224,8 +327,10 @@ public class DefaultJSONParser implements Closeable {
 
                 boolean isObjectKey = false;
                 Object key;
-                if (ch == '"') {
-                    key = lexer.scanSymbol(symbolTable, '"');
+                if (ch == '"'){
+                    key = lexer.scanSymbolByQuote(symbolTable, '"');   // this is new method
+                    //key = lexer.scanSymbol(symbolTable, '"');              // this is original method
+
                     lexer.skipWhitespace();
                     ch = lexer.getCurrent();
                     if (ch != ':') {
@@ -492,8 +597,9 @@ public class DefaultJSONParser implements Closeable {
 
                 Object value;
                 if (ch == '"') {
-                    lexer.scanString();
-                    String strValue = lexer.stringVal();
+                    String strValue = lexer.scanStringByQuote();  // this is new method
+                    //lexer.scanString();                      // this is original method
+                    //String strValue = lexer.stringVal();
                     value = strValue;
 
                     if (lexer.isEnabled(Feature.AllowISO8601DateFormat)) {

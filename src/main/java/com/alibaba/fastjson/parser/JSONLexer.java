@@ -49,6 +49,8 @@ public interface JSONLexer {
     String scanSymbol(final SymbolTable symbolTable);
 
     String scanSymbol(final SymbolTable symbolTable, final char quote);
+    String scanSymbolByQuote(final SymbolTable symbolTable, final char quote);
+
 
     void resetStringPosition();
 
@@ -73,6 +75,8 @@ public interface JSONLexer {
     void config(Feature feature, boolean state);
 
     void scanString();
+    String scanStringByQuote();
+
 
     int intValue();
 

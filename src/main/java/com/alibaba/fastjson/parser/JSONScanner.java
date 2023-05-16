@@ -32,6 +32,7 @@ import static com.alibaba.fastjson.util.TypeUtils.fnv1a_64_magic_prime;
 /**
  * @author wenshao[szujobs@hotmail.com]
  */
+@SuppressWarnings("checkstyle:SummaryJavadoc")
 public final class JSONScanner extends JSONLexerBase {
 
     private final String text;
@@ -2435,6 +2436,16 @@ public final class JSONScanner extends JSONLexerBase {
                     continue;
                 }
                 bracketCnt++;
+
+          // Solve Issue #4069, which is caused by ignoring the situation that contend more arrays in one array.
+          {
+            int index = ++bp;
+            this.ch = (index >= text.length() //
+              ? EOI //
+              : text.charAt(index));
+          }
+        skipArray(valid);
+
             } else if (ch == '{' && valid) {
                 {
                     int index = ++bp;

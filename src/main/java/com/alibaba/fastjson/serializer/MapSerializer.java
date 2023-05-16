@@ -229,8 +229,12 @@ public class MapSerializer extends SerializeFilterable implements ObjectSerializ
                         out.write(',');
                     }
 
+                    /*
+                    * Fix issue #4009, which is caused by writing UUID in string mode for two times
+                    * */
                     if ((out.isEnabled(NON_STRINGKEY_AS_STRING) || SerializerFeature.isEnabled(features, SerializerFeature.WriteNonStringKeyAsString))
-                            && !(entryKey instanceof Enum)) {
+                            && !(entryKey instanceof Enum)
+                            && !(entryKey instanceof UUID)) {
                         String strEntryKey = JSON.toJSONString(entryKey);
                         serializer.write(strEntryKey);
                     } else {

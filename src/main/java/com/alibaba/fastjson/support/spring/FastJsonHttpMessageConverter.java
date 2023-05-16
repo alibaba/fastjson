@@ -359,30 +359,9 @@ public class FastJsonHttpMessageConverter extends AbstractHttpMessageConverter<O
             return Spring4TypeResolvableHelper.getType(type, contextClass);
         }
 
-        /**
-         * 如果type的实例不是com.alibaba.fastjson.util.ParameterizedTypeImpl,则需进行转换。
-         * 避免触发fastjson中因无法命中泛型缓存导致不断生成反序列化器引起的fullgc问题
-         */
-        if (type instanceof ParameterizedType && !(type instanceof ParameterizedTypeImpl)) {
-            type = handlerParameterizedType((ParameterizedType) type);
-        }
         return type;
     }
 
-    private Type handlerParameterizedType(ParameterizedType type) {
-        Type ownerType = type.getOwnerType();
-        Type rawType = type.getRawType();
-        Type[] argTypes = type.getActualTypeArguments();
-
-        for(int i = 0; i < argTypes.length; ++i) {
-            if (argTypes[i] instanceof ParameterizedType) {
-                argTypes[i] = handlerParameterizedType((ParameterizedType)argTypes[i]);
-            }
-        }
-
-        Type key = new ParameterizedTypeImpl(argTypes, ownerType, rawType);
-        return key;
-    }
 
     private static class Spring4TypeResolvableHelper {
         private static boolean hasClazzResolvableType;

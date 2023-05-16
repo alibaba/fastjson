@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.alibaba.fastjson.util.ParameterizedTypeImpl;
 import com.alibaba.fastjson.util.TypeUtils;
 
-/** 
+/**
  * Represents a generic type {@code T}. Java doesn't yet provide a way to
  * represent generic types, so this class does. Forces clients to create a
  * subclass of this class which enables retrieval the type information even at
@@ -84,17 +84,18 @@ public class TypeReference<T> {
             }
         }
 
-        Type key = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
-        Type cachedType = classTypeCache.get(key);
-        if (cachedType == null) {
-            classTypeCache.putIfAbsent(key, key);
-            cachedType = classTypeCache.get(key);
-        }
-
+        ParameterizedTypeImpl key = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
+        Type cachedType = intern(key);
         type = cachedType;
     }
 
-    public static Type intern(ParameterizedTypeImpl type) {
+    /**
+     * 缓存ParameterizedTypeImpl，并返回对应的Type类型
+     *
+     * @param type
+     * @return
+     */
+    private static Type intern(ParameterizedTypeImpl type) {
         Type cachedType = classTypeCache.get(type);
         if (cachedType == null) {
             classTypeCache.putIfAbsent(type, type);
@@ -102,6 +103,45 @@ public class TypeReference<T> {
         }
 
         return cachedType;
+    }
+
+    public static Type intern(ParameterizedType type) {
+        if (type instanceof ParameterizedTypeImpl) {
+            // 可以直接缓存并返回Type
+            return intern((ParameterizedTypeImpl)type);
+        }
+        // 需要将ParameterizedType 转化成 com.alibaba.fastjson.util.ParameterizedTypeImpl
+        ParameterizedTypeImpl key = handlerParameterizedType(type);
+        return intern(key);
+    }
+
+    /**
+     * 可以查询缓存的大小，为了方便单测校验，增加这个public方法
+     *
+     * @return
+     */
+    public static int getCacheSize() {
+        return classTypeCache.size();
+    }
+
+    private static ParameterizedTypeImpl  handlerParameterizedType(ParameterizedType type) {
+        Type ownerType = type.getOwnerType();
+        Type rawType = type.getRawType();
+        Type[] argTypes = type.getActualTypeArguments();
+
+        for(int i = 0; i < argTypes.length; ++i) {
+            // fix for openjdk and android env
+            if (argTypes[i] instanceof GenericArrayType) {
+                argTypes[i] = TypeUtils.checkPrimitiveArray(
+                    (GenericArrayType) argTypes[i]);
+            }
+
+            if (argTypes[i] instanceof ParameterizedType) {
+                argTypes[i] = handlerParameterizedType((ParameterizedType)argTypes[i]);
+            }
+        }
+
+        return new ParameterizedTypeImpl(argTypes, ownerType, rawType);
     }
 
     private Type handlerParameterizedType(ParameterizedType type, Type[] actualTypeArguments, int actualIndex) {
@@ -129,7 +169,7 @@ public class TypeReference<T> {
         Type key = new ParameterizedTypeImpl(argTypes, thisClass, rawType);
         return key;
     }
-    
+
     /**
      * Gets underlying {@code Type} instance.
      */

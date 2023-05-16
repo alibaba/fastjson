@@ -779,10 +779,14 @@ public class JavaBeanInfo {
                     }
                 }
             }
-
+            //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4073
+            char c4 = methodName.charAt(4);
             if (Character.isUpperCase(c3) //
                     || c3 > 512 // for unicode method name
                     ) {
+                if (Character.isUpperCase(c4) || c4 > 512){
+                    TypeUtils.compatibleWithJavaBean = true;
+                }
                 // 这里本身的逻辑是通过setAbc这类方法名解析出成员变量名为abc或者Abc, 但是在kotlin中, isAbc, abc成员变量的set方法都是setAbc
                 // 因此如果是kotlin的话还需要进行不一样的判断, 判断的方式是通过get方法进行判断, isAbc的get方法名为isAbc(), abc的get方法名为getAbc()
                 if (kotlin) {
@@ -791,6 +795,7 @@ public class JavaBeanInfo {
                 } else {
                     if (TypeUtils.compatibleWithJavaBean) {
                         propertyName = TypeUtils.decapitalize(methodName.substring(3));
+                        TypeUtils.compatibleWithJavaBean = false;
                     } else {
                         propertyName = TypeUtils.getPropertyNameByMethodName(methodName);
                     }

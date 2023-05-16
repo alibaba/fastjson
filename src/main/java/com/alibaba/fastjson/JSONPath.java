@@ -3799,9 +3799,9 @@ public class JSONPath implements JSONAware {
             if (isIntB) {
                 return a.longValue() == b.longValue();
             }
-            
+            //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4070
             if (b instanceof BigInteger) {
-                BigInteger bigIntB = (BigInteger) a;
+                BigInteger bigIntB = (BigInteger) b;
                 BigInteger bigIntA = BigInteger.valueOf(a.longValue());
                 
                 return bigIntA.equals(bigIntB);

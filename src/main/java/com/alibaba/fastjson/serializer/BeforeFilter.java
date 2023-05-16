@@ -20,9 +20,19 @@ public abstract class BeforeFilter implements SerializeFilter {
         JSONSerializer serializer = serializerLocal.get();
         char seperator = seperatorLocal.get();
 
-        boolean ref = serializer.references.containsKey(value);
+        //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4062
+        //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4152
+        //ref can be null if set the SerializerFeature.DisableCircularReferenceDetect,
+        //so use method 'containsReference' to judge if the serializer.reference is null before use method 'containsKey'
+        //Otherwise, it will raise NullPointerException
+        boolean ref = serializer.containsReference(value);
         serializer.writeKeyValue(seperator, key, value);
-        if (!ref) {
+        //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4062
+        //CS304 Issue link: https://github.com/alibaba/fastjson/issues/4152
+        //ref can be null if set the SerializerFeature.DisableCircularReferenceDetect,
+        //so first judge if the serializer.reference is null before use method 'remove'
+        //Otherwise, it will raise NullPointerException
+        if (!ref&& serializer.references != null) {
             serializer.references.remove(value);
         }
 

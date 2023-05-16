@@ -588,6 +588,44 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseObject(text, clazz, new Feature[0]);
     }
 
+    //CS304 Issue link: https://github.com/alibaba/fastjson/issues/1393
+    /**
+     *
+     * This method deserializes the specified Json into an object of the specified class
+     * and can give a check on the enum value.
+     *
+     * @param text the string from which the object is to be deserialized
+     * @param clazz the class of T
+     * @param enumCheck if true,give a check on the enum value
+     * @return an object of type T from the string
+     */
+    public static <T> T parseObject(String text, Class<T> clazz, boolean enumCheck) {
+        if (enumCheck) {
+            JSONObject jo = parseObject(text);
+            for (String s : jo.keySet()) {
+                try {
+                    Class<?> t = clazz.getDeclaredField(s).getType();
+                    if (t.isEnum()) {
+                        boolean exist = false;
+                        String v = jo.getString(s);
+                        for (Object o : t.getEnumConstants()) {
+                            if (o.toString().equals(v)) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (!exist) {
+                            throw new JSONException("Enum value " + v + " does not exist in " + t + ".");
+                        }
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return parseObject(text, clazz, new Feature[0]);
+    }
+
     public static JSONArray parseArray(String text) {
         return parseArray(text, ParserConfig.global);
     }

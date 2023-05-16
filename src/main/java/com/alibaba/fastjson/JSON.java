@@ -592,6 +592,17 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
         return parseArray(text, ParserConfig.global);
     }
 
+    /**
+     * Passing parameters to parseArray method
+     * @param clazz JAVA class that JSON will convert to
+     * @param text JSON format string
+     * @param <T> clazz class type
+     * @return Call parseArray method which returns JSONArray
+     */
+    public static <T> JSONArray parseArray(Class<T> clazz, String text){
+        return parseArray(text, ParserConfig.global, clazz);
+    }
+
     public static JSONArray parseArray(String text, ParserConfig parserConfig) {
         if (text == null) {
             return null;
@@ -616,6 +627,40 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
 
         parser.close();
 
+        return array;
+    }
+
+    /**
+     * After parsing JSON text to array, it returns as JSONArray
+     * @param text JSON format string
+     * @param parserConfig parserConfig Object
+     * @param clazz JAVA class for JSON
+     * @param <T> clazz class type
+     * @return JSONArray which parsed from text to array
+     */
+    public static <T> JSONArray parseArray(String text, ParserConfig parserConfig, Class<T> clazz) {
+        if (text == null) {
+            return null;
+        }
+
+        DefaultJSONParser parser = new DefaultJSONParser(text, parserConfig, clazz);
+
+        JSONArray array;
+
+        JSONLexer lexer = parser.lexer;
+        if (lexer.token() == JSONToken.NULL) {
+            lexer.nextToken();
+            array = null;
+        } else if (lexer.token() == JSONToken.EOF && lexer.isBlankInput()) {
+            array = null;
+        } else {
+            array = new JSONArray(clazz);
+            parser.parseArray(array);
+
+            parser.handleResovleTask(array);
+        }
+
+        parser.close();
         return array;
     }
 

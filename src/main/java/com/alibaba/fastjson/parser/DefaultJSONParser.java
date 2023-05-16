@@ -74,6 +74,8 @@ public class DefaultJSONParser implements Closeable {
 
     protected transient BeanContext    lastBeanContext;
 
+    // Java class JSON parsed to
+    private Class<?> templateClazz;
     static {
         Class<?>[] classes = new Class[] {
                 boolean.class,
@@ -151,6 +153,18 @@ public class DefaultJSONParser implements Closeable {
 
     public DefaultJSONParser(final JSONLexer lexer, final ParserConfig config){
         this(null, lexer, config);
+    }
+
+    /**
+     * This constructor initialize DefaultJSONParser class as well as templateClazz which will be used for javaObject
+     * @param input json format string
+     * @param config parserConfig object
+     * @param clazz JAVA class for JSON
+     * @param <T> clazz class type
+     */
+    public <T> DefaultJSONParser(final String input, final ParserConfig config, Class<T> clazz) {
+        this(input, new JSONScanner(input, JSON.DEFAULT_PARSER_FEATURE), config);
+        this.templateClazz = clazz;
     }
 
     public DefaultJSONParser(final Object input, final JSONLexer lexer, final ParserConfig config){
@@ -489,7 +503,6 @@ public class DefaultJSONParser implements Closeable {
                         key = "null";
                     }
                 }
-
                 Object value;
                 if (ch == '"') {
                     lexer.scanString();
@@ -507,7 +520,16 @@ public class DefaultJSONParser implements Closeable {
                     map.put(key, value);
                 } else if (ch >= '0' && ch <= '9' || ch == '-') {
                     lexer.scanNumber();
-                    if (lexer.token() == JSONToken.LITERAL_INT) {
+                    // If Java class is specified, it will try to match JSON value to Java class fields
+                    if (this.templateClazz != null && this.templateClazz.getDeclaredFields().length != 0) {
+                        try {
+                            Class<?> valueType = templateClazz.getDeclaredField(key.toString()).getType();
+                            value = TypeUtils.cast(lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal)),valueType,config);
+                        } catch (NoSuchFieldException e) {
+                            value = null;
+                        }
+                    } else
+                        if (lexer.token() == JSONToken.LITERAL_INT) {
                         value = lexer.integerValue();
                     } else {
                         value = lexer.decimalValue(lexer.isEnabled(Feature.UseBigDecimal));

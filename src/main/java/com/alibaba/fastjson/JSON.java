@@ -716,6 +716,45 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
     }
 
     /**
+    *This method is designed to show the value of JsonObjet in the format of the scientific notation.
+     *@param JSONObject the JSONobject that extends Object for which json representation is to be created setting for fastjson
+     *@return Json representation in String data type.
+     **/
+
+
+    public static String toJSONStringScientificNotation(JSONObject object, String key) {
+        object.put(key, object.getFloat(key));
+        return JSON.toJSONString(object);
+    }
+
+    /**
+     *This method is designed to show the list of objects in the hashmap in the key-value pair format.
+     *@param ArrayList<Map<String, Object>>
+     *@return Json representation in String data type.
+     **/
+
+
+    public static String toJSONStringKeyValuePair(ArrayList<Map<String, Object>> list) {
+
+        //ArrayList<Map<String, Object>> list = new ArrayList<>();
+
+        HashMap<String, Object> map = new HashMap<>();
+        // start of new method
+        String s = "[";
+        for (int i = 0; i < list.size(); i++) {
+            s += "{";
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                 s +="\"" + entry.getKey() + "\":\"" + entry.getValue() + "\",";
+            }
+            s = s.substring(0, s.length() - 1);
+            s += i == list.size() -1 ? "}" : "}, ";
+        }
+        s += "]";
+
+       return s;
+    }
+
+    /**
      * @since 1.1.14
      */
     public static String toJSONStringWithDateFormat(Object object, String dateFormat,

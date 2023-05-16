@@ -169,14 +169,31 @@ public class DateCodec extends AbstractDateDeserializer implements ObjectSeriali
                 IOUtils.getChars(month, 7, buf);
                 IOUtils.getChars(year, 4, buf);
             } else if (millis != 0) {
-                buf = "0000-00-00T00:00:00.000".toCharArray();
-                IOUtils.getChars(millis, 23, buf);
-                IOUtils.getChars(second, 19, buf);
-                IOUtils.getChars(minute, 16, buf);
-                IOUtils.getChars(hour, 13, buf);
-                IOUtils.getChars(day, 10, buf);
-                IOUtils.getChars(month, 7, buf);
-                IOUtils.getChars(year, 4, buf);
+                int length = (year+"").length();
+                char [] Year = new char[length];
+                for(int i=0;i<length;i++){
+                    Year[i] = '0';
+                }
+                char [] leftPart = "-00-00T00:00:00.000".toCharArray();
+                buf = new char[length+19];
+                int j = 0;
+                for(int i=0;i<length+19;i++){
+                    if(i<length){
+                        buf[i] = Year[i];
+                    }
+                    else{
+                        buf[i] = leftPart[j];
+                        j++;
+                    }
+                }
+
+                IOUtils.getChars(millis, length+19, buf);
+                IOUtils.getChars(second, length+15, buf);
+                IOUtils.getChars(minute, length+12, buf);
+                IOUtils.getChars(hour, length+9, buf);
+                IOUtils.getChars(day, length+6, buf);
+                IOUtils.getChars(month, length+3, buf);
+                IOUtils.getChars(year, length, buf);
 
             } else {
                 if (second == 0 && minute == 0 && hour == 0) {

@@ -21,6 +21,7 @@ import com.alibaba.fastjson.serializer.*;
 import com.alibaba.fastjson.util.TypeUtils;
 
 import java.io.Closeable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -366,6 +367,13 @@ public class DefaultJSONParser implements Closeable {
                                     instance = Collections.emptyMap();
                                 } else if ("java.util.Collections$UnmodifiableMap".equals(typeName)) {
                                     instance = Collections.unmodifiableMap(new HashMap());
+                                } else if(Map.class.isAssignableFrom(clazz)) {
+                                    try {
+                                        Constructor constructor = clazz.getConstructor(Map.class);
+                                        instance = constructor.newInstance(object);
+                                    } catch(NoSuchMethodException e){
+                                        instance = clazz.newInstance();
+                                    }
                                 } else {
                                     instance = clazz.newInstance();
                                 }
@@ -387,9 +395,23 @@ public class DefaultJSONParser implements Closeable {
                     }
 
                     if (object.size() > 0) {
-                        Object newObj = TypeUtils.cast(object, clazz, this.config);
-                        this.setResolveStatus(NONE);
-                        this.parseObject(newObj);
+                        Object newObj;
+                        if (Map.class.isAssignableFrom(clazz)) {
+                            try {
+                                Constructor constructor = clazz.getConstructor(Map.class);
+                                newObj = constructor.newInstance(object);
+                            } catch (NoSuchMethodException e) {
+                                newObj = TypeUtils.cast(object, clazz, this.config);
+                            } catch (Exception e) {
+                                throw new JSONException("create instance error", e);
+                            }
+
+                            this.parseObject((Map) newObj);
+                        } else {
+                            newObj = TypeUtils.cast(object, clazz, this.config);
+                            this.setResolveStatus(NONE);
+                            this.parseObject(newObj);
+                        }
                         return newObj;
                     }
 

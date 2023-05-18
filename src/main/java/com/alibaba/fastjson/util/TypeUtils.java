@@ -2558,6 +2558,17 @@ public class TypeUtils {
     }
 
     public static Type getCollectionItemType(Type fieldType) {
+        // issue#3582 在kotlin中, val map = Map<Int, List<SomeClass>>,
+        // 获取到的value的Type是 ? extends java.util.List，
+        // 如果想要List中的SomeClass在解析的时候自动转成对象，必须进行处理，否则全部会解析为JSONObject
+        if (fieldType instanceof WildcardType) {
+            Type[] upperTypes = ((WildcardType) fieldType).getUpperBounds();
+            for (Type upperType : upperTypes) {
+                if (getRawClass(upperType) == List.class) {
+                    return getCollectionItemType(upperType);
+                }
+            }
+        }
         if (fieldType instanceof ParameterizedType) {
             return getCollectionItemType((ParameterizedType) fieldType);
         }

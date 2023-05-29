@@ -120,6 +120,7 @@ public class ParserConfig {
     public static ParserConfig                              global                = new ParserConfig();
 
     private final IdentityHashMap<Type, ObjectDeserializer> deserializers         = new IdentityHashMap<Type, ObjectDeserializer>();
+    private final IdentityHashMap<Type, ObjectDeserializer> customDeserializers     = new IdentityHashMap<Type, ObjectDeserializer>();
     private final IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>> mixInDeserializers = new IdentityHashMap<Type, IdentityHashMap<Type, ObjectDeserializer>>(16);
     private final ConcurrentMap<String,Class<?>>            typeMapping           = new ConcurrentHashMap<String,Class<?>>(16, 0.75f, 1);
 
@@ -1042,6 +1043,11 @@ public class ParserConfig {
                     break;
                 }
 
+                if (isCustomDeserializer(fieldClass)) {
+                    asmEnable = false;
+                    break;
+                }
+
                 if (fieldClass.isEnum()) { // EnumDeserializer
                     ObjectDeserializer fieldDeser = this.getDeserializer(fieldClass);
                     if (!(fieldDeser instanceof EnumDeserializer)) {
@@ -1116,8 +1122,17 @@ public class ParserConfig {
             }
             mixInClasses.put(mixin, deserializer);
         } else {
+            ObjectDeserializer tmpDeserializer = get(type);
+            if (tmpDeserializer != null && deserializer != null && tmpDeserializer.getClass() != deserializer.getClass()) {
+                this.customDeserializers.put(type, deserializer);
+            }
             this.deserializers.put(type, deserializer);
         }
+    }
+
+    public boolean isCustomDeserializer(Type type) {
+        ObjectDeserializer customDeserializer = this.customDeserializers.get(type);
+        return customDeserializer != null;
     }
 
     public ObjectDeserializer get(Type type) {

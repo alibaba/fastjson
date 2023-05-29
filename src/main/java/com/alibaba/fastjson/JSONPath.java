@@ -22,19 +22,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
@@ -115,12 +103,54 @@ public class JSONPath implements JSONAware {
 
         init();
 
-        Object currentObject = rootObject;
+        List<Object> tempContainer = new LinkedList<Object>();
+        List<Object> swapContainer = new LinkedList<Object>();
+        tempContainer.add(rootObject);
+        boolean isRanger = false;
         for (int i = 0; i < segments.length; ++i) {
             Segment segment = segments[i];
-            currentObject = segment.eval(this, rootObject, currentObject);
+            if (segment instanceof TypeSegment && tempContainer.size() == 1 && tempContainer.get(0) == null) {
+                return "null";
+            }
+            if (isRanger && (segment instanceof MaxSegment
+                    || segment instanceof SizeSegment
+                    || segment instanceof MinSegment)) {
+                isRanger = false;
+                JSONArray array = new JSONArray();
+                array.addAll(tempContainer);
+                tempContainer.clear();
+                tempContainer.add(array);
+            }
+            for (int j = 0; j < tempContainer.size(); j++) {
+                Object element = tempContainer.get(j);
+                if (element == null) {
+                    continue;
+                }
+                element = segment.eval(this, rootObject, element);
+                if (segment instanceof RangeSegment || segment instanceof MultiIndexSegment) {
+                    if (!(element instanceof List)) {
+                        return null;
+                    }
+                    isRanger = true;
+                    swapContainer.addAll((List)element);
+                } else {
+                    swapContainer.add(element);
+                }
+            }
+            tempContainer.clear();
+            List<Object> temp = swapContainer;
+            swapContainer = tempContainer;
+            tempContainer = temp;
         }
-        return currentObject;
+        if (tempContainer.size() == 1 && !isRanger) {
+            return tempContainer.get(0);
+        } else if (tempContainer.size() == 0) {
+            return null;
+        } else {
+            JSONArray result = new JSONArray();
+            result.addAll(tempContainer);
+            return result;
+        }
     }
     
     /**
@@ -200,7 +230,9 @@ public class JSONPath implements JSONAware {
                     eval = true;
                 } else if (segment instanceof WildCardSegment) {
                     eval = true;
-                }else if(segment instanceof MultiIndexSegment){
+                }else if (segment instanceof MultiIndexSegment) {
+                    eval = true;
+                } else if (segment instanceof RangeSegment) {
                     eval = true;
                 } else {
                     eval = false;
@@ -2008,6 +2040,10 @@ public class JSONPath implements JSONAware {
 
             int commaIndex = indexText.indexOf(',');
 
+            if (indexText.equals("*")) {
+                return new RangeSegment(0, -1, 1);
+            }
+
             if (indexText.length() > 2 && firstChar == '\'' && lastChar == '\'') {
 
                 String propertyName = indexText.substring(1, indexTextLen - 1);
@@ -2825,6 +2861,13 @@ public class JSONPath implements JSONAware {
         }
 
         public void extract(JSONPath path, DefaultJSONParser parser, Context context) {
+            if (context.eval) {
+                Object object = parser.parse();
+                if (object instanceof List) {
+                    context.object = object;
+                    return;
+                }
+            }
             throw new UnsupportedOperationException();
         }
     }

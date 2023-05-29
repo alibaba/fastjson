@@ -291,15 +291,28 @@ public class DefaultJSONParser implements Closeable {
                     key = parse();
                     isObjectKey = true;
                 } else {
-                    if (!lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
-                        throw new JSONException("syntax error");
+                    boolean isHex = false;
+                    key = null;
+                    if (ch == 'x') {
+                        try {
+                            lexer.nextToken();
+                            key = lexer.bytesValue();
+                            isHex = true;
+                        } catch (JSONException j) {
+                            isHex = false;
+                        }
                     }
+                    if (!isHex) {
+                        if (!lexer.isEnabled(Feature.AllowUnQuotedFieldNames)) {
+                            throw new JSONException("syntax error");
+                        }
 
-                    key = lexer.scanSymbolUnQuoted(symbolTable);
-                    lexer.skipWhitespace();
-                    ch = lexer.getCurrent();
-                    if (ch != ':') {
-                        throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                        key = lexer.scanSymbolUnQuoted(symbolTable);
+                        lexer.skipWhitespace();
+                        ch = lexer.getCurrent();
+                        if (ch != ':') {
+                            throw new JSONException("expect ':' at " + lexer.pos() + ", actual " + ch);
+                        }
                     }
                 }
 

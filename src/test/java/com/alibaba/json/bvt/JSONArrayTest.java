@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.alibaba.fastjson.JSONException;
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -191,6 +192,28 @@ public class JSONArrayTest extends TestCase {
         JSONArray array = JSON.parseArray("[{id:123, name:'aaa'}]");
         Assert.assertEquals(1, array.size());
         Assert.assertEquals(123, array.getObject(0, User.class).getId());
+    }
+
+    public void test_error_array() {
+        String errorJson = "[{\"a\":1}{\"b\":2}null undefined 676]";
+        Exception ex = null;
+        try {
+            JSONObject.parseArray(errorJson);
+        } catch (JSONException e) {
+            ex = e;
+        }
+        Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);
+    }
+
+    public void test_error_obj_arr() {
+        String errorJson = "[213, 235, 122, null null, 5]";
+        Exception ex = null;
+        try {
+            JSONObject.parseArray(errorJson, Integer.class);
+        } catch (JSONException e) {
+            ex = e;
+        }
+        Assert.assertNotNull("An exception must be thrown, because syntax error has occurred in `" + errorJson + "`", ex);
     }
 
     public static class User {

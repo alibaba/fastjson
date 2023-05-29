@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -16,6 +17,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.ParseContext;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.util.FieldInfo;
+import com.alibaba.fastjson.util.TypeUtils;
 
 public class DefaultFieldDeserializer extends FieldDeserializer {
 
@@ -79,13 +81,31 @@ public class DefaultFieldDeserializer extends FieldDeserializer {
             if ((this.fieldInfo.format != null || this.fieldInfo.parserFeatures != 0)
                     && fieldValueDeserilizer instanceof ContextObjectDeserializer) {
                 value = ((ContextObjectDeserializer) fieldValueDeserilizer) //
-                                        .deserialze(parser,
-                                                    fieldType,
-                                                    fieldInfo.name,
-                                                    fieldInfo.format,
-                                                    fieldInfo.parserFeatures);
+                        .deserialze(parser,
+                                fieldType,
+                                fieldInfo.name,
+                                fieldInfo.format,
+                                fieldInfo.parserFeatures);
             } else {
-                value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+                //If the field is an interface, is a collection, and an instance has
+                //already existed. Then use the instance directly.
+                if (fieldInfo.field != null && object != null && fieldInfo.field.getType().isInterface()) {
+                    try {
+                        fieldInfo.field.setAccessible(true);
+                        value = fieldInfo.field.get(object);
+                        if ( value instanceof Collection<?> &&
+                                !value.getClass().getName().matches(".*((Empty)|(Unmodifiable)).*")) {
+                            Type itemType = TypeUtils.getCollectionItemType(fieldType);
+                            parser.parseArray(itemType, (Collection<?>) value, fieldInfo.name);
+                        } else {
+                            value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+                        }
+                    } catch (IllegalAccessException e) {
+                        value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+                    }
+                } else {
+                    value = fieldValueDeserilizer.deserialze(parser, fieldType, fieldInfo.name);
+                }
             }
         }
 

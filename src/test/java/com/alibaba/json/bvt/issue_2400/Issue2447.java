@@ -16,8 +16,8 @@ public class Issue2447 extends TestCase {
         vo.location = new Location(127, 37);
 
         Object obj = JSON.toJSON(vo);
-        String text = JSON.toJSONString(obj, SerializerFeature.SortField);
-        assertEquals("{\"latitude\":37,\"id\":123,\"longitude\":127}", text);
+        String text = JSON.toJSONString(obj, SerializerFeature.MapSortField);
+        assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
     }
 
     public void test_for_issue2() {
@@ -27,8 +27,8 @@ public class Issue2447 extends TestCase {
         vo.properties.put("longitude", 127);
 
         Object obj = JSON.toJSON(vo);
-        String text = JSON.toJSONString(obj, SerializerFeature.SortField);
-        assertEquals("{\"latitude\":37,\"id\":123,\"longitude\":127}", text);
+        String text = JSON.toJSONString(obj, SerializerFeature.MapSortField);
+        assertEquals("{\"id\":123,\"latitude\":37,\"longitude\":127}", text);
     }
 
     public static class VO {

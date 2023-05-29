@@ -1,5 +1,10 @@
 package com.alibaba.fastjson;
 
+import com.alibaba.fastjson.spi.IPropertyNamingStrategy;
+
+import javax.ws.rs.NotSupportedException;
+
+
 /**
  * @since 1.2.15
  */
@@ -9,7 +14,37 @@ public enum PropertyNamingStrategy {
                                     SnakeCase, // snake_case
                                     KebabCase, // kebab-case
                                     NoChange,  //
-                                    NeverUseThisValueExceptDefaultValue;
+                                    NeverUseThisValueExceptDefaultValue,
+                                    Customized(){
+                                        private ThreadLocal<IPropertyNamingStrategy> local;
+                                        
+                                        @Override
+                                        public String translate(String propertyName){
+                                            if (local == null || local.get() == null){
+                                                throw new IllegalArgumentException("not register yet!");    
+                                            }
+                                            return local.get().translate(propertyName);
+                                        }
+                                        
+                                        @Override
+                                        public void register(IPropertyNamingStrategy instance){
+                                            if (local == null){
+                                                synchronized (this){
+                                                    if (local == null){
+                                                        local = new ThreadLocal<>();   
+                                                    }       
+                                                }
+                                            }
+                                            local.set(instance);
+                                        }
+
+                                        @Override
+                                        public void unRegister(){
+                                            local.remove();
+                                        }
+                                    }
+    ;
+                                    
 
     public String translate(String propertyName) {
         switch (this) {
@@ -70,5 +105,13 @@ public enum PropertyNamingStrategy {
             default:
                 return propertyName;
         }
+    }
+
+    public void register(IPropertyNamingStrategy instance){
+        throw new NotSupportedException();
+    }
+
+    public void unRegister(){
+        throw new NotSupportedException();
     }
 }

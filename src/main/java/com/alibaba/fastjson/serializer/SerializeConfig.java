@@ -868,7 +868,7 @@ public class SerializeConfig {
      * 可以通过重写这个方法，定义自己的枚举序列化实现
      * @return 返回一个枚举的反序列化实现
      * @author zhu.xiaojie
-     * @time 2020-4-5
+     * @date 2020-4-5
      */
     protected ObjectSerializer getEnumSerializer(){
         return EnumSerializer.instance;

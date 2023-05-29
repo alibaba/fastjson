@@ -1,7 +1,6 @@
 package com.alibaba.json.bvt.issue_1100;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
 import junit.framework.TestCase;
 
 import java.util.Map;
@@ -11,7 +10,7 @@ import java.util.Map;
  */
 public class Issue1189 extends TestCase {
     public void test_for_issue() throws Exception {
-        String str = new String("{\"headernotificationType\": \"PUSH\",\"headertemplateNo\": \"99\",\"headerdestination\": [{\"target\": \"all\",\"targetvalue\": \"all\"}],\"body\": [{\"title\": \"预约超时\",\"body\": \"您的预约已经超时\"}]}");
+        String str = "{\"headernotificationType\": \"PUSH\",\"headertemplateNo\": \"99\",\"headerdestination\": {\"target\": \"all\",\"targetvalue\": \"all\"},\"body\": {\"title\": \"预约超时\",\"body\": \"您的预约已经超时\"}}";
 
         JsonBean objeclt = JSON.parseObject(str, JsonBean.class);
         Map<String, String> list = objeclt.getBody();

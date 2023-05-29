@@ -1,6 +1,7 @@
 package com.alibaba.json.bvt.issue_2100;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import junit.framework.TestCase;
@@ -14,12 +15,12 @@ public class Issue2182 extends TestCase {
         multimap.put("user", "user.create");
         multimap.put("user", "user.delete");
 
-        String json = JSON.toJSONString(multimap);
+        String json = JSON.toJSONString(multimap, SerializerFeature.MapSortField);
         assertEquals("{\"admin\":[\"admin.create\",\"admin.update\",\"admin.delete\"],\"user\":[\"user.create\",\"user.delete\"]}", json);
 
         ArrayListMultimap multimap1 = JSON.parseObject(json, ArrayListMultimap.class);
 
         assertEquals(multimap.size(), multimap1.size());
-        assertEquals(json, JSON.toJSONString(multimap1));
+        assertEquals(json, JSON.toJSONString(multimap1, SerializerFeature.MapSortField));
     }
 }

@@ -115,7 +115,7 @@ public class SqlDateDeserializer extends AbstractDateDeserializer implements Obj
                         && strVal.charAt(13) == ':'
                         && strVal.charAt(16) == ':'
                         && strVal.charAt(19) == '.') {
-                    String dateFomartPattern = parser.getDateFomartPattern();
+                    String dateFomartPattern = parser.getDateFormatPattern();
                     if (dateFomartPattern.length() != strVal.length() && dateFomartPattern == JSON.DEFFAULT_DATE_FORMAT) {
                         return (T) java.sql.Timestamp.valueOf(strVal);
                     }

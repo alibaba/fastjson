@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import junit.framework.TestCase;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 public class Issue2182 extends TestCase {
     public void test_for_issue() throws Exception {
@@ -15,11 +16,11 @@ public class Issue2182 extends TestCase {
         multimap.put("user", "user.delete");
 
         String json = JSON.toJSONString(multimap);
-        assertEquals("{\"admin\":[\"admin.create\",\"admin.update\",\"admin.delete\"],\"user\":[\"user.create\",\"user.delete\"]}", json);
+        JSONAssert.assertEquals("{\"admin\":[\"admin.create\",\"admin.update\",\"admin.delete\"],\"user\":[\"user.create\",\"user.delete\"]}", json, false);
 
         ArrayListMultimap multimap1 = JSON.parseObject(json, ArrayListMultimap.class);
 
         assertEquals(multimap.size(), multimap1.size());
-        assertEquals(json, JSON.toJSONString(multimap1));
+        JSONAssert.assertEquals(json, JSON.toJSONString(multimap1), false);
     }
 }

@@ -1,4 +1,4 @@
-package com.alibaba.json.test;
+package com.alibaba.json.bvt.issue_3800;
 
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;

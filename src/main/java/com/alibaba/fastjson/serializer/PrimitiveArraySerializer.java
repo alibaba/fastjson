@@ -15,6 +15,8 @@
  */
 package com.alibaba.fastjson.serializer;
 
+import com.alibaba.fastjson.JSONException;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -67,7 +69,12 @@ public class PrimitiveArraySerializer implements ObjectSerializer {
                 if (i != 0) {
                     out.write(',');
                 }
-                out.writeLong(array[i]);
+                ObjectSerializer writer = serializer.config.getObjectWriter(Long.class);
+                try {
+                    writer.write(serializer, array[i], null, null, 0);
+                } catch (IOException e) {
+                    throw new JSONException(e.getMessage(), e);
+                }
             }
             out.write(']');
             return;

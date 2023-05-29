@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.TreeSet;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
@@ -84,10 +85,11 @@ public class CollectionCodec implements ObjectSerializer, ObjectDeserializer {
                 }
 
                 if (clazz == Long.class) {
-                    out.writeLong(((Long) item).longValue());
-
-                    if (out.isEnabled(SerializerFeature.WriteClassName)) {
-                        out.write('L');
+                    ObjectSerializer writer = serializer.config.getObjectWriter(clazz);
+                    try {
+                        writer.write(serializer, item, null, null, 0);
+                    } catch (IOException e) {
+                        throw new JSONException(e.getMessage(), e);
                     }
                     continue;
                 }

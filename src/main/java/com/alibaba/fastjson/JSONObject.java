@@ -134,9 +134,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONObject) value;
         }
 
-        if (value instanceof Map) {
-            return new JSONObject((Map) value);
-        }
+//        if (value instanceof Map) {
+//            return new JSONObject((Map) value);
+//        }
 
         if (value instanceof String) {
             return JSON.parseObject((String) value);
@@ -152,9 +152,9 @@ public class JSONObject extends JSON implements Map<String, Object>, Cloneable, 
             return (JSONArray) value;
         }
 
-        if (value instanceof List) {
-            return new JSONArray((List) value);
-        }
+//        if (value instanceof List) {
+//            return new JSONArray((List) value);
+//        }
 
         if (value instanceof String) {
             return (JSONArray) JSON.parse((String) value);

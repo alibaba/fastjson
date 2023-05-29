@@ -241,9 +241,9 @@ public class DefaultJSONParser implements Closeable {
                             context = this.context;
                         } else {
                             ParseContext contextR = setContext(object, fieldName);
-                            if (context == null) {
-                                context = contextR;
-                            }
+                            /*if (context == null) {
+                            }*/
+                            context = contextR;
                             setContextFlag = true;
                         }
                     }
@@ -477,9 +477,9 @@ public class DefaultJSONParser implements Closeable {
                         context = this.context;
                     } else {
                         ParseContext contextR = setContext(object, fieldName);
-                        if (context == null) {
-                            context = contextR;
-                        }
+                        /*if (context == null) {
+                        }*/
+                        context = contextR;
                         setContextFlag = true;
                     }
                 }

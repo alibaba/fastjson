@@ -30,6 +30,7 @@ public class SqlDateDeserializerTest2 extends TestCase {
         SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", JSON.defaultLocale);
         dateFormat2.setTimeZone(JSON.defaultTimeZone);
         String text2 = dateFormat2.format(millis2);
+        text2 = text2.replace(' ', 'T');
         
         Assert.assertNull(JSON.parseObject("null", Date.class));
         Assert.assertNull(JSON.parseObject("\"\"", Date.class));

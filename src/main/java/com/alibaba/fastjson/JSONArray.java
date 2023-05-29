@@ -458,10 +458,11 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
     }
 
     @Override
-    public Object clone() {
+    public JSONArray clone() {
         return new JSONArray(new ArrayList<Object>(list));
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -474,6 +475,7 @@ public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAc
         return this.list.equals(obj);
     }
 
+    @Override
     public int hashCode() {
         return this.list.hashCode();
     }

@@ -334,7 +334,7 @@ public class MiscCodec implements ObjectSerializer, ObjectDeserializer {
             try {
                 return (T) InetAddress.getByName(strVal);
             } catch (UnknownHostException e) {
-                throw new JSONException("deserialize inet adress error", e);
+                throw new JSONException("deserialize inet address error", e);
             }
         }
 

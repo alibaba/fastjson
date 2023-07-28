@@ -1278,7 +1278,7 @@ public class DefaultJSONParser implements Closeable {
                 }
             }
         } catch (ClassCastException e) {
-            throw new JSONException("unkown error", e);
+            throw new JSONException("unknown error", e);
         } finally {
             this.setContext(context);
         }

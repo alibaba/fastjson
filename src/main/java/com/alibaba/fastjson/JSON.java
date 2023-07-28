@@ -267,7 +267,7 @@ public abstract class JSON implements JSONStreamAware, JSONAware {
      * List&lt;Model&gt; models = JSON.parseObject(jsonStr, new TypeReference&lt;List&lt;Model&gt;&gt;() {});
      * </pre>
      * @param text json string
-     * @param type type refernce
+     * @param type type reference
      * @param features parser features
      * @return an object of type T from the string
      */

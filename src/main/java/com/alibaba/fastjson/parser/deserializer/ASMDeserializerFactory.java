@@ -706,7 +706,7 @@ public class ASMDeserializerFactory implements Opcodes {
         mw.visitJumpInsn(GOTO_W, return_);
         mw.visitLabel(continue_3);
 
-        mw.visitInsn(ICONST_0); // UNKOWN
+        mw.visitInsn(ICONST_0); // UNKNOWN
         mw.visitIntInsn(ISTORE, context.var("matchStat"));
 
         int fieldListSize = context.fieldInfoList.length;

@@ -37,6 +37,11 @@ Fastjson is a Java library that can be used to convert Java Objects into their J
 * Eishay benchmark https://github.com/eishay/jvm-serializers/wiki
 * fastjson2 benchmark [https://github.com/alibaba/fastjson2/wiki/fastjson_benchmark](https://github.com/alibaba/fastjson2/wiki/fastjson_benchmark)
 
+## Recommended Test Environment
+
+To avoid intermittent test failures (i.e., flaky tests), it is recommended to have a machine or virtual machine with the following specifications:
+* Minumum of 2CPUs.
+* Minimum of 2Gb of RAM.
 
 ## Download
 

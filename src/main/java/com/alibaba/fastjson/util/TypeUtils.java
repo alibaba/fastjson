@@ -2139,7 +2139,7 @@ public class TypeUtils {
                         annotation, fieldAnnotation, label);
                 fieldInfoMap.put(propertyName, fieldInfo);
             }
-            if (methodName.startsWith("is")) {
+            else if (methodName.startsWith("is")) {
                 if (methodName.length() < 3) {
                     continue;
                 }

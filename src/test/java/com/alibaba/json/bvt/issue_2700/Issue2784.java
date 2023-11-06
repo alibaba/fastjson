@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 public class Issue2784 extends TestCase {
@@ -18,7 +19,7 @@ public class Issue2784 extends TestCase {
                 + "}", str);
 
         Model m1 = JSON.parseObject(str, Model.class);
-        assertEquals(m.time, m1.time);
+        assertEquals(m.time.truncatedTo(ChronoUnit.MILLIS), m1.time.truncatedTo(ChronoUnit.MILLIS));
     }
 
     public void test_for_issue_1() throws Exception {

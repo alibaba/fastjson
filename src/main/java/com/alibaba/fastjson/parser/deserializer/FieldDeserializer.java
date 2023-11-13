@@ -139,8 +139,8 @@ public abstract class FieldDeserializer {
 
                             if (collection == Collections.emptySet()
                                     || collection == Collections.emptyList()
-                                    || collectionClassName == "java.util.ImmutableCollections$ListN"
-                                    || collectionClassName == "java.util.ImmutableCollections$List12"
+                                    || collectionClassName.equals("java.util.ImmutableCollections$ListN")
+                                    || collectionClassName.equals("java.util.ImmutableCollections$List12")
                                     || collectionClassName.startsWith("java.util.Collections$Unmodifiable")) {
                                 // skip
                                 return;

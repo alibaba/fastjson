@@ -504,9 +504,14 @@ public class JavaBeanInfo {
                             continue;
                         }
 
-                        if (creatorConstructor != null
-                                && paramNames != null && lookupParameterNames.length <= paramNames.length) {
-                            continue;
+                        if (creatorConstructor != null && paramNames != null) {
+                            if (lookupParameterNames.length < paramNames.length) {
+                                continue;
+                            }
+                            if (lookupParameterNames.length == paramNames.length
+                                    && Arrays.hashCode(lookupParameterNames) < Arrays.hashCode(paramNames)) {
+                                continue;
+                            }
                         }
 
                         paramNames = lookupParameterNames;

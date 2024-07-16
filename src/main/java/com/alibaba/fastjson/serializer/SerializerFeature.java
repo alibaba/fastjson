@@ -152,7 +152,11 @@ public enum SerializerFeature {
     /**
      * @since 1.2.27
      */
-    MapSortField;
+    MapSortField,
+    /**
+     * java.sql.date按数据库默认格式进行格式化
+     */
+    WriteSqlDateUseDefaultFormat;
 
     SerializerFeature(){
         mask = (1 << ordinal());

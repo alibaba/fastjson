@@ -47,7 +47,7 @@ import com.alibaba.fastjson.util.TypeUtils;
  * Model model2 = JSON.parseObject(json, Model.class); // deserializes json into model2
  * </pre>
  * 
-* <p>If the object that your are serializing/deserializing is a {@code ParameterizedType}
+* <p>If the object that you are serializing/deserializing is  {@code ParameterizedType}
  * (i.e. contains at least one type parameter and may be an array) then you must use the
  * {@link #toJSONString(Object)} or {@link #parseObject(String, Type, Feature[])} method.  Here is an
  * example for serializing and deserialing a {@code ParameterizedType}:

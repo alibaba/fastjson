@@ -164,6 +164,7 @@
                     <charset>UTF-8</charset>
                     <encoding>UTF-8</encoding>
                     <docencoding>UTF-8</docencoding>
+                    <doclint>none</doclint>
                     <links>
                         <link>http://docs.oracle.com/javase/6/docs/api</link>
                     </links>

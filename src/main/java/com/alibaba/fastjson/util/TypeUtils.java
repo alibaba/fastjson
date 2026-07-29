@@ -1732,8 +1732,51 @@ public class TypeUtils {
         return loadClass(className, classLoader, false);
     }
 
+    /**
+     * Tests whether a type name carries a character that cannot appear in a Java binary class name
+     * but is meaningful in a URL. A nested jar URL such as {@code jar:http://host/x.jar!/} is
+     * resolvable by some class loaders, so a type name carrying one must never reach one.
+     *
+     * @param typeName the type name to test
+     * @return true if the type name must be rejected without being resolved
+     */
+    public static boolean hasIllegalTypeNameChars(String typeName) {
+        return typeName.indexOf(':') >= 0 || typeName.indexOf('!') >= 0;
+    }
+
+    /**
+     * Normalizes a type name the way the autoType accept-list rolling hash normalizes it, so that a
+     * nested class matches whether it is written with its binary name ({@code a.b.Outer$Inner}) or
+     * its canonical name ({@code a.b.Outer.Inner}).
+     *
+     * @param typeName the type name to normalize
+     * @return the normalized type name
+     */
+    public static String normalizeAcceptName(String typeName) {
+        return typeName.indexOf('$') >= 0 ? typeName.replace('$', '.') : typeName;
+    }
+
+    /**
+     * Tests whether a class is a well known deserialization gadget entry point, namely a
+     * {@link ClassLoader} subclass or a JDK SQL {@code DataSource}/{@code RowSet} implementation.
+     * Such types must not be resolved by matching an autoType whitelist prefix; only an accept
+     * entry naming the type in full is treated as an explicit opt-in.
+     *
+     * @param type the class to test
+     * @return true if the class must not be resolved through a whitelist prefix match
+     */
+    public static boolean isAutoTypeDenyClass(Class<?> type) {
+        return ClassLoader.class.isAssignableFrom(type)
+                || javax.sql.DataSource.class.isAssignableFrom(type)
+                || javax.sql.RowSet.class.isAssignableFrom(type);
+    }
+
     public static Class<?> loadClass(String className, ClassLoader classLoader, boolean cache) {
         if (className == null || className.length() == 0) {
+            return null;
+        }
+
+        if (hasIllegalTypeNameChars(className)) {
             return null;
         }
 

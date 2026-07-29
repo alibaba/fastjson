@@ -143,6 +143,13 @@ public class ParserConfig {
     private long[]                                          denyHashCodes;
     private long[]                                          acceptHashCodes;
 
+    /**
+     * The accept names behind {@link #acceptHashCodes}, normalized the same way the rolling hash in
+     * {@link #checkAutoType} normalizes a type name. A hash match is only honored when the matched
+     * prefix text is in this set, so a hash collision alone cannot whitelist a type name.
+     */
+    private volatile Set<String>                              acceptNameSet         = Collections.emptySet();
+
 
     public final boolean                                    fieldBased;
     private boolean                                         jacksonCompatible     = false;
@@ -326,12 +333,16 @@ public class ParserConfig {
         };
 
         long[] hashCodes = new long[AUTO_TYPE_ACCEPT_LIST.length];
+        Set<String> acceptNames = new HashSet<String>(AUTO_TYPE_ACCEPT_LIST.length);
         for (int i = 0; i < AUTO_TYPE_ACCEPT_LIST.length; i++) {
-            hashCodes[i] = TypeUtils.fnv1a_64(AUTO_TYPE_ACCEPT_LIST[i]);
+            String acceptName = TypeUtils.normalizeAcceptName(AUTO_TYPE_ACCEPT_LIST[i]);
+            hashCodes[i] = TypeUtils.fnv1a_64(acceptName);
+            acceptNames.add(acceptName);
         }
 
         Arrays.sort(hashCodes);
         acceptHashCodes = hashCodes;
+        acceptNameSet = Collections.unmodifiableSet(acceptNames);
     }
 
     public ParserConfig(){
@@ -1284,7 +1295,17 @@ public class ParserConfig {
             return;
         }
 
-        long hash = TypeUtils.fnv1a_64(name);
+        String acceptName = TypeUtils.normalizeAcceptName(name);
+
+        // publish the name before the hash, so that a reader seeing the new hash array is
+        // guaranteed to see the name it verifies against rather than transiently rejecting
+        if (!this.acceptNameSet.contains(acceptName)) {
+            Set<String> names = new HashSet<String>(this.acceptNameSet);
+            names.add(acceptName);
+            this.acceptNameSet = Collections.unmodifiableSet(names);
+        }
+
+        long hash = TypeUtils.fnv1a_64(acceptName);
         if (Arrays.binarySearch(this.acceptHashCodes, hash) >= 0) {
             return;
         }
@@ -1336,6 +1357,12 @@ public class ParserConfig {
                 || (JSON.DEFAULT_PARSER_FEATURE & mask) != 0;
 
         if (typeName.length() >= 192 || typeName.length() < 3) {
+            throw new JSONException("autoType is not support. " + typeName);
+        }
+
+        // a URL-special type name can never be a class name; reject it here the same way any
+        // unresolvable @type is rejected, so it never reaches the class loader
+        if (TypeUtils.hasIllegalTypeNameChars(typeName)) {
             throw new JSONException("autoType is not support. " + typeName);
         }
 
@@ -1400,8 +1427,19 @@ public class ParserConfig {
                 hash ^= className.charAt(i);
                 hash *= fnv1a_64_magic_prime;
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
-                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
+                    if (!acceptNameSet.contains(TypeUtils.normalizeAcceptName(className.substring(0, i + 1)))) {
+                        continue;
+                    }
+                    // a prefix match may still be denied by isAutoTypeDenyClass below, so it must
+                    // not populate the class mapping cache consulted later in this method
+                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader, i + 1 == className.length());
                     if (clazz != null) {
+                        // matching an accept prefix is not an opt-in for gadget base types, only an
+                        // accept entry naming the type in full is; keep scanning for such an entry
+                        if (i + 1 < className.length() && TypeUtils.isAutoTypeDenyClass(clazz)) {
+                            continue;
+                        }
+
                         return clazz;
                     }
                 }
@@ -1461,7 +1499,17 @@ public class ParserConfig {
 
                 // white list
                 if (Arrays.binarySearch(acceptHashCodes, hash) >= 0) {
-                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader, true);
+                    if (!acceptNameSet.contains(TypeUtils.normalizeAcceptName(className.substring(0, i + 1)))) {
+                        continue;
+                    }
+                    // see the (autoTypeSupport || expectClassFlag) branch above: a prefix match
+                    // must not populate the class mapping cache
+                    clazz = TypeUtils.loadClass(typeName, defaultClassLoader, i + 1 == className.length());
+
+                    // see the (autoTypeSupport || expectClassFlag) branch above
+                    if (clazz != null && i + 1 < className.length() && TypeUtils.isAutoTypeDenyClass(clazz)) {
+                        continue;
+                    }
 
                     if (clazz == null) {
                         return expectClass;
@@ -1498,8 +1546,10 @@ public class ParserConfig {
         }
 
         if (autoTypeSupport || jsonType || expectClassFlag) {
-            boolean cacheClass = autoTypeSupport || jsonType;
-            clazz = TypeUtils.loadClass(typeName, defaultClassLoader, cacheClass);
+            // never cache here: a deny class (ClassLoader/DataSource/RowSet) must not be served
+            // from the class mapping cache on a later call before the blacklist check below;
+            // the accepted paths all call TypeUtils.addMapping explicitly
+            clazz = TypeUtils.loadClass(typeName, defaultClassLoader, false);
         }
 
         if (clazz != null) {

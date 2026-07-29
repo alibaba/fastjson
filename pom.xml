@@ -14,6 +14,7 @@
     <inceptionYear>2012</inceptionYear>
 
     <properties>
+        <junit.version>4.13.1</junit.version>
         <gpg.skip>false</gpg.skip>
         <javadoc.skip>false</javadoc.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -311,6 +312,13 @@
             <artifactId>slice</artifactId>
             <version>0.36</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
